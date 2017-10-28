@@ -53,7 +53,7 @@ if string.lower(RequiredScript) == "lib/managers/hudmanagerpd2" then
 								[1] = {
 									text = managers.localization:text("dialog_yes"),
 									callback = function(self, item)
-										managers.chat:send_message(ChatManager.GAME, local_peer, "The Game was forced to start.")
+										managers.chat:send_message(ChatManager.GAME, local_peer, "Game da tu bat dau.")
 										game_state_machine:current_state():start_game_intro()
 									end,
 								},
