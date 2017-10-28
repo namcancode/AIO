@@ -1,0 +1,57 @@
+{
+
+	"r9k_id_loc_options_title":									"Hong tam",
+	"r9k_id_loc_options_description":							"Customize keybindings",
+
+	"r9k_id_loc_options_quick_edit_left_title":					"Left Action",
+	"r9k_id_loc_options_quick_edit_left_description":			"Key for executing 'left' action",
+
+	"r9k_id_loc_options_quick_edit_right_title":				"Right Action",
+	"r9k_id_loc_options_quick_edit_right_description":			"Key for executing 'right' action",
+
+	"r9k_id_loc_options_information_title":						"Read This (description above)",
+	"r9k_id_loc_options_information_description":				"In game: press 'left/right' action to bring up and navigate the menu\nIn menu: press [ctrl] + 'left/right' action to modify the selected value",
+	
+	"r9k_id_loc_quick_edit_mode_context":						"Context",
+	
+	"r9k_id_loc_quick_edit_mode_display":						"Display",
+	"r9k_id_loc_quick_edit_mode_type":							"Type",
+	"r9k_id_loc_quick_edit_mode_size":							"Size",
+	"r9k_id_loc_quick_edit_mode_color":							"Color",
+	"r9k_id_loc_quick_edit_mode_saturation":					"Saturation",
+	"r9k_id_loc_quick_edit_mode_opacity":						"Opacity",
+	"r9k_id_loc_quick_edit_mode_settings":						"Settings",
+	"r9k_id_loc_quick_edit_mode_readme":						"Hide the original reticle",
+
+	"r9k_id_loc_quick_edit_mode_weapon_description":			"Primary  << ctrl >>  Secondary\n ",
+	"r9k_id_loc_quick_edit_mode_weapon_position_description":	"Hip  << ctrl >>  Aim\n ",
+	
+	"r9k_id_loc_quick_edit_mode_context_description":			"Previous  << ctrl >>  Next\n ",
+	
+	"r9k_id_loc_quick_edit_mode_display_description":			"Off  << ctrl >>  On\n ",
+	"r9k_id_loc_quick_edit_mode_type_description":				"Previous  << ctrl >>  Next\n ",
+	"r9k_id_loc_quick_edit_mode_size_description":				"Smaller  << ctrl >>  Bigger\n( option: shift / alt )",
+	"r9k_id_loc_quick_edit_mode_color_description":				"Previous  << ctrl >>  Next\n ",
+	"r9k_id_loc_quick_edit_mode_saturation_description":		"Less  << ctrl >>  More\n ",
+	"r9k_id_loc_quick_edit_mode_opacity_description":			"Less  << ctrl >>  More\n( option: shift / alt )",
+	"r9k_id_loc_quick_edit_mode_settings_description":			"Load  << ctrl >>  Save\n ",
+	"r9k_id_loc_quick_edit_mode_readme_description":			"Please see: readme.txt\n( in the mod folder )",
+
+	"r9k_id_loc_color_red":										"Red",
+	"r9k_id_loc_color_green":									"Green",
+	"r9k_id_loc_color_blue":									"Blue",
+	"r9k_id_loc_color_yellow":									"Yellow",
+
+	"r9k_id_loc_quick_edit_value_on":							"On",
+	"r9k_id_loc_quick_edit_value_off":							"Off",
+	
+	"r9k_id_loc_quick_edit_weapon_primary":						"Primary",
+	"r9k_id_loc_quick_edit_weapon_secondary":					"Secondary",
+	
+	"r9k_id_loc_quick_edit_weapon_position_hip":				"Hip",
+	"r9k_id_loc_quick_edit_weapon_position_aim":				"Aim",
+
+	"r9k_id_loc_load_complete_notification":					"Loaded",
+	"r9k_id_loc_save_complete_notification":					"Saved"
+
+}

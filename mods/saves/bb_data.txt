@@ -1,0 +1,1 @@
+{"dom":false,"reflex":true,"health":3,"instadwn":false,"speed":6,"move":2,"biglob":false,"maskup":true,"dodge":5,"clkarrest":false}

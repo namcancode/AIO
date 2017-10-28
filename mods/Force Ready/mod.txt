@@ -1,0 +1,22 @@
+{
+	"name": "Force Ready",
+	"description": "Force everyone to ready up.",
+	"author": "kiraver",
+	"blt_version" : 2,
+	"version": "1.0.1",
+	"image": "force_ready.tga",
+	"color" : "255 0 221",
+	"hooks": [{
+		"hook_id": "lib/managers/menumanager",
+		"script_path": "lua/menumanager.lua"
+	}],
+	"keybinds": [{
+		"keybind_id": "forceReadyKey",
+		"name": "fr_keybind_name",
+		"description": "fr_keybind_desc",
+		"script_path": "lua/forceready.lua",
+		"run_in_menu": false,
+		"run_in_game": true,
+		"localized": true
+	}]
+}

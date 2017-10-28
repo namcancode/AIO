@@ -1,0 +1,18 @@
+{
+	"fr_not_synched": "%s chua san sang.",
+	"fr_force_start": "Tu vao game bat dau.",
+	"fr_fail_start": " Yeu cau khan truong.",
+
+	"fr_keybind_name": "Force Ready",
+	"fr_keybind_desc": "Force everyone to ready up",
+
+	"fr_options_menu_name": "Ready",
+	"fr_options_menu_desc": "Chat configuration",
+
+	"fr_options_chatmode_name": "Chat Mode",
+	"fr_options_chatmode_desc": "Set the chatting mode",
+
+	"fr_chatmode_1": "Chat disabled",
+	"fr_chatmode_2": "Chat only to host",
+	"fr_chatmode_3": "Chat to everyone"
+}

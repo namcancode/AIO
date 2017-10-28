@@ -1,0 +1,32 @@
+{
+	"name"	:   "Perk Decks Free",
+	"description"	:   "Phien ban DLC cho nguoi dung Free",
+	"author"   :   "NamBoss",
+	"blt_version" : 2,
+	"image" : "nam.png",
+	"color" : "0.4 0.1 1",
+	"contact" : "http://mod.nguyennam.me",
+	"revision" : 1.1,
+	"updates" : [
+    {
+         "identifier" : "Perkdeckfree"
+    }
+	],
+	"hooks"	:   [
+		{ "hook_id" : "lib/tweak_data/skilltreetweakdata", "script_path" : "skilltrees.lua" },
+		{ "hook_id" : "lib/tweak_data/upgradestweakdata", "script_path" : "upgradeskills2.lua" },
+		{ "hook_id" : "lib/managers/localizationmanager", "script_path"	: "localization_english.lua" }
+	],
+	"keybinds" : 
+[
+	{
+            "keybind_id": "ResetPerk",
+            "name": "Reset Perk",
+            "description": "Reset Perk",
+            "script_path": "ResetPerk.lua",
+            "run_in_menu": false,
+            "run_in_game": false,
+            "localized": false
+	}
+]
+}

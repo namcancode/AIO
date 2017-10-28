@@ -1,0 +1,19 @@
+﻿# Keep the UTF-8 encoding of this file or some characters may not appear correctly in the game.
+# Only the lines matching the format "URL + 1 tabulation + build description" will be listed in the import menu.
+
+
+
+
+http://pd2skills.com/#/v3/elK:tfeClkh:gfDBCAlJrP:ffdr:ibcdea:pE8:::l68::	Ex-President Ghost
+Shinobi (37)
+
+
+
+
+
+http://pd2skills.com/#/v3/mr:elk:gfDbCalJkrP:flkHIgrqNOM:ibcdea:pA8:::l87::	Armorer Fugitive
+Brawler (33), Revenant (25), Shinobi (23)
+
+
+http://pd2skills.com/#/v3/mr:efl:gfDeBCAlJ:flkHIGRqO:ibcdea:pE8:::l81::	Ex-President Fugitive
+Shinobi (39), Revenant (33)

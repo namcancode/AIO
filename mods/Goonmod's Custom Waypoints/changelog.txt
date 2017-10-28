@@ -1,0 +1,28 @@
+Revision 9:
+- added options to limit display of waypoints only when facing them
+
+Revision 8:
+- fixed keybinds
+
+Revision 7:
+- even more absolutely essential BLT2 integration
+
+Revision 6:
+- more absolutely essential BLT2 integration
+
+Revision 5:
+- BLT2
+
+Revision 4:
+- reworked waypoints synchronization for drop-ins
+
+Revision 3:
+- don't bother non modded drop-ins with already placed waypoints
+
+Revision 2:
+- fixed BLT bug resulting in inaccurate waypoint position
+- let players in jail place waypoints
+
+Revision 1:
+- added multilanguage support
+- make sure to remove waypoints of disconnected players

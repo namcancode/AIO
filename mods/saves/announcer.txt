@@ -1,0 +1,1 @@
+{"keep_quiet":false,"dont_bother_steam_friends":true}

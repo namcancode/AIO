@@ -1,0 +1,39 @@
+{
+	"menu_id":			"r9k_id_options_menu",
+	"parent_menu_id":	"blt_options",
+	"title":			"r9k_id_loc_options_title",
+	"description":		"r9k_id_loc_options_description",
+	"items":
+	[
+		{
+			"type":			"divider",
+			"size":			25
+		},
+		{
+			"type":			"keybind",
+			"id":			"r9k_id_options_quick_edit_left",
+			"title":		"r9k_id_loc_options_quick_edit_left_title",
+			"description":	"r9k_id_loc_options_quick_edit_left_description",
+			"keybind_id":	"r9k_id_keybind_quick_edit_left",
+			"func":			"KeybindQuickEditLeft"
+		},
+		{
+			"type":			"keybind",
+			"id":			"r9k_id_options_quick_edit_right",
+			"title":		"r9k_id_loc_options_quick_edit_right_title",
+			"description":	"r9k_id_loc_options_quick_edit_right_description",
+			"keybind_id":	"r9k_id_keybind_quick_edit_right",
+			"func":			"KeybindQuickEditRight"
+		},
+		{
+			"type":			"divider",
+			"size":			25
+		},
+		{
+			"type":			"button",
+			"id":			"r9k_id_options_information",
+			"title":		"r9k_id_loc_options_information_title",
+			"description":	"r9k_id_loc_options_information_description"
+		}
+	]
+}

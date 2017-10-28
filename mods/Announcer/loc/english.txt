@@ -1,0 +1,10 @@
+{
+	"ancr_options_menu_title" : "Announcer",
+	"ancr_options_menu_desc"  : "",
+
+	"ancr_options_keep_quiet_title" : "Keep quiet",
+	"ancr_options_keep_quiet_desc"  : "Announce NOTHING.",
+
+	"ancr_options_dont_bother_steam_friends_title" : "Don't bother my Steam friends",
+	"ancr_options_dont_bother_steam_friends_desc"  : "No messages for direct friends."
+}

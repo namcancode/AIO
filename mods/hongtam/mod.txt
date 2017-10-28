@@ -1,0 +1,34 @@
+{
+	"name":			"Hong tam",
+	"description":  "\n   Adds a customizable crosshair to the game.\n   \n   Please see the [ readme.txt ] in the mod folder.\n   ",
+	"author":		"MurderSpray",
+	"contact":		"See: readme.txt",
+	"version":		"2.0",
+	"blt_version" : 2,
+	"pre_hooks":
+	[
+		{
+			"hook_id": "core/lib/utils/coreapp",
+			"script_path": "lua/_delayed_calls_fix.lua"
+		}
+	],
+	"hooks":
+	[
+		{
+			"hook_id":		"lib/managers/menumanager",
+			"script_path":	"lua/menumanager.lua"
+		},
+		{
+			"hook_id":		"lib/managers/hudmanager",
+			"script_path":	"lua/hudmanager.lua"
+		},
+		{
+			"hook_id":		"lib/network/base/hostnetworksession",
+			"script_path":	"lua/hostnetworksession.lua"
+		},
+		{
+			"hook_id":		"lib/units/beings/player/states/playerstandard",
+			"script_path":	"lua/playerstandard.lua"
+		}
+	]
+}

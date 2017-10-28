@@ -1,0 +1,18 @@
+{
+	"fr_not_synched": "%s n'est pas synchronisé",
+	"fr_force_start": "Forcer le démarrage",
+	"fr_fail_start": "Certains joueurs ne sont pas synchronisés",
+
+	"fr_keybind_name": "Forcer à être prêt",
+	"fr_keybind_desc": "Forcer tout le monde à être prêt",
+
+	"fr_options_menu_name": "Forcer à être prêt",
+	"fr_options_menu_desc": "Configuration du Chat",
+
+	"fr_options_chatmode_name": "Mode Chat",
+	"fr_options_chatmode_desc": "Paramétrer le Chat",
+
+	"fr_chatmode_1": "Chat désactivé",
+	"fr_chatmode_2": "Chat seulement pour l'hôte",
+	"fr_chatmode_3": "Chat pour tout le monde"
+}

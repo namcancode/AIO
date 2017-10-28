@@ -1,0 +1,1 @@
+{"hide_presenter":false,"team_scale":1,"team_prefix":1,"player_prefix":1,"exp_panel":1,"player_scale":1,"name":false,"hide_team":false}

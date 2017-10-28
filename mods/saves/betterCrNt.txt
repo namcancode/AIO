@@ -1,0 +1,1 @@
+{"crnt_align":true,"crnt_colorize":false,"crimenet_cleanup_comp":true,"crnt_sort":true,"crnt_size":0.89999997615814}

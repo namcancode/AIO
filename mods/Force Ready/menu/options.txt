@@ -1,0 +1,21 @@
+{
+	"menu_id": "fr_options_menu",
+	"parent_menu_id": "blt_options",
+	"title": "fr_options_menu_name",
+	"description": "fr_options_menu_desc",
+	"back_callback": "fr_options_save",
+	"items": [{
+		"type": "multiple_choice",
+		"id": "fr_choice_chatmode",
+		"title": "fr_options_chatmode_name",
+		"description": "fr_options_chatmode_desc",
+		"callback": "fr_chatmode_callback",
+		"items": [
+			"fr_chatmode_1",
+			"fr_chatmode_2",
+			"fr_chatmode_3"
+		],
+		"value": "chatmode",
+		"default_value": 3
+	}]
+}

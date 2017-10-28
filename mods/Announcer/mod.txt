@@ -1,0 +1,31 @@
+{
+	"blt_version" : 2,
+	"name" : "Announcer",
+	"description" : "Library to announce things to people.",
+	"author" : "TdlQ\n    italian translation by Winston Wolfe\n    russian translation by chrom[K]a",
+	"image" : "tdlq.png",
+	"color" : "0.52 1 0",
+	"undisablable" : true,
+	"contact" : "",
+	"priority": 500,
+	"version" : "15",
+	"updates" : [
+		{
+			"identifier" : "ANCRr"
+		}
+	],
+	"hooks" : [
+		{
+			"hook_id" : "lib/managers/menumanager",
+			"script_path" : "lua/menumanager.lua"
+		},
+		{
+			"hook_id" : "lib/network/base/hostnetworksession",
+			"script_path" : "lua/hostnetworksession.lua"
+		},
+		{
+			"hook_id" : "lib/states/menutitlescreenstate",
+			"script_path" : "lua/menutitlescreenstate.lua"
+		}
+	]
+}

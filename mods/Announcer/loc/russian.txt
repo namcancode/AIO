@@ -1,0 +1,7 @@
+{
+	"ancr_options_menu_title" : "Announcer",
+	"ancr_options_menu_desc"  : "",
+
+	"ancr_options_dont_bother_steam_friends_title" : "Не беспокоить моих Steam друзей",
+	"ancr_options_dont_bother_steam_friends_desc"  : "Не показывать сообщения для своих друзей"
+}

@@ -1,0 +1,73 @@
+{
+	"itr_options_menu_title" : "Iter",
+	"itr_options_menu_desc"  : "",
+
+	"itr_options_streamline_path_title" : "Improve AI pathing",
+	"itr_options_streamline_path_desc" : "Streamlined paths, improved queueing for things like ladders",
+
+	"itr_options_map_change_jolly_title" : "Aftershock",
+	"itr_options_map_change_jolly_desc" : "added access to the 4 ladders leading to the bridge",
+
+	"itr_options_map_change_gallery_title" : "Art Gallery",
+	"itr_options_map_change_gallery_desc" : "added access to main hall when front doors are closed",
+
+	"itr_options_map_change_mad_title" : "Boiling Point",
+	"itr_options_map_change_mad_desc" : "fixed issue with blown up wall on the left",
+
+	"itr_options_map_change_pbr2_title" : "Birth of Sky",
+	"itr_options_map_change_pbr2_desc" : "fixed access to roof of gas station",
+
+	"itr_options_map_change_rat_title" : "Cook Off",
+	"itr_options_map_change_rat_desc" : "added roof access to the bots",
+
+	"itr_options_map_change_escape_garage_title" : "Escape: Garage",
+	"itr_options_map_change_escape_garage_desc" : "fixed navigation when some doors are opened with a saw",
+
+	"itr_options_map_change_firestarter_1_title" : "Firestarter D1",
+	"itr_options_map_change_firestarter_1_desc" : "fixed navigation around 2 random fences",
+
+	"itr_options_map_change_framing_frame_1_title" : "Framing Frame D1",
+	"itr_options_map_change_framing_frame_1_desc" : "added access to main hall when front doors are closed",
+
+	"itr_options_map_change_peta_title" : "Goat Simulator D1",
+	"itr_options_map_change_peta_desc" : "fixed navigation around a random white truck",
+
+	"itr_options_map_change_mia_1_title" : "Hotline Miami D1",
+	"itr_options_map_change_mia_1_desc" : "fixed multiple issues with segments going underground and many glitchy hiding places",
+
+	"itr_options_map_change_flat_title" : "Panic Room",
+	"itr_options_map_change_flat_desc" : "better performance regarding windows broken by rappelling, fixed toothbrush drop",
+
+	"itr_options_map_change_alex_1_title" : "Rats D1",
+	"itr_options_map_change_alex_1_desc" : "added roof access to the bots",
+
+	"itr_options_map_change_alex_2_title" : "Rats D2",
+	"itr_options_map_change_alex_2_desc" : "added wooden bridge access to all AI",
+
+	"itr_options_map_change_chill_combat_title" : "Safe House Raid",
+	"itr_options_map_change_chill_combat_desc" : "optimized",
+
+	"itr_options_map_change_cane_title" : "Santa's Workshop",
+	"itr_options_map_change_cane_desc" : "fixed navigation with some stairs",
+
+	"itr_options_map_change_friend_title" : "Scarface Mansion",
+	"itr_options_map_change_friend_desc" : "fixed navigation around the crashed cadillac",
+
+	"itr_options_map_change_kosugi_title" : "Shadow Raid",
+	"itr_options_map_change_kosugi_desc" : "fixed stuck guards in the warehouse",
+
+	"itr_options_map_change_moon_title" : "Stealing Xmas",
+	"itr_options_map_change_moon_desc" : "fixed access to the backroom of the shoe store",
+
+	"itr_options_map_change_born_title" : "The Biker Heist D1",
+	"itr_options_map_change_born_desc" : "fixed navigation around the underground entrance",
+
+	"itr_options_map_change_chew_title" : "The Biker Heist D2",
+	"itr_options_map_change_chew_desc" : "fixed several blocked paths",
+
+	"itr_options_map_change_arm_for_title" : "Transport: Train Heist",
+	"itr_options_map_change_arm_for_desc" : "fixed accessibility in the entrance of TF-WAGON 1 which is close to TF-WAGON 2",
+
+	"itr_options_map_change_watchdogs_1_title" : "Watchdogs D1",
+	"itr_options_map_change_watchdogs_1_desc" : "fixed access on the bridge (jump back)"
+}

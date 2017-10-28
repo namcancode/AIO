@@ -1,0 +1,1 @@
+{"send_my_joker_name":true,"filter_shout_at_teamai_key":"left shift","filter_mode":1,"filter_shout_at_teamai":false,"filter_only_stop_calls":false,"show_my_joker_name":true,"jokers_run_like_teamais":true,"show_other_jokers_names":true,"my_joker_name":"Cave","show_joker_health":false,"primary_mode":3,"secondary_mode":4,"keybind_mode":3}

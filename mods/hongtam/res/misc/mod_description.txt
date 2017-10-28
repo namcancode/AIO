@@ -1,0 +1,4 @@
+\n   Adds a customizable crosshair to the game.
+\n   
+\n   Please see the [ readme.txt ] in the mod folder.
+\n   

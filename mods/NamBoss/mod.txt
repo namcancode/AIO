@@ -1,0 +1,60 @@
+{
+	"name"	:   "NamBoss",
+	"description"	:   "Mod hay dung va huu ich nhat",
+	"author"   :   "NamBoss",
+	"blt_version" : 2,
+	"revision" : 1.3,
+	"color" : "0.4 0.1 1",
+	"image" : "nam.png",
+	"updates" : [
+    {
+        "identifier" : "Nam"
+    }
+	],
+	"keybinds" : [
+		
+				{
+			"keybind_id" : "MH-GUI_keybind",
+			"name" : "Toggle Meth Helper",
+			"description" : "Turns the Meth Helper mod on and off",
+			"script_path" : "toggle.lua",
+			"run_in_menu" : false,
+			"run_in_game" : true,
+			"localized" : false
+		}
+	],
+	"hooks"	:   [
+		{ "hook_id" : "lib/tweak_data/skilltreetweakdata", "script_path" : "skilltrees.lua" },
+		{ "hook_id" : "lib/managers/localizationmanager", "script_path"	: "localization_english.lua" },
+		{ "hook_id" : "lib/tweak_data/upgradestweakdata", "script_path" : "upgradeskills.lua" },
+        { "hook_id" : "lib/managers/playermanager", "script_path" : "playermanage.lua" },
+		{ "hook_id" : "lib/tweak_data/weaponfactorytweakdata","script_path" : "Nammod.lua"},
+		{ "hook_id" : "lib/tweak_data/weapontweakdata","script_path" : "NamGun.lua"},
+		{ "hook_id" : "lib/tweak_data/crimespreetweakdata","script_path":"Crime.lua"},
+		{ "hook_id" : "lib/managers/mission/elementblurzone","script_path": "ratsblurremoval.lua"},
+    	{ "hook_id" : "lib/tweak_data/skilltreetweakdata", "script_path" : "skill.lua"},
+        { "hook_id" : "lib/network/matchmaking/NetworkAccountSteam", "script_path" : "antipublish.lua"},
+        { "hook_id" : "lib/units/beings/player/PlayerMovement", "script_path" : "cloakersarrest.lua"},
+        { "hook_id" : "lib/units/player_team/teamaimovement", "script_path" : "cloakersarrest.lua"},
+    	{ "hook_id" : "lib/units/weapons/shotgun/shotgunbase", "script_path" : "Shotgunbellet.lua"},
+    	{ "hook_id" : "lib/managers/crimespreemanager", "script_path" :"Crimgage1.lua"},
+		{ "hook_id" : "lib/managers/menu/menumanagercrimespreecallbacks", "script_path" :"Crimgage2.lua"},
+		{ "hook_id" : "lib/tweak_data/weaponfactorytweakdata", "script_path": "boost.lua"},
+    	{ "hook_id" : "lib/managers/menumanager","script_path" : "Loader.lua"},
+		{ "hook_id" : "lib/tweak_data/levelstweakdata","script_path" : "Loader.lua"},
+		{ "hook_id" : "lib/managers/localizationmanager","script_path" : "Loader.lua"},
+		{ "hook_id" : "lib/managers/menu/blackmarketgui","script_path" : "blackmarketgui.lua"},
+		{ "hook_id" : "lib/managers/DialogManager""script_path" : "ingredients.lua"},
+	    { "hook_id" : "lib/network/base/basenetworksession", "script_path" : "basenetworksession.lua"},
+        { "hook_id" : "lib/managers/menumanagerdialogs", "script_path" : "menumanagerdialogs.lua"},
+		{ "hook_id": "lib/managers/menumanager","script_path": "menumanager.lua"},
+		{ "hook_id" : "lib/managers/hud/hudblackscreen","script_path" : "hud.lua"},
+		{ "hook_id" : "lib/managers/menu/crimespreedetailsmenucomponent","script_path": "Joincrime.lua"}    
+	],
+	"persist_scripts" :
+	    [
+	        {"global" : "inventory", "script_path" : "inventory.lua"},
+	        {"global" : "FloatingHealthBars_initialized", "script_path" : "healbar.lua"},
+	        {"global" : "SetVideo", "script_path" : "fixfps.lua"}
+	    ]
+}

@@ -1,0 +1,25 @@
+{
+	"menu_id" : "ancr_options_menu",
+	"parent_menu_id" : "blt_options",
+	"title" : "ancr_options_menu_title",
+	"description" : "ancr_options_menu_desc",
+	"back_callback" : "AnnouncerSave",
+	"items" : [
+		{
+			"type" : "toggle",
+			"id" : "ancr_toggle_keep_quiet",
+			"title" : "ancr_options_keep_quiet_title",
+			"description" : "ancr_options_keep_quiet_desc",
+			"callback" : "AnnouncerSetKeepQuiet",
+			"value" : "keep_quiet"
+		},
+		{
+			"type" : "toggle",
+			"id" : "ancr_toggle_dont_bother_steam_friends",
+			"title" : "ancr_options_dont_bother_steam_friends_title",
+			"description" : "ancr_options_dont_bother_steam_friends_desc",
+			"callback" : "AnnouncerSetDontBotherSteamFriends",
+			"value" : "dont_bother_steam_friends"
+		}
+	]
+}
