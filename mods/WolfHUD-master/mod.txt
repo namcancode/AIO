@@ -114,7 +114,7 @@
 	],
 	"updates" : [
 		{
-			"identifier" : "wolfhud"
+			"identifier" : "wolfhudnam"
 		},
 		{
 			"identifier" : "wolfhud_textures",
