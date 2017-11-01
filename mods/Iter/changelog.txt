@@ -1,5 +1,14 @@
+Revision 66:
+- [Diamond Heist] cleaned up plenty of things, grabbed a few more fps
+
+Revision 65:
+- [Diamond Heist] more additions to portals
+
+Revision 64:
+- [Diamond Heist] optimized (gained around 15 fps)
+
 Revision 63:
-- [Alaskan Deal] fixed navigation AI boat access (prow side)
+- [Alaskan Deal] fixed AI navigation for boat access (prow side)
 
 Revision 62:
 - [Safe House Raid] a collision element was wrongly removed in stairs leading to armory
@@ -21,7 +30,7 @@ Revision 57:
 - [The Biker Heist D2] fixed several blocked paths, also decreased interval for navlink use
 
 Revision 56:
-- [Safe House Raid] optimization (removed +3000 useless units, gained 30 fps)
+- [Safe House Raid] optimized (removed +3000 useless units, gained 30 fps)
 
 Revision 55:
 - levels having a night version would not get their specific modifications applied in night mode

@@ -6,13 +6,17 @@
 	"image" : "tdlq.png",
 	"color" : "0.52 1 0",
 	"contact" : "",
-	"version" : "63",
+	"version" : "66",
 	"updates" : [
 		{
 			"identifier" : "ITR"
 		}
 	],
 	"hooks" : [
+		{
+			"hook_id" : "core/lib/managers/coreportalmanager",
+			"script_path" : "lua/coreportalmanager.lua"
+		},
 		{
 			"hook_id" : "core/lib/managers/coresequencemanager",
 			"script_path" : "lua/coresequencemanager.lua"

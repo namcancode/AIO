@@ -188,6 +188,22 @@
 		},
 		{
 			"type" : "toggle",
+			"id" : "map_change_wwh",
+			"title" : "itr_options_map_change_wwh_title",
+			"description" : "itr_options_map_change_wwh_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "map_change_wwh"
+		},
+		{
+			"type" : "toggle",
+			"id" : "map_change_dah",
+			"title" : "itr_options_map_change_dah_title",
+			"description" : "itr_options_map_change_dah_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "map_change_dah"
+		},
+		{
+			"type" : "toggle",
 			"id" : "map_change_watchdogs_1",
 			"title" : "itr_options_map_change_watchdogs_1_title",
 			"description" : "itr_options_map_change_watchdogs_1_desc",

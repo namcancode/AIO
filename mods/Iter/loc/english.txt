@@ -8,6 +8,9 @@
 	"itr_options_map_change_jolly_title" : "Aftershock",
 	"itr_options_map_change_jolly_desc" : "added access to the 4 ladders leading to the bridge",
 
+	"itr_options_map_change_wwh_title" : "Alaskan Deal",
+	"itr_options_map_change_wwh_desc" : "fixed AI navigation to access boat (prow side)",
+
 	"itr_options_map_change_gallery_title" : "Art Gallery",
 	"itr_options_map_change_gallery_desc" : "added access to main hall when front doors are closed",
 
@@ -19,6 +22,9 @@
 
 	"itr_options_map_change_rat_title" : "Cook Off",
 	"itr_options_map_change_rat_desc" : "added roof access to the bots",
+
+	"itr_options_map_change_dah_title" : "Diamond Heist",
+	"itr_options_map_change_dah_desc" : "optimized",
 
 	"itr_options_map_change_escape_garage_title" : "Escape: Garage",
 	"itr_options_map_change_escape_garage_desc" : "fixed navigation when some doors are opened with a saw",

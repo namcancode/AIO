@@ -1,3 +1,6 @@
+Revision 10:
+- a missing comma
+
 Revision 9:
 - added options to limit display of waypoints only when facing them
 

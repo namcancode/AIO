@@ -8,6 +8,20 @@ level_id = level_id:gsub('_night$', ''):gsub('_day$', '')
 
 if not _G.Iter.settings['map_change_' .. level_id] then
 
+elseif level_id == 'dah' then
+
+	function WorldDefinition:_create_statics_unit(data, offset)
+		self:preload_unit(data.unit_data.name)
+		local unit = self:make_unit(data.unit_data, offset)
+
+		if data.unit_data.unit_id == 704208 then
+			unit:set_position(Vector3(-2518, -5029, 54))
+		end
+
+		return unit
+	end
+
+
 elseif level_id == 'chill_combat' then
 
 	local itr_original_worlddefinition_serializetoscript = WorldDefinition._serialize_to_script
@@ -67,7 +81,7 @@ elseif level_id == 'chill_combat' then
 		if spawn_data then
 			local unit_data = spawn_data[1]
 			if not unit_data.position or _is_ok(unit_data.name, unit_data.position) then
-				PackageManager:load_delayed("unit", unit_data.name)
+				PackageManager:load_delayed('unit', unit_data.name)
 				self:preload_unit(unit_data.name)
 				local unit = self:make_unit(unit_data, spawn_data[2])
 				if unit then
