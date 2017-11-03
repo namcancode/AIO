@@ -6,21 +6,23 @@ core:module('CoreWorldDefinition')
 local level_id = Global.game_settings and Global.game_settings.level_id or ''
 level_id = level_id:gsub('_night$', ''):gsub('_day$', '')
 
+local itr_original_worlddefinition_createstaticsunit = WorldDefinition._create_statics_unit
+
 if not _G.Iter.settings['map_change_' .. level_id] then
 
 elseif level_id == 'dah' then
 
-	function WorldDefinition:_create_statics_unit(data, offset)
-		self:preload_unit(data.unit_data.name)
-		local unit = self:make_unit(data.unit_data, offset)
+	if Network:is_server() then
+		function WorldDefinition:_create_statics_unit(data, offset)
+			local unit = itr_original_worlddefinition_createstaticsunit(self, data, offset)
 
-		if data.unit_data.unit_id == 704208 then
-			unit:set_position(Vector3(-2518, -5029, 54))
+			if data.unit_data.unit_id == 704208 then
+				unit:set_position(Vector3(-2518, -5029, 54))
+			end
+
+			return unit
 		end
-
-		return unit
 	end
-
 
 elseif level_id == 'chill_combat' then
 
@@ -95,8 +97,7 @@ elseif level_id == 'chill_combat' then
 	function WorldDefinition:_create_statics_unit(data, offset)
 		local pos = data.unit_data.position
 		if not pos or _is_ok(data.unit_data.name, pos) then
-			self:preload_unit(data.unit_data.name)
-			return self:make_unit(data.unit_data, offset)
+			return itr_original_worlddefinition_createstaticsunit(self, data, offset)
 		end
 	end
 

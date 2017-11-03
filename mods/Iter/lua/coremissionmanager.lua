@@ -908,6 +908,7 @@ elseif level_id == 'firestarter_1' then
 				table.insert(element.values.sequence_list, new_seq)
 			end
 		end
+
 		itr_original_missionmanager_addscript(self, data)
 	end
 

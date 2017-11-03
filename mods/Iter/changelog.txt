@@ -1,3 +1,6 @@
+Revision 67:
+- [Diamond Heist] fixed crash when relocating a glass object while playing as a client
+
 Revision 66:
 - [Diamond Heist] cleaned up plenty of things, grabbed a few more fps
 

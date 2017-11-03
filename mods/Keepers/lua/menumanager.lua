@@ -32,7 +32,7 @@ Keepers.settings = {
 	show_my_joker_name = true,
 	send_my_joker_name = true,
 	show_other_jokers_names = true,
-	my_joker_name = 'My Joker',
+	my_joker_name = 'Cave',
 	jokers_run_like_teamais = true
 }
 
@@ -97,10 +97,10 @@ function Keepers:GetJokerNameByPeer(peer_id)
 		return name
 	elseif not self.settings.show_other_jokers_names then
 		return ''
-	elseif name == 'My Joker' or name == '' then
+	elseif name == 'Cave' or name == '' then
 		local peer = managers.network:session():peer(peer_id)
 		if peer then
-			name = tostring(peer:name()) .. "'s joker"
+			name = "X"
 		end
 	end
 	return name
