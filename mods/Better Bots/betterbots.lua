@@ -4,6 +4,7 @@ BB._data_path = SavePath .. "bb_data.txt"
 BB._data = {}
 BB.cops_to_intimidate = {}
 BB.grace_period = 10
+BB.marked_enemies = {}
 
 function BB:Save()
 	local file = io.open( self._data_path, "w+" )
@@ -136,19 +137,21 @@ end
 if RequiredScript == "lib/managers/group_ai_states/groupaistatebase" then
 	local p = pairs
 	local math_clamp = math.clamp
-	local old_cstcc = GroupAIStateBase.chk_say_teamAI_combat_chatter
-	function GroupAIStateBase:chk_say_teamAI_combat_chatter(...)
-		if BB._data.chat then
+	if BB._data.chat then
+		function GroupAIStateBase:chk_say_teamAI_combat_chatter(...)
 			return
 		end
-		return old_cstcc(self, ...)
 	end
 	local bb_original_groupaistatebase_ontasestart = GroupAIStateBase.on_tase_start
 	function GroupAIStateBase:on_tase_start(cop_key, criminal_key, ...)
 		local bot_record = self._ai_criminals[criminal_key]
 		if bot_record then
-			bot_record.unit:sound():say("f32x_any", true)
-			self._police[cop_key].unit:contour():add("mark_enemy", true)
+			local marked_key = BB.marked_enemies[cop_key]
+			local t = TimerManager:game():time()
+			if not marked_key or marked_key + 5 < t then
+				bot_record.unit:sound():say("f32x_any", true)
+				self._police[cop_key].unit:contour():add("mark_enemy", true)
+			end
 		end
 		return bb_original_groupaistatebase_ontasestart(self, cop_key, criminal_key, ...)
 	end
@@ -188,21 +191,11 @@ if RequiredScript == "lib/units/player_team/teamaibase" then
 	end
 end
 
-if RequiredScript == "lib/units/player_team/teamaibrain" then
-	local ai_mask = World:make_slot_mask(12, 25)
-	local old_reset = TeamAIBrain._reset_logic_data
-	function TeamAIBrain:_reset_logic_data(...)
-		old_reset(self, ...)
-		self._slotmask_enemies = ai_mask
-		self._logic_data.enemy_slotmask = ai_mask
-	end
-end
-
 if RequiredScript == "lib/units/player_team/teamaidamage" then
-	local bb_original_teamaidamage_applydamage = TeamAIDamage._apply_damage
-	function TeamAIDamage:_apply_damage(...)
-		local damage_percent, health_subtracted = bb_original_teamaidamage_applydamage(self, ...)
-		if BB._data.doc then
+	if BB._data.doc then
+		local bb_original_teamaidamage_applydamage = TeamAIDamage._apply_damage
+		function TeamAIDamage:_apply_damage(...)
+			local damage_percent, health_subtracted = bb_original_teamaidamage_applydamage(self, ...)
 			local data = self._unit:brain()._logic_data
 			if data then
 				local my_data = data.internal_data
@@ -215,12 +208,10 @@ if RequiredScript == "lib/units/player_team/teamaidamage" then
 					end
 				end
 			end
+			return damage_percent, health_subtracted
 		end
-		return damage_percent, health_subtracted
-	end
-	local bb_original_teamaidamage_regenerated = TeamAIDamage._regenerated
-	function TeamAIDamage:_regenerated(...)
-		if BB._data.doc then
+		local bb_original_teamaidamage_regenerated = TeamAIDamage._regenerated
+		function TeamAIDamage:_regenerated(...)
 			local data = self._unit:brain()._logic_data
 			if data then
 				local my_data = data.internal_data
@@ -228,149 +219,178 @@ if RequiredScript == "lib/units/player_team/teamaidamage" then
 					my_data.said_hurt = false
 				end
 			end
+			return bb_original_teamaidamage_regenerated(self, ...)
 		end
-		return bb_original_teamaidamage_regenerated(self, ...)
 	end
 	function TeamAIDamage:friendly_fire_hit(...)
 		return
 	end
 end
 
-if RequiredScript == "lib/tweak_data/weapontweakdata" then
-	local p = pairs
-	local old_init = WeaponTweakData.init
-	function WeaponTweakData:init(...)
-		old_init(self, ...)
-		if BB._data.combat then
-			for k, v in p(self) do
-				if type(v) == "table" then
-					if k:match("_crew$") then
-						v.DAMAGE = 1.5
-						if v.auto then
-							if v.auto.fire_rate then
-								v.auto.fire_rate = 0.2
+if RequiredScript == "lib/managers/enemymanager" then
+	if BB._data.reflex then
+		local old_update = EnemyManager._update_queued_tasks
+		function EnemyManager:_update_queued_tasks(t, ...)
+			local tasks = self._queued_tasks
+			for i_task = 1, #tasks do
+				local task_data = tasks[i_task]
+				if task_data then
+					local td = task_data.data
+					if td then
+						local t_unit = td.unit
+						if t_unit then
+							if t_unit:in_slot(16) then
+								if not task_data.t or task_data.t < t then
+									self:_execute_queued_task(i_task)
+								end
 							end
 						end
 					end
 				end
 			end
+			return old_update(self, t, ...)
 		end
-		self.m14_crew.usage = "is_pistol"
-		self.m14_crew.anim_usage = "is_rifle"
-		self.contraband_crew.usage = "is_pistol"
-		self.contraband_crew.anim_usage = "is_rifle"
-		self.sub2000_crew.usage = "is_pistol"
-		self.b682_crew.usage = "is_shotgun_mag"
-		self.b682_crew.anim_usage = "is_shotgun_pump"
-		self.spas12_crew.usage = "is_shotgun_mag"
-		self.spas12_crew.anim_usage = "is_shotgun_pump"
-		self.ben_crew.usage = "is_shotgun_mag"
-		self.ben_crew.anim_usage = "is_shotgun_pump"
-		self.huntsman_crew.usage = "is_shotgun_mag"
-		self.huntsman_crew.anim_usage = "is_shotgun_pump"
-		self.ching_crew.usage = "is_pistol"
-		self.ching_crew.anim_usage = "is_rifle"
+	end
+end
+
+if RequiredScript == "lib/tweak_data/weapontweakdata" then
+	if Network:is_server() then
+		if BB._data.combat then
+			local p = pairs
+			local old_init = WeaponTweakData.init
+			function WeaponTweakData:init(...)
+				old_init(self, ...)
+				for k, v in p(self) do
+					if type(v) == "table" then
+						if k:match("_crew$") then
+							v.DAMAGE = 1.5
+							if v.auto then
+								if v.auto.fire_rate then
+									v.auto.fire_rate = 0.2
+								end
+							end
+						end
+					end
+				end
+				self.m14_crew.usage = "is_pistol"
+				self.m14_crew.anim_usage = "is_rifle"
+				self.contraband_crew.usage = "is_pistol"
+				self.contraband_crew.anim_usage = "is_rifle"
+				self.sub2000_crew.usage = "is_pistol"
+				self.b682_crew.usage = "is_shotgun_mag"
+				self.b682_crew.anim_usage = "is_shotgun_pump"
+				self.spas12_crew.usage = "is_shotgun_mag"
+				self.spas12_crew.anim_usage = "is_shotgun_pump"
+				self.ben_crew.usage = "is_shotgun_mag"
+				self.ben_crew.anim_usage = "is_shotgun_pump"
+				self.huntsman_crew.usage = "is_shotgun_mag"
+				self.huntsman_crew.anim_usage = "is_shotgun_pump"
+				self.ching_crew.usage = "is_pistol"
+				self.ching_crew.anim_usage = "is_rifle"
+			end
+		end
 	end
 end
 
 if RequiredScript == "lib/managers/criminalsmanager" then
-	local p = pairs
-	local is_server = Network:is_server()
-	local settings = Global and Global.game_settings
-	local is_offline = settings and settings.single_player
-	local difficulty = settings and settings.difficulty or "normal"
-	local total_chars = CriminalsManager.get_num_characters()
-	CriminalsManager.MAX_NR_TEAM_AI = BB._data.biglob and total_chars or 3
-	local char_tweak = tweak_data.character
-	if char_tweak then
-		local char_preset = char_tweak.presets
-		if char_preset then
-			local params = {
-				health = { nil, 75, 144 },
-				speed = { "very_slow", "slow", "normal", "fast", "very_fast", "lightning" },
-				dodge = { "poor", "average", "heavy", "athletic", "ninja" }
-			}
-			local char_damage = char_preset.gang_member_damage
-			if char_damage then
-				local health_bot = params.health[BB._data.health or 1]
-				char_damage.HEALTH_INIT = health_bot or char_damage.HEALTH_INIT
-				char_damage.DOWNED_TIME = BB._data.instadwn and 0 or char_damage.DOWNED_TIME
-			end
-			local gang_weapon = char_preset.weapon.gang_member
-			if gang_weapon then
-				local speed_bot = params.speed[BB._data.speed or 5]
-				local dodge_bot = params.dodge[BB._data.dodge or 4]
-				local diff_index = tweak_data:difficulty_to_index(difficulty)
-				for k, v in p(gang_weapon) do
-					v.focus_delay = 0
-					v.aim_delay = { 0, 0 }
-					v.range = deep_clone(char_preset.weapon.sniper.is_rifle.range)
-					v.RELOAD_SPEED = 1
-					if BB._data.combat then
-						v.spread = 5
-						v.FALLOFF = {
-							{
-								r = 300,
-								acc = { 1, 1 },
-								dmg_mul = diff_index,
-								recoil = { 0.25, 0.25 },
-								mode = { 0, 0, 1, 0 }
-							},
-							{
-								r = 10000,
-								acc = { 1, 1 },
-								dmg_mul = 0.1,
-								recoil = { 2, 2 },
-								mode = { 0, 0, 1, 0 }
-							}
-						}
-					end
+	if Network:is_server() then
+		local p = pairs
+		local settings = Global and Global.game_settings
+		local is_offline = settings and settings.single_player
+		local difficulty = settings and settings.difficulty or "normal"
+		local total_chars = CriminalsManager.get_num_characters()
+		CriminalsManager.MAX_NR_TEAM_AI = BB._data.biglob and total_chars or 3
+		local char_tweak = tweak_data.character
+		if char_tweak then
+			local char_preset = char_tweak.presets
+			if char_preset then
+				local params = {
+					health = { nil, 75, 144 },
+					speed = { "very_slow", "slow", "normal", "fast", "very_fast", "lightning" },
+					dodge = { "poor", "average", "heavy", "athletic", "ninja" }
+				}
+				local char_damage = char_preset.gang_member_damage
+				if char_damage then
+					local health_bot = params.health[BB._data.health or 1]
+					char_damage.HEALTH_INIT = health_bot or char_damage.HEALTH_INIT
+					char_damage.DOWNED_TIME = BB._data.instadwn and 0 or char_damage.DOWNED_TIME
 				end
-				for k, v in p(char_tweak) do
-					if type(v) == "table" then
-						if v.access == "teamAI1" then
-							v.no_run_start = true
-							v.no_run_stop = true
-							v.always_face_enemy = true
-							v.move_speed = is_server and char_preset.move_speed[speed_bot] or v.move_speed
-							if BB._data.move == 2 then
-								v.dodge = char_preset.dodge[dodge_bot]
-							elseif BB._data.move == 3 then
-								v.allowed_poses = { stand = true }
-							end
-							local orig = v.weapon.weapons_of_choice
-							v.weapon = deep_clone(gang_weapon)
-							v.weapon.weapons_of_choice = orig
-							if BB._data.combat then
-								v.weapon.is_sniper.FALLOFF[1].dmg_mul = diff_index * 4
-								v.weapon.is_sniper.FALLOFF[1].recoil = { 1, 1 }
-								v.weapon.is_shotgun_pump.FALLOFF[1].dmg_mul = diff_index * 2
-								v.weapon.is_shotgun_pump.FALLOFF[1].recoil = { 0.5, 0.5 }
+				local gang_weapon = char_preset.weapon.gang_member
+				if gang_weapon then
+					local speed_bot = params.speed[BB._data.speed or 5]
+					local dodge_bot = params.dodge[BB._data.dodge or 4]
+					local diff_index = tweak_data:difficulty_to_index(difficulty)
+					for k, v in p(gang_weapon) do
+						v.focus_delay = 0
+						v.aim_delay = { 0, 0 }
+						v.range = deep_clone(char_preset.weapon.sniper.is_rifle.range)
+						v.RELOAD_SPEED = 1
+						if BB._data.combat then
+							v.spread = 5
+							v.FALLOFF = {
+								{
+									r = 300,
+									acc = { 1, 1 },
+									dmg_mul = diff_index,
+									recoil = { 0.25, 0.25 },
+									mode = { 0, 0, 1, 0 }
+								},
+								{
+									r = 10000,
+									acc = { 1, 1 },
+									dmg_mul = 1,
+									recoil = { 2, 2 },
+									mode = { 0, 0, 1, 0 }
+								}
+							}
+						end
+					end
+					for k, v in p(char_tweak) do
+						if type(v) == "table" then
+							if v.access == "teamAI1" then
+								v.no_run_start = true
+								v.no_run_stop = true
+								v.always_face_enemy = true
+								v.move_speed = char_preset.move_speed[speed_bot]
+								if BB._data.move == 2 then
+									v.dodge = char_preset.dodge[dodge_bot]
+								elseif BB._data.move == 3 then
+									v.allowed_poses = { stand = true }
+								end
+								local orig = v.weapon.weapons_of_choice
+								v.weapon = deep_clone(gang_weapon)
+								v.weapon.weapons_of_choice = orig
+								if BB._data.combat then
+									v.weapon.is_sniper.FALLOFF[1].dmg_mul = diff_index * 4
+									v.weapon.is_sniper.FALLOFF[1].recoil = { 1, 1 }
+									v.weapon.is_shotgun_pump.FALLOFF[1].dmg_mul = diff_index * 2
+									v.weapon.is_shotgun_pump.FALLOFF[1].recoil = { 0.5, 0.5 }
+								end
 							end
 						end
 					end
 				end
 			end
 		end
-	end
-	local old_color = CriminalsManager.character_color_id_by_unit
-	function CriminalsManager:character_color_id_by_unit(unit, ...)
-		if is_offline then
-			if not BB._data.biglob then
-				local char_data = self:character_data_by_unit(unit)
-				if char_data then
-					if char_data.ai then
-						if not char_data.ai_id then
-							local ai_crim = self:nr_AI_criminals()
-							char_data.ai_id = ai_crim + 1
+		local old_color = CriminalsManager.character_color_id_by_unit
+		function CriminalsManager:character_color_id_by_unit(unit, ...)
+			if is_offline then
+				if not BB._data.biglob then
+					local char_data = self:character_data_by_unit(unit)
+					if char_data then
+						if char_data.ai then
+							if not char_data.ai_id then
+								local ai_crim = self:nr_AI_criminals()
+								char_data.ai_id = ai_crim + 1
+								return char_data.ai_id
+							end
 							return char_data.ai_id
 						end
-						return char_data.ai_id
 					end
 				end
 			end
+			return old_color(self, unit, ...)
 		end
-		return old_color(self, unit, ...)
 	end
 end
 
@@ -381,61 +401,59 @@ if RequiredScript == "lib/tweak_data/playertweakdata" then
 end
 
 if RequiredScript == "lib/units/weapons/newnpcraycastweaponbase" then
-	local ai_mask = World:make_slot_mask(8, 12, 25)
+	local ai_mask = World:make_slot_mask(16, 22)
 	local old_setup = NewNPCRaycastWeaponBase.setup
 	function NewNPCRaycastWeaponBase:setup(setup_data, ...)
 		old_setup(self, setup_data, ...)
 		local user_unit = setup_data.user_unit
 		if user_unit then
 			if user_unit:in_slot(16) then
-				self._bullet_slotmask = ai_mask
+				self._bullet_slotmask = self._bullet_slotmask - ai_mask
 			end
 		end
 	end
 end
 
 if RequiredScript == "lib/units/weapons/npcraycastweaponbase" then
-	local ai_mask = World:make_slot_mask(8, 12, 25)
+	local ai_mask = World:make_slot_mask(16, 22)
 	local old_setup = NPCRaycastWeaponBase.setup
 	function NPCRaycastWeaponBase:setup(setup_data, ...)
 		old_setup(self, setup_data, ...)
 		local user_unit = setup_data.user_unit
 		if user_unit then
 			if user_unit:in_slot(16) then
-				self._bullet_slotmask = ai_mask
+				self._bullet_slotmask = self._bullet_slotmask - ai_mask
 			end
 		end
 	end
 end
 
 if RequiredScript == "lib/units/player_team/teamaimovement" then
-	local p = pairs
-	local math_rand = math.random
-	local settings = Global and Global.game_settings
-	local is_private = settings and settings.permission and settings.permission ~= "public"
-	local is_offline = settings and settings.single_player
-	local old_spooc = TeamAIMovement.on_SPOOCed
-	function TeamAIMovement:on_SPOOCed(...)
-		if BB._data.clkarrest then
+	if BB._data.clkarrest then
+		local settings = Global and Global.game_settings
+		local is_private = settings and settings.permission and settings.permission ~= "public"
+		local is_offline = settings and settings.single_player
+		local old_spooc = TeamAIMovement.on_SPOOCed
+		function TeamAIMovement:on_SPOOCed(...)
 			if is_private or is_offline then
 				return self:on_cuffed()
 			end
+			return old_spooc(self, ...)
 		end
-		return old_spooc(self, ...)
 	end
-	if not BotWeapons then
+	if not BB._data.equip then
+		local p = pairs
+		local math_rand = math.random
 		function TeamAIMovement:check_visual_equipment()
-			if not BB._data.equip then
-				local bags = { { g_medicbag = true }, { g_ammobag = true } }
-				local bag_choice = bags[math_rand(#bags)]
-				for k, v in p(bag_choice) do
-					local mesh_obj = self._unit:get_object(Idstring(k))
-					if mesh_obj then
-						mesh_obj:set_visibility(v)
-					end
+			local bags = { { g_medicbag = true }, { g_ammobag = true } }
+			local bag_choice = bags[math_rand(#bags)]
+			for k, v in p(bag_choice) do
+				local mesh_obj = self._unit:get_object(Idstring(k))
+				if mesh_obj then
+					mesh_obj:set_visibility(v)
 				end
-				self._unit:damage():run_sequence_simple("var_model_02")
 			end
+			self._unit:damage():run_sequence_simple("var_model_02")
 		end
 	end
 	local old_throw = TeamAIMovement.throw_bag
@@ -462,7 +480,6 @@ if RequiredScript == "lib/units/player_team/teamaimovement" then
 end
 
 if RequiredScript == "lib/units/player_team/actions/lower_body/criminalactionwalk" then
-	local p = pairs
 	function CriminalActionWalk:init(...)
 		return CriminalActionWalk.super.init(self, ...)
 	end
@@ -471,8 +488,9 @@ if RequiredScript == "lib/units/player_team/actions/lower_body/criminalactionwal
 		if self._ext_movement:carrying_bag() then
 			local carry_mod = tweak_data.carry.types[tweak_data.carry[self._ext_movement:carry_id()].type].move_speed_modifier
 			local speed_modifier = (carry_mod * 1.5) > 1 and 1 or carry_mod
-			for k, v in p(speed) do
-				speed[k] = v * speed_modifier
+			for k = 1, #speed do
+				local v = speed[k]
+				v = v * speed_modifier
 			end
 		end
 		return speed
@@ -492,7 +510,6 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 	local mvec3_norm = mvector3.normalize
 	local mvec3_angle = mvector3.angle
 	local p = pairs
-	local t_ins = table.insert
 	local math_ceil = math.ceil
 	local w = World
 	local REACT_COMBAT = AIAttentionObject.REACT_COMBAT
@@ -518,50 +535,6 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 		old_enter(data, ...)
 		TeamAILogicIdle.check_smart_reload(data, 0.4)
 	end
-	local function _upd_cop_vis(data)
-		local vis_enemy
-		if not data.cool then
-			local objective = data.objective
-			if not objective or objective.type ~= "revive" then
-				local all_attention_objects = managers.groupai:state():get_AI_attention_objects_by_filter(data.SO_access_str)
-				local crim_mov = data.unit:movement()
-				local head_pos = crim_mov:m_head_pos()
-				local my_tracker = crim_mov:nav_tracker()
-				local chk_vis_func = my_tracker.check_visibility
-				local all_enemies = managers.enemy:all_enemies()
-				for u_key, u_char in p(all_enemies) do
-					local attention_info = all_attention_objects[u_key]
-					if attention_info then
-						local att_handler = attention_info.handler
-						local settings = att_handler:get_attention(data.SO_access, REACT_COMBAT, nil, data.team)
-						if settings then
-							if chk_vis_func(my_tracker, attention_info.nav_tracker) then
-								local u_head_pos = att_handler:get_detection_m_pos()
-								local vis_ray = w:raycast("ray", head_pos, u_head_pos, "slot_mask", data.visibility_slotmask, "ray_type", "ai_vision")
-								if not vis_ray then
-									if not vis_enemy then
-										vis_enemy = true
-										break
-									end
-								end
-							end
-						end
-					end
-				end
-			end
-		end
-		return vis_enemy
-	end
-	local old_update = TeamAILogicIdle.update
-	function TeamAILogicIdle.update(data, ...)
-		if BB._data.reflex then
-			local vis_enemy = _upd_cop_vis(data)
-			if vis_enemy then
-				CopLogicBase._exit(data.unit, "assault")
-			end
-		end
-		return old_update(data, ...)
-	end
 	function TeamAILogicIdle._get_priority_attention(data, attention_objects, reaction_func)
 		local best_target, best_target_dis, best_target_reaction
 		local att_obj = data.attention_obj
@@ -573,7 +546,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 		for u_key, attention_data in p(attention_objects) do
 			if attention_data.identified then
 				local att_unit = attention_data.unit
-				if att_unit:in_slot(data.enemy_slotmask) then
+				if att_unit:in_slot(12, 25) then
 					local reaction = attention_data.reaction
 					if reaction then
 						if reaction >= REACT_COMBAT then
@@ -581,29 +554,31 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 							if target_dis then
 								local dis_mod = 1
 								if att_obj and att_obj.u_key == u_key then
-									target_dis = target_dis * 0.8
+									target_dis = target_dis/2
 								end
 								if attention_data.verified then
 									local enemy_data = att_unit:brain()._logic_data
 									if enemy_data then
-										local char_tweak = attention_data.char_tweak
-										local special_shout = char_tweak and char_tweak.priority_shout
+										local special_shout = attention_data.char_tweak and attention_data.char_tweak.priority_shout
+										local enemy_obj = enemy_data.objective
 										local enemy_target = enemy_data.attention_obj
 										if enemy_target and enemy_target.is_human_player then
-											target_dis = target_dis * 0.8
+											target_dis = target_dis/2
 										end
-										if special_shout then
+										if enemy_obj and enemy_obj.type == "act" then
+											dis_mod = 9
+										elseif special_shout then
 											local internal_data = enemy_data.internal_data
 											if special_shout == "f34" then
-												dis_mod = 0.125
+												dis_mod = 8
 											elseif special_shout == "f47" then
-												dis_mod = 0.25
+												dis_mod = 7
 											elseif internal_data and (internal_data.tasing or internal_data.spooc_attack) then
-												dis_mod = 0.375
+												dis_mod = 6
 											elseif special_shout == "f30" then
-												dis_mod = 0.5
+												dis_mod = 5
 											else
-												dis_mod = 0.625
+												dis_mod = 4
 												if attention_data.is_shield then
 													local is_shielded = w:raycast("ray", head_pos, attention_data.m_head_pos, "ignore_unit", {unit}, "slot_mask", 8)
 													local melee_range = is_team_ai and target_dis <= 200
@@ -613,13 +588,13 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 												end
 											end
 										else
-											dis_mod = 0.75
+											dis_mod = 2
 										end
 									else
-										dis_mod = 0.875
+										dis_mod = 3
 									end
 								end
-								target_dis = target_dis * dis_mod
+								target_dis = target_dis/dis_mod
 								if not best_target_dis or best_target_dis > target_dis then
 									local cop_key = cops_to_intimidate[u_key]
 									local intimidation_in_progress = cop_key and data.t - cop_key < BB.grace_period
@@ -641,6 +616,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 		local best_civ
 		local highest_wgt = 1
 		local intimidateable_civilians = {}
+		local civ_count = 0
 		if use_default_shout_shape then
 			max_angle = 90
 			max_dis = 1200
@@ -670,11 +646,8 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 											if not unit:unit_data().disable_shout then
 												if not unit_mov:cool() then
 													if not anim_data.drop then
-														t_ins(intimidateable_civilians, {
-															unit = unit,
-															key = u_key,
-															inv_wgt = 1
-														})
+														intimidateable_civilians[civ_count] = { unit = unit, key = u_key, inv_wgt = 1 }
+														civ_count = civ_count + 1
 														best_civ = unit
 													end
 												end
@@ -690,17 +663,17 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 		end
 		return best_civ, highest_wgt, intimidateable_civilians
 	end
-	local old_onalert = TeamAILogicIdle.on_alert
-	function TeamAILogicIdle.on_alert(data, alert_data, ...)
-		if BB._data.maskup then
+	if BB._data.maskup then
+		local old_onalert = TeamAILogicIdle.on_alert
+		function TeamAILogicIdle.on_alert(data, alert_data, ...)
 			if data.cool then
 				local alert_type = alert_data[1]
 				if CopLogicBase.is_alert_aggressive(alert_type) then
 					data.unit:movement():set_cool(false)
 				end
 			end
+			return old_onalert(data, alert_data, ...)
 		end
-		return old_onalert(data, alert_data, ...)
 	end
 end
 
@@ -709,6 +682,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicassault" then
 	local REACT_COMBAT = AIAttentionObject.REACT_COMBAT
 	function TeamAILogicAssault.find_enemy_to_mark(enemies)
 		local best_nmy, best_nmy_wgt
+		local marked_list = BB.marked_enemies
 		local t = TimerManager:game():time()
 		local has_ap = managers.player:has_category_upgrade("team", "crew_ai_ap_ammo")
 		for key, attention_info in p(enemies) do
@@ -721,12 +695,13 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicassault" then
 							if reaction then
 								if reaction >= REACT_COMBAT then
 									local char_tweak = attention_info.char_tweak
-									if char_tweak and char_tweak.priority_shout or attention_info.is_deployable then
+									local is_turret = attention_info.is_deployable
+									if char_tweak and char_tweak.priority_shout or is_turret then
 										local dis = attention_info.verified_dis
 										if dis <= 3000 then
 											if not best_nmy_wgt or best_nmy_wgt > dis then
-												local mark_t = attention_info.mark_t
-												if not mark_t or mark_t + 5 < t then
+												local mark_key = marked_list[key]
+												if not mark_key or mark_key + (is_turret and 9 or 5) < t then
 													best_nmy_wgt = dis
 													best_nmy = att_unit
 												end
@@ -743,24 +718,24 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicassault" then
 		return best_nmy
 	end
 	function TeamAILogicAssault.mark_enemy(data, criminal, to_mark, play_sound, play_action)
-		local mark_data = data.detected_attention_objects[to_mark:key()]
-		if mark_data then
-			local is_turret = to_mark:in_slot(25)
-			mark_data.mark_t = data.t
-			if play_sound then
-				local sound_name = is_turret and "f44" or to_mark:base():char_tweak().priority_shout
+		local mark_base = to_mark:base()
+		local is_turret = mark_base.sentry_gun
+		BB.marked_enemies[to_mark:key()] = data.t
+		if play_sound then
+			local sound_name = is_turret and "f44" or mark_base:char_tweak().priority_shout
+			if sound_name then
 				criminal:sound():say(sound_name .. "x_any", true, true)
 			end
-			if play_action then
-				if not criminal:movement():chk_action_forbidden("action") then
-					local new_action = { type = "act", variant = "arrest", body_part = 3, align_sync = true }
-					if criminal:brain():action_request(new_action) then
-						data.internal_data.gesture_arrest = true
-					end
+		end
+		if play_action then
+			if not criminal:movement():chk_action_forbidden("action") then
+				local new_action = { type = "act", variant = "arrest", body_part = 3, align_sync = true }
+				if criminal:brain():action_request(new_action) then
+					data.internal_data.gesture_arrest = true
 				end
 			end
-			to_mark:contour():add(is_turret and "mark_unit_dangerous" or "mark_enemy", true)
 		end
+		to_mark:contour():add(is_turret and "mark_unit_dangerous" or "mark_enemy", true)
 	end
 end
 
@@ -803,8 +778,8 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicbase" then
 													local is_hurt = unit:character_damage():health_ratio() < 1
 													local is_vulnerable = anim_data.hands_back or anim_data.surrender or is_hurt
 													if not BB._data.dom or is_vulnerable then
-														local intim_priority = anim_data.hands_back and 0.25 or anim_data.surrender and 0.5 or is_hurt and 0.75 or 1
-														intim_dis = intim_dis * intim_priority
+														local intim_priority = anim_data.hands_back and 4 or anim_data.surrender and 3 or is_hurt and 2 or 1
+														intim_dis = intim_dis/intim_priority
 														if not best_priority or best_priority > intim_dis then
 															best_nmy = unit
 															best_priority = intim_dis
@@ -859,16 +834,16 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicbase" then
 		for u_key, u_char in p(detected_obj) do
 			if u_char.identified then
 				local unit = u_char.unit
-				if unit:in_slot(data.enemy_slotmask) then
+				if unit:in_slot(12) then
 					if u_char.verified then
 						if u_char.verified_dis <= 200 then
 							local unit_pos = u_char.m_head_pos
 							local vec = unit_pos - my_pos
 							if mvec3_angle(vec, look_vec) <= 45 then
-								if not u_char.char_tweak.immune_to_knock_down then
+								local is_shield = u_char.is_shield
+								if not u_char.char_tweak.priority_shout or is_shield then
 									if unit:inventory():get_weapon() then
 										if not unit:anim_data().hurt then
-											local is_shield = w:raycast("ray", my_pos, unit_pos, "ignore_unit", {criminal}, "slot_mask", 8)
 											local damage = unit:character_damage()
 											local health_damage = math_ceil(damage._HEALTH_INIT/2)
 											local col_ray = { ray = -vec, body = unit:body("body"), position = unit_pos }
@@ -910,8 +885,8 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicbase" then
 			if not anim_data.tased then
 				local my_data = data.internal_data
 				if not my_data.acting then
+					local t = data.t
 					if not unit:sound():speaking() then
-						local t = data.t
 						if not my_data._intimidate_t or my_data._intimidate_t + 2 < t then
 							local is_reloading = anim_data.reload and false or true
 							local civ = TeamAILogicIdle.find_civilian_to_intimidate(unit, 90, 1200)
@@ -951,19 +926,21 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicbase" then
 end
 
 if RequiredScript == "lib/units/enemies/cop/actions/upper_body/copactionshoot" then
-	local math_lerp = math.lerp
-	local ip = ipairs
-	local old_shoot = CopActionShoot._get_shoot_falloff
-	function CopActionShoot:_get_shoot_falloff(target_dis, falloff, ...)
-		if BB._data.combat then
+	if BB._data.combat then
+		local math_lerp = math.lerp
+		local old_shoot = CopActionShoot._get_shoot_falloff
+		function CopActionShoot:_get_shoot_falloff(target_dis, falloff, ...)
 			if self._unit:in_slot(16) then
 				local i = #falloff
 				local data = falloff[i]
-				for i_range, range_data in ip(falloff) do
-					if target_dis < range_data.r then
-						i = i_range
-						data = range_data
-						break
+				for i_range = 1, #falloff do
+					local range_data = falloff[i_range]
+					if range_data then
+						if target_dis < range_data.r then
+							i = i_range
+							data = range_data
+							break
+						end
 					end
 				end
 				if i > 1 then
@@ -980,13 +957,12 @@ if RequiredScript == "lib/units/enemies/cop/actions/upper_body/copactionshoot" t
 				end
 				return data, i
 			end
+			return old_shoot(self, target_dis, falloff, ...)
 		end
-		return old_shoot(self, target_dis, falloff, ...)
 	end
 end
 
 if RequiredScript == "lib/units/enemies/cop/copbrain" then
-	local ai_mask = World:make_slot_mask(12, 25)
 	local old_convert = CopBrain.convert_to_criminal
 	function CopBrain:convert_to_criminal(...)
 		old_convert(self, ...)
@@ -998,8 +974,6 @@ if RequiredScript == "lib/units/enemies/cop/copbrain" then
 		char_tweak.always_face_enemy = true
 		char_tweak.allowed_poses = { stand = true }
 		self._logic_data.char_tweak = char_tweak
-		self._slotmask_enemies = ai_mask
-		self._logic_data.enemy_slotmask = ai_mask
 	end
 end
 
@@ -1018,30 +992,17 @@ if RequiredScript == "lib/units/enemies/cop/copdamage" then
 		end
 		return bb_original_copdamage_syncdamagemelee(self, variant, ...)
 	end
-	local old_die = CopDamage.die
-	function CopDamage:die(attack_data, ...)
-		if BB._data.ammo then
+	if BB._data.ammo then
+		local old_die = CopDamage.die
+		function CopDamage:die(attack_data, ...)
 			local attacker_unit = attack_data.attacker_unit
 			if attacker_unit then
 				if attacker_unit:in_slot(16) then
 					self:set_pickup(nil)
 				end
 			end
+			return old_die(self, attack_data, ...)
 		end
-		return old_die(self, attack_data, ...)
-	end
-end
-
-if RequiredScript == "lib/units/enemies/cop/logics/coplogicbase" then
-	local old_queue = CopLogicBase.queue_task
-	function CopLogicBase.queue_task(internal_data, id, func, data, exec_t, asap)
-		local unit = data.unit
-		if unit then
-			if unit:in_slot(16) then
-				asap = true
-			end
-		end
-		return old_queue(internal_data, id, func, data, exec_t, asap)
 	end
 end
 

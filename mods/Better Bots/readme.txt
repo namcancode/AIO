@@ -84,10 +84,9 @@ shout range, even if you aren't trying to dominate any cops yourself.
 "Big Lobby": As the name implies, enabling this option will populate the available player slots with bots when
 using the Big Lobby mod.
 
-"Hyper Reflexes": This option will cause the bots to look for any enemies every single frame, dramatically cutting
-down on the transition time between the bots' "idle" and "assault" logics. While this does make the bots extremely
-alert to all enemies, it can have a potential framerate impact. Leave this unchecked if you run into performance
-issues.
+"Hyper Reflexes": This option will drastically improve the speed of bots' reactions. While this does make the
+bots extremely alert to all enemies, it can have a potential framerate impact. Leave this unchecked if you run
+into performance issues.
 
 "Mask Up Upon Alert": Normally, the bots only mask up when the actual alarm has gone off. Enabling this option will
 cause them to mask up immediately upon an aggressive alert being made (gunshots, explosions, etc).

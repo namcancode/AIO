@@ -44,4 +44,8 @@
 	"maskup_toggle_desc" : "Se selezionato, i bot si maschereranno appena sentono colpi di arma da fuoco o esplosioni invece di aspettare che l'allarme scatti."
 	"equip_toggle_title" : "Disabilita Equipaggiamento Bot"
 	"equip_toggle_desc" : "Se selezionato, i bot non indosseranno nessun tipo di equipaggiamento (es: armature, kit medici e munizioni)."
+	"combat_toggle_title" : "Miglioramento nel combattimento"
+	"combat_toggle_desc" : "Se selezionato, i bot avranno una maggiore precisione, danno aumentato, ecc che li rendera simili a dei giocatori reali.\nNota: Se si sta utilizzando la mod Bot Weapons and Equipment, è meglio lasciare questa opzione disabilitata."
+	"ammo_toggle_title" : "Le uccisioni dei bot non lasciano munizioni"
+	"ammo_toggle_desc" : "Se selezionato, i nemici uccisi dai bot non lascieranno munizioni a terra." 
 }
