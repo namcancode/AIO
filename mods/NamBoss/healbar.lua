@@ -1,4 +1,3 @@
-
 local function round(num, dec)
 	local res = string.format('%.' .. (dec or 0) .. 'g', num)
 	return res:find('e') and tostring(math.floor(num)) or res
@@ -9,10 +8,10 @@ local function now()
 end
 
 local options = {
-	size = 20,
+	size = 16,
 	margin = 2,
 	opacity = 90,
-	color_start = Color("FF0000"):with_alpha(1),
+	color_start = Color("FFA500"):with_alpha(1),
 	color_end = Color("FF0000"):with_alpha(1),
 	color_friendly = Color("00FF00"):with_alpha(1)
 }
@@ -258,7 +257,7 @@ function FloatingHealthBar:_make()
 		blend_mode = 'normal',
 		layer = 4
 	})
-	self.pie._circle:set_texture_rect(64, 0, -64, 64) -- mirror
+	self.pie._circle:set_texture_rect(128, 0, -128, 128)
 	self.pieBg = pnl:bitmap({
 		name = 'pieBg',
 		texture = 'guis/textures/pd2/hud_progress_active',
