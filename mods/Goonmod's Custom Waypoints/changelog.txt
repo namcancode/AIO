@@ -1,3 +1,9 @@
+Revision 12:
+- fixed a crash
+
+Revision 11:
+- added keybinds to set a custom waypoint near game objectives
+
 Revision 10:
 - a missing comma
 

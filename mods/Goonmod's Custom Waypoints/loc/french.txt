@@ -1,16 +1,25 @@
 {
 	"gm_options_custom_waypoints_menu_title" : "Points de repère",
-	"gm_options_custom_waypoints_menu_desc" : "Changer les paramètres des points de repère",
+	"gm_options_custom_waypoints_menu_desc" : "Changer les paramètres des points de repère.",
 
-	"gm_options_custom_waypoints_place" : "Placer un point de repère",
-	"gm_options_custom_waypoints_remove" : "Enlever un point de repère",
+	"gm_options_custom_waypoints_place_title" : "Placer un point de repère",
+	"gm_options_custom_waypoints_place_desc" : "",
+
+	"gm_options_custom_waypoints_remove_title" : "Enlever un point de repère",
+	"gm_options_custom_waypoints_remove_desc" : "",
 
 	"gm_options_custom_waypoints_distance_title" : "Afficher la distance",
-	"gm_options_custom_waypoints_distance_desc" : "Affiche la distance à laquelle vous vous trouvez du point de repère",
+	"gm_options_custom_waypoints_distance_desc" : "Affiche la distance vous séparant du point de repère.",
 
 	"gm_options_custom_waypoints_always_show_my_waypoint_title" : "Toujours afficher mon point de repère",
 	"gm_options_custom_waypoints_always_show_my_waypoint_desc" : "",
 
 	"gm_options_custom_waypoints_always_show_others_waypoints_title" : "Toujours afficher les points de repères des coéquipiers",
-	"gm_options_custom_waypoints_always_show_others_waypoints_desc" : ""
+	"gm_options_custom_waypoints_always_show_others_waypoints_desc" : "",
+
+	"gm_options_custom_waypoints_previous_title" : "Point précédent",
+	"gm_options_custom_waypoints_previous_desc" : "Place votre point de repère sur un objectif du jeu.",
+
+	"gm_options_custom_waypoints_next_title" : "Point suivant",
+	"gm_options_custom_waypoints_next_desc" : "Place votre point de repère sur un objectif du jeu."
 }

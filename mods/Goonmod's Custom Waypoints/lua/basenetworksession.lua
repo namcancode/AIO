@@ -15,15 +15,15 @@ function BaseNetworkSession:on_peer_sync_complete(peer, peer_id)
 end
 
 Hooks:Add('BaseNetworkSessionOnPeerRemoved', 'BaseNetworkSessionOnPeerRemoved_CustomWaypoints', function(peer, peer_id, reason)
-	CustomWaypoints.NetworkRemove(peer_id)
+	CustomWaypoints:NetworkRemove(peer_id)
 end)
 
 Hooks:Add('NetworkReceivedData', 'NetworkReceivedData_CustomWaypoints', function(sender, messageType, data)
 	if messageType == CustomWaypoints.network.place_waypoint then
-		CustomWaypoints.NetworkPlace(sender, data)
+		CustomWaypoints:NetworkPlace(sender, data)
 	end
 
 	if messageType == CustomWaypoints.network.remove_waypoint then
-		CustomWaypoints.NetworkRemove(sender)
+		CustomWaypoints:NetworkRemove(sender)
 	end
 end)

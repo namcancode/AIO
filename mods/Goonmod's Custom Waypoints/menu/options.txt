@@ -8,8 +8,8 @@
 		{
 			"type" : "keybind",
 			"id" : "gm_cw_keybind_place_waypoint",
-			"title" : "gm_options_custom_waypoints_place",
-			"description" : "gm_options_custom_waypoints_place",
+			"title" : "gm_options_custom_waypoints_place_title",
+			"description" : "gm_options_custom_waypoints_place_desc",
 			"keybind_id" : "CustomWaypointsPlaceWaypoint",
 			"run_in_game" : true,
 			"func" : "KeybindPlaceWaypoint"
@@ -17,11 +17,33 @@
 		{
 			"type" : "keybind",
 			"id" : "gm_cw_keybind_remove_waypoint",
-			"title" : "gm_options_custom_waypoints_remove",
-			"description" : "gm_options_custom_waypoints_remove",
+			"title" : "gm_options_custom_waypoints_remove_title",
+			"description" : "gm_options_custom_waypoints_remove_desc",
 			"keybind_id" : "CustomWaypointsRemoveWaypoint",
 			"run_in_game" : true,
 			"func" : "KeybindRemoveWaypoint"
+		},
+		{
+			"type" : "divider",
+			"size" : 16
+		},
+		{
+			"type" : "keybind",
+			"id" : "gm_cw_keybind_previous_waypoint",
+			"title" : "gm_options_custom_waypoints_previous_title",
+			"description" : "gm_options_custom_waypoints_previous_desc",
+			"keybind_id" : "CustomWaypointsPreviousWaypoint",
+			"run_in_game" : true,
+			"func" : "KeybindPreviousWaypoint"
+		},
+		{
+			"type" : "keybind",
+			"id" : "gm_cw_keybind_next_waypoint",
+			"title" : "gm_options_custom_waypoints_next_title",
+			"description" : "gm_options_custom_waypoints_next_desc",
+			"keybind_id" : "CustomWaypointsNextWaypoint",
+			"run_in_game" : true,
+			"func" : "KeybindNextWaypoint"
 		},
 		{
 			"type" : "divider",
