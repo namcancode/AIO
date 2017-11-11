@@ -1,3 +1,17 @@
+Revision 16:
+- added one more sanity check
+
+Revision 15:
+- changed custom waypoint to use the exact same position than objective waypoints
+
+Revision 14:
+- fixed waypoint's position when placed while using a camera asset
+- added sanity checks
+
+Revision 13:
+- fixed waypoint cycling
+- added code for upcoming features in Keepers
+
 Revision 12:
 - fixed a crash
 

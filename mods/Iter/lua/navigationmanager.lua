@@ -516,18 +516,9 @@ if Iter.settings.streamline_path then
 		return min_congestion_risk
 	end
 
+	NavigationManager.itr_navlink_coef = 600
 	function NavigationManager:_execute_coarce_search(search_data)
-		local all_nav_segments = self._nav_segments
-		local dont_change_z = math_abs(mvec3_z(all_nav_segments[search_data.start_i_seg].pos) - mvec3_z(all_nav_segments[search_data.end_i_seg].pos)) < 200
-		local result = self:do_execute_coarce_search(search_data, dont_change_z)
-		if not result and dont_change_z then
-			result = self:do_execute_coarce_search(search_data, false)
-		end
-		return result
-	end
-
-	local _navlink_coef = 600
-	function NavigationManager:do_execute_coarce_search(search_data, dont_change_z)
+		local navlink_coef = self.itr_navlink_coef
 		local access_pos = search_data.access_pos
 		local access_neg = search_data.access_neg
 		local all_nav_segments = self._nav_segments
@@ -560,10 +551,10 @@ if Iter.settings.streamline_path then
 			if neighbours then
 				local from = discovered_seg[next_seg_id]
 				if neighbours[end_i_seg] then
-					local access = itr_get_accessibility(neighbours[end_i_seg], access_pos, access_neg)
-					if access then
+					local access_cost = itr_get_accessibility(neighbours[end_i_seg], access_pos, access_neg)
+					if access_cost then
 						local tmp = clone(from)
-						tmp.delay = tmp.delay + access
+						tmp.delay = tmp.delay + access_cost
 						table_insert(potential_paths, tmp)
 						if not stopping and tmp.delay < 0.2 then
 							stopping = #seg_to_search
@@ -571,39 +562,31 @@ if Iter.settings.streamline_path then
 					end
 				end
 
-				local seg_z = dont_change_z and mvec3_z(from.pos)
 				for neighbour_seg_id, door_list in pairs(neighbours) do
 					local neighbour = all_nav_segments[neighbour_seg_id]
 					if not neighbour.disabled then
-						local neighbour_z = neighbour.z
-						if not neighbour_z then
-							neighbour_z = mvec3_z(neighbour.pos)
-							neighbour.z = neighbour_z
-						end
-						if not dont_change_z or math_abs(seg_z - neighbour_z) < 200 then
-							if not verify_clbk or verify_clbk(neighbour_seg_id) then
-								local access = itr_get_accessibility(door_list, access_pos, access_neg)
-								if access then
-									local discovered = discovered_seg[neighbour_seg_id]
-									if not discovered then
+						if not verify_clbk or verify_clbk(neighbour_seg_id) then
+							local access_cost = itr_get_accessibility(door_list, access_pos, access_neg)
+							if access_cost then
+								local discovered = discovered_seg[neighbour_seg_id]
+								if not discovered then
+									table_insert(seg_to_search, neighbour_seg_id)
+									discovered_seg[neighbour_seg_id] = {
+										path = from.path .. ';' .. neighbour_seg_id,
+										delay = from.delay + access_cost,
+										steps_nr = from.steps_nr + 1,
+										coarse_dis = from.coarse_dis + mvec3_dis(neighbour.pos, from.pos),
+										pos = neighbour.pos
+									}
+								else
+									local new_delay = from.delay + access_cost
+									local new_coarse_dis = from.coarse_dis + mvec3_dis(neighbour.pos, from.pos)
+									if new_coarse_dis + new_delay * navlink_coef < discovered.coarse_dis + discovered.delay * navlink_coef then
 										table_insert(seg_to_search, neighbour_seg_id)
-										discovered_seg[neighbour_seg_id] = {
-											path = from.path .. ';' .. neighbour_seg_id,
-											delay = from.delay + access,
-											steps_nr = from.steps_nr + 1,
-											coarse_dis = from.coarse_dis + mvec3_dis(neighbour.pos, from.pos),
-											pos = neighbour.pos
-										}
-									else
-										local new_delay = from.delay + access
-										local new_coarse_dis = from.coarse_dis + mvec3_dis(neighbour.pos, from.pos)
-										if new_coarse_dis + new_delay * _navlink_coef < discovered.coarse_dis + discovered.delay * _navlink_coef then
-											table_insert(seg_to_search, neighbour_seg_id)
-											discovered.path = from.path .. ';' .. neighbour_seg_id
-											discovered.delay = new_delay
-											discovered.steps_nr = from.steps_nr + 1
-											discovered.coarse_dis = new_coarse_dis
-										end
+										discovered.path = from.path .. ';' .. neighbour_seg_id
+										discovered.delay = new_delay
+										discovered.steps_nr = from.steps_nr + 1
+										discovered.coarse_dis = new_coarse_dis
 									end
 								end
 							end
@@ -615,16 +598,21 @@ if Iter.settings.streamline_path then
 			next_seg_id = table_remove(seg_to_search, 1)
 		until not next_seg_id
 
+		discovered_seg = nil
+		seg_to_search = nil
+
 		local best_score = 100000000
 		local best_path
 		for _, ppath in ipairs(potential_paths) do
-			local score = ppath.coarse_dis + ppath.delay * _navlink_coef
+			local score = ppath.coarse_dis + ppath.delay * navlink_coef
 			ppath.score = score
 			if score < best_score then
 				best_score = score
 				best_path = ppath
 			end
 		end
+		potential_paths = nil
+
 		if best_path then
 			local path = {}
 			local i = 1
@@ -906,6 +894,53 @@ elseif level_id == 'gallery' or level_id == 'framing_frame_1' then
 
 		data.nav_segments[1].neighbours[13] = nil
 		data.nav_segments[13].neighbours[1] = nil
+
+		itr_original_navigationmanager_setloaddata(self, data)
+	end
+
+elseif level_id == 'watchdogs_1' then
+
+	function NavigationManager:set_load_data(data)
+		local seg2vg = _segment_to_vis_groups(data)
+
+		local rooms_to_transfer = {
+			896,
+			897,
+			898,
+			899,
+		}
+		for _, room_id in ipairs(rooms_to_transfer) do
+			data.vis_groups[seg2vg[134]].rooms[room_id] = nil
+			data.vis_groups[seg2vg[52]].rooms[room_id] = true
+			data.room_vis_groups[room_id] = seg2vg[52]
+		end
+
+		local d134t52 = data.nav_segments[134].neighbours[52]
+		local d52t134 = data.nav_segments[52].neighbours[134]
+
+		local old_doors = {
+			1943,
+			1944,
+			1949,
+			1953,
+			1959,
+			1960,
+		}
+		for _, door_id in ipairs(old_doors) do
+			table.delete(d134t52, door_id)
+			table.delete(d52t134, door_id)
+		end
+
+		local new_doors = {
+			1564,
+			1565,
+			1566,
+			1573,
+		}
+		for _, door_id in ipairs(new_doors) do
+			table.insert(d134t52, door_id)
+			table.insert(d52t134, door_id)
+		end
 
 		itr_original_navigationmanager_setloaddata(self, data)
 	end

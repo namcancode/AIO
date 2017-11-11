@@ -5,19 +5,19 @@ local level_id = Global.game_settings and Global.game_settings.level_id or ''
 level_id = level_id:gsub('_night$', ''):gsub('_day$', '')
 local itr_original_missionscriptelement_onexecuted = MissionScriptElement.on_executed
 
-if not Iter.settings["map_change_" .. level_id] then
+if not Iter.settings['map_change_' .. level_id] then
 
-elseif level_id == "mad" then
+elseif level_id == 'mad' then
 
 	function MissionScriptElement:on_executed(...)
 		itr_original_missionscriptelement_onexecuted(self, ...)
 		if self._id == 137499 then
-			managers.navigation:clbk_navfield("remove_nav_seg_neighbours", { [13] = {9} })
-			managers.navigation:clbk_navfield("remove_nav_seg_neighbours", { [9] = {13} })
+			managers.navigation:clbk_navfield('remove_nav_seg_neighbours', { [13] = {9} })
+			managers.navigation:clbk_navfield('remove_nav_seg_neighbours', { [9] = {13} })
 		end
 	end
 
-elseif level_id == "mia_1" then
+elseif level_id == 'mia_1' then
 
 	local entrance_id
 	local trap_links = {
@@ -32,13 +32,13 @@ elseif level_id == "mia_1" then
 		if self._id == 101242 then
 			entrance_id = self._values.on_executed[1].id - 101242
 			for k, v in pairs(trap_links) do
-				managers.navigation:clbk_navfield("remove_nav_seg_neighbours", { [v[1]] = {v[2]} })
-				managers.navigation:clbk_navfield("remove_nav_seg_neighbours", { [v[2]] = {v[1]} })
+				managers.navigation:clbk_navfield('remove_nav_seg_neighbours', { [v[1]] = {v[2]} })
+				managers.navigation:clbk_navfield('remove_nav_seg_neighbours', { [v[2]] = {v[1]} })
 			end
 		elseif self._id == 104635 then
 			local v = trap_links[entrance_id]
-			managers.navigation:clbk_navfield("add_nav_seg_neighbours", { [v[1]] = {v[2]} })
-			managers.navigation:clbk_navfield("add_nav_seg_neighbours", { [v[2]] = {v[1]} })
+			managers.navigation:clbk_navfield('add_nav_seg_neighbours', { [v[1]] = {v[2]} })
+			managers.navigation:clbk_navfield('add_nav_seg_neighbours', { [v[2]] = {v[1]} })
 		end
 	end
 

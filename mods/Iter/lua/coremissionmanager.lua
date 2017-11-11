@@ -313,7 +313,7 @@ elseif level_id == 'jolly' then
 				ladder1.id = 101785
 				ladder1.values.align_position = true
 				ladder1.values.attitude = 'avoid'
-				ladder1.values.interval = 1
+				ladder1.values.interval = 1.5
 				ladder1.values.repeatable = true
 				ladder1.values.so_action = 'e_nl_up_6m_var3'
 				ladder1.values.path_style = 'destination'
