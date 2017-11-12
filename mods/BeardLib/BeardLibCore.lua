@@ -28,6 +28,8 @@ if not _G.BeardLib then
 		self:LoadModules()
 		FileIO:MakeDir(self.config.maps_dir)
 
+		Global.beardlib_checked_updates = Global.beardlib_checked_updates or {}
+		
 		local languages = {}
 		for i, file in pairs(FileIO:GetFiles(self.config.localization_dir)) do
 			local lang = Path:GetFileNameWithoutExtension(file)
@@ -43,7 +45,7 @@ if not _G.BeardLib then
 				module:post_init()
 			end
 		end
-		self.Version = self.AssetUpdates._version
+		self.Version = tonumber(self.AssetUpdates.version)
 		
 		for k, manager in pairs(self.managers) do
 			if manager.new then
@@ -146,7 +148,7 @@ if not _G.BeardLib then
 			end
 		end
 		for id, clbk in pairs(self._updaters) do
-			local success, e = pcall(function() clbk() end)
+			local success, e = pcall(function() clbk(t, dt) end)
 			if not success then
 				BeardLib:log("[Updater-ERROR(%s)] " .. tostring(e and e.code or ""), tostring(id))
 			end

@@ -331,7 +331,8 @@ function BeardLib.Utils:CheckParamValidty(func_name, vari, var, desired_type, al
     return true
 end
 
-function BeardLib.Utils:DownloadMap(level_name, update_key, done_callback)
+function BeardLib.Utils:DownloadMap(level_name, id, done_callback)
+    local lookup_tbl = {id = tostring(id), steamid = Steam:userid()}
     local function done_map_download()
         BeardLib.managers.MapFramework:Load()
         BeardLib.managers.MapFramework:RegisterHooks()
@@ -343,10 +344,11 @@ function BeardLib.Utils:DownloadMap(level_name, update_key, done_callback)
     end
     QuickMenuPlus:new(managers.localization:text("custom_map_alert"), managers.localization:text("custom_map_needs_download"), {{text = "Yes", callback = function()
         local provider = ModAssetsModule._providers.modworkshop --temporarily will support only mws
-        dohttpreq(ModCore:GetRealFilePath(provider.download_info_url, tostring(update_key)), function(data, id)
-            local ret, d_data = pcall(function() return json.decode(data) end)
-            if ret then			
-                local download_url = ModCore:GetRealFilePath(provider.download_api_url, d_data[tostring(update_key)])
+        dohttpreq(ModCore:GetRealFilePath(provider.get_files_url, lookup_tbl), function(data, id)
+            local fid = string.split(data, '"')[1]
+            if fid then
+                lookup_tbl.fid = fid
+                local download_url = ModCore:GetRealFilePath(provider.download_url, lookup_tbl)
                 BeardLib:log("Downloading map from url: %s", download_url)
                 local dialog = BeardLib.managers.dialog.download
                 dialog:Show({title = managers.localization:text("beardlib_downloading")..level_name or "No Map Name", force = true})				
@@ -373,8 +375,8 @@ function BeardLib.Utils:GetJobString()
     local level_id = Global.game_settings.level_id
     local job_id = managers.job:current_job_id()
     local level = tweak_data.levels[level_id]
-    local mod = BeardLib.managers.MapFramework:GetModByName(job_id)
-    local update_key = mod and mod.update_key
+    local mod = BeardLib.managers.MapFramework:GetMapByJobId(job_id)
+    local update_key = mod and mod.update_key    
     local str = string.format("%s|%s|%s|%s|%s", job_id, level_id, Global.game_settings.difficulty, managers.localization:to_upper_text(level and level.name_id or ""), update_key or "")
     return str
 end
@@ -848,7 +850,12 @@ function SafeClbk(func, ...)
 end
 
 function ClassClbk(clss, func, ...)
-    return SimpleClbk(clss[func], clss, ...)
+    local f = clss[func]
+    if not f then
+        BeardLib:log("[Callback Error] Function named %s was not found in the given class", tostring(func))
+        return function() end
+    end
+    return SimpleClbk(f, clss, ...)
 end
 
 --If only Color supported alpha for hex :P
@@ -894,7 +901,7 @@ function Color:contrast(white, black)
     end
     local L = 0.2126 * col.r + 0.7152 * col.g + 0.0722 * col.b
     local color = white or Color.white
-    if L > 0.179 then
+    if L > 0.179 and self.a > 0.5 then
         color = black or Color.black 
     end
     return color
@@ -907,4 +914,178 @@ function type_name(value)
         return value.type_name
     end
     return t
+end
+
+local mstep = math.step
+require("lib/utils/Easing")
+function Easing.step(a, b, t)
+	return mstep(a, b, t)
+end
+
+function anim_dt(dont_pause)
+    local dt = coroutine.yield()
+    if Application:paused() and not dont_pause then
+        dt = TimerManager:main():delta_time()
+    end
+    return dt
+end
+
+function anim_over(seconds, f, dont_pause)
+	local t = 0
+
+	while true do
+		local dt = anim_dt(dont_pause)
+		t = t + dt
+
+		if seconds <= t then
+			break
+		end
+
+		f(t / seconds, t)
+	end
+
+	f(1, seconds)
+end
+
+function anim_wait(seconds, dont_pause)
+	local t = 0
+
+	while t < seconds do
+		local dt = anim_dt(dont_pause)
+		t = t + dt
+	end
+end
+
+function play_anim_thread(params, o)
+	o:script().animating = true
+	
+    local easing = Easing[params.easing or "linear"]
+    local time = params.time or 0.25
+    local clbk = params.callback
+    local wait_time = params.wait
+	local after = params.after
+    local set = params.set or params
+
+    if wait_time then
+        time = time + wait_time
+        anim_wait(wait_time)
+    end
+    
+    for param, value in pairs(set) do
+        if type(value) ~= "table" then
+            set[param] = {value = value}
+        end
+        set[param].old_value = set[param].old_value or o[param](o)
+    end
+
+	anim_over(time, function (t)
+        for param, anim in pairs(set) do
+            local ov = anim.old_value
+            local v = anim.value
+            local typ = type_name(v)
+            if typ == "Color" then
+                o:set_color(Color(easing(ov.a, v.a, t), easing(ov.r, v.r, t), easing(ov.g, v.g, t), easing(ov.b, v.b, t)))
+            else
+                o["set_"..param](o, anim.sticky and v or easing(ov, v, t))
+            end
+            if after then after() end
+        end
+    end)
+    --last loop
+    for param, anim in pairs(set) do
+        local v = anim.value
+        local typ = type_name(v)        
+        if typ == "Color" then
+            o:set_color(v)
+        else
+            o["set_"..param](o, v)
+        end
+        if after then after() end
+    end
+
+    o:script().animating = nil    
+    if clbk then
+        clbk()
+    end
+end
+
+function playing_anim(o)
+    return o:script().animating
+end
+
+function stop_anim(o)
+    o:stop()
+    o:script().animating = nil
+end
+
+function play_anim(o, params)
+    if not alive(o) then
+        return
+    end
+    if playing_anim(o) and params.stop ~= false then
+        stop_anim(o)
+    end
+    o:animate(SimpleClbk(play_anim_thread, params))
+end
+
+-- just more lightweight
+function play_color(o, color, params)
+    if not alive(o) then
+        return
+    end
+    params = params or {}
+    if playing_anim(o) and params.stop ~= false then
+        stop_anim(o)
+    end
+    local easing = Easing[params.easing or "linear"]
+    local time = params.time or 0.25
+    local clbk = params.callback
+    local wait_time = params.wait
+    local ov = o:color()
+    if color then
+        o:animate(function()
+            o:script().animating = true        
+            if wait_time then
+                time = time + wait_time
+                anim_wait(wait_time)
+            end
+            anim_over(time, function (t)
+                o:set_color(Color(easing(ov.a, color.a, t), easing(ov.r, color.r, t), easing(ov.g, color.g, t), easing(ov.b, color.b, t)))
+            end)
+            o:set_color(color)
+            o:script().animating = nil            
+            if clbk then clbk() end
+        end)
+    end
+end
+
+function play_value(o, value_name, value, params)
+    if not alive(o) then
+        return
+    end
+    params = params or {}    
+    if playing_anim(o) and params.stop ~= false then
+        stop_anim(o)
+    end
+    local easing = Easing[params.easing or "linear"]
+    local time = params.time or 0.25
+    local clbk = params.callback
+    local wait_time = params.wait
+    local ov = o[value_name](o)
+    local func = ClassClbk(o, "set_"..value_name)
+    if value then
+        o:animate(function()
+            o:script().animating = true
+            if wait_time then
+                time = time + wait_time
+                anim_wait(wait_time)
+            end
+            anim_over(time, function (t)
+                func(easing(ov, value, t))
+            end)
+            func(value)
+            o:script().animating = nil
+            if clbk then clbk() end
+        end)
+    end
 end

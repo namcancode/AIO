@@ -13,6 +13,7 @@ function LevelModule:init(core_mod, config)
 end
 
 function LevelModule:Load()
+    self._config.id = tostring(self._config.id)
     if Global.level_data and Global.level_data.level_id == self._config.id then
         BeardLib.current_level = self
         if self._config.include then
@@ -63,6 +64,7 @@ function LevelModule:AddLevelDataToTweak(l_self)
         cube = self._config.cube,
         ghost_bonus = self._config.ghost_bonus,
         max_bags = self._config.max_bags,
+        load_screen = self._config.load_screen,
         team_ai_off = self._config.team_ai_off,
         custom = true
     }

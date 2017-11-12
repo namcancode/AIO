@@ -6,9 +6,8 @@ function BeardLibModsMenu:init()
         layer = 1000,
         offset = 6,
         animate_toggle = true,
-        auto_text_color = true,
+        auto_foreground = true,
         accent_color = accent_color,
-        marker_highlight_color = Color.white:with_alpha(0.1),
 		create_items = callback(self, self, "CreateItems"),
     })
     self._waiting_for_update = {}
@@ -83,6 +82,8 @@ function BeardLibModsMenu:CreateItems(menu)
         name = "search",
         text = "beardlib_search",
         w = 300,
+        line_color = self._holder.foreground,
+        control_slice = 0.7,
         localized = true,
         items_size = 24,
         position = function(item)
@@ -135,7 +136,7 @@ function BeardLibModsMenu:AddMod(mod, type)
         h = s - 1,
         scrollbar = false,
         accent_color = concol,
-        marker_highlight_color = concol, 
+        highlight_color = concol, 
         background_color = color:with_alpha(0.8)
     })
     self._list:SetScrollSpeed(mod_item:Height())
@@ -147,6 +148,8 @@ function BeardLibModsMenu:AddMod(mod, type)
             text = t,
         }, opt))
     end
+    local img = mod._config.image
+    img = img and DB:has(Idstring("texture"), Idstring(mod._config.image)) and img or nil
     mod_item:Image({
         name = "Image",
         w = 100,
@@ -154,10 +157,10 @@ function BeardLibModsMenu:AddMod(mod, type)
         icon_w = 100,
         icon_h = 100,
         offset = 0,
-        text_color = Color.white,
-        auto_text_color = mod._config.auto_image_color or not mod._config.image,
+        foreground = Color.white,
+        auto_foreground = mod._config.auto_image_color or not mod._config.image,
         count_as_aligned = true,
-        texture = mod._config.image or "guis/textures/pd2/none_icon",
+        texture = img or "guis/textures/pd2/none_icon",
         position = "CenterTop"
     })
     local t = text(tostring(name), {name = "Title", items_size = 20, offset = {4, 0}})
@@ -173,7 +176,7 @@ function BeardLibModsMenu:AddMod(mod, type)
         w = 24,
         h = 24,
         items_size = 24,
-        marker_highlight_color = Color.transparent,
+        highlight_color = Color.transparent,
         offset = 0,
         value = disabled_mods[mod.ModPath] ~= true,
         callback = callback(self, self, "SetModEnabled", mod),
@@ -216,7 +219,7 @@ function BeardLibModsMenu:UpdateTitle(mod)
     local mod_item = self._list:GetItemByLabel(mod)
     if mod_item then
         local title = mod_item:GetItem("Title")
-        title:SetText((mod.Name or "Missing name?") ..(mod.update_assets_module and "("..mod.update_assets_module._version..")" or ""))
+        title:SetText((mod.Name or "Missing name?") ..(mod.update_assets_module and "("..mod.update_assets_module.version..")" or ""))
     end
 end
 

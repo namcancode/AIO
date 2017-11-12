@@ -63,7 +63,12 @@ function NarrativeModule:init(core_mod, config)
     return true
 end
 
-function NarrativeModule:AddNarrativeData(narr_self)
+function NarrativeModule:AddNarrativeData(narr_self, tweak_data)
+    local icon = self._config.icon and "mods_"..BeardLib.Utils.Path:GetFileNameWithoutExtension(self._config.icon)
+    if icon then
+        tweak_data.hud_icons[icon] = {texture = self._config.icon, texture_rect = self._config.icon_rect or false, custom = true}
+    end
+
     local data = {
         name_id = self._config.name_id or "heist_" .. self._config.id .. "_name",
         briefing_id = self._config.brief_id or "heist_" .. self._config.id .. "_brief",
@@ -80,8 +85,10 @@ function NarrativeModule:AddNarrativeData(narr_self)
         experience_mul = self._config.experience_mul or {0.001,0.001,0.001,0.001,0.001},
         contract_visuals = {
             min_mission_xp = self._config.min_mission_xp or {0.001,0.001,0.001,0.001,0.001},
-            max_mission_xp = self._config.max_mission_xp or {0.001,0.001,0.001,0.001,0.001}
+            max_mission_xp = self._config.max_mission_xp or {0.001,0.001,0.001,0.001,0.001},
+            preview_image = self._config.preview_image or {icon = icon}
         },
+        load_screen = self._config.load_screen,
         ignore_heat = true,
         allowed_gamemodes = self._config.allowed_gamemodes,
         custom = true
@@ -98,16 +105,16 @@ function NarrativeModule:AddNarrativeData(narr_self)
     if self._config.merge_data then
         table.merge(data, BeardLib.Utils:RemoveMetas(self._config.merge_data, true))
     end
-    narr_self.jobs[self._config.id] = data
+    narr_self.jobs[tostring(self._config.id)] = data
     if #data.chain > 0 then 
-        table.insert(narr_self._jobs_index, self._config.id)
+        table.insert(narr_self._jobs_index, tostring(self._config.id))
     end
     narr_self:set_job_wrappers()
 end
 
 function NarrativeModule:RegisterHook()
     if tweak_data and tweak_data.narrative then
-        self:AddNarrativeData(tweak_data.narrative)
+        self:AddNarrativeData(tweak_data.narrative, tweak_data)
     else
         Hooks:PostHook(NarrativeTweakData, "init", self._config.id .. "AddNarrativeData", callback(self, self, "AddNarrativeData"))
     end
