@@ -12,23 +12,44 @@ end
 
 local kpr_original_copbrain_setobjective = CopBrain.set_objective
 function CopBrain:set_objective(new_objective, params)
-	if new_objective and (new_objective.type == 'follow' or new_objective.type == 'stop' or new_objective.type == 'defend_area') then
-		if self._unit:base().kpr_is_keeper then
-			local old_objective = self._logic_data.objective
-			self._logic_data.objective = Keepers:GetStayObjective(self._unit)
-			CopLogicBase.on_new_objective(self._logic_data, old_objective)
-			if Keepers:CanChangeState(self._unit) then
-				self:set_logic('travel')
-				if self._logic_data.is_converted then
-					self._unit:movement():action_request({
-						type = 'idle',
-						body_part = 1,
-						sync = true
-					})
+	local is_converted = self._logic_data.is_converted
+	if is_converted or self._logic_data.team and self._logic_data.team.id == 'criminal1' then
+		local icon, ext_data
+		local old_objective = self._logic_data.objective
+
+		if new_objective and not new_objective.forced then
+			icon = new_objective.kpr_icon
+			local new_obj_type = new_objective.type
+			if new_obj_type == 'follow' or new_obj_type == 'stop' or new_obj_type == 'defend_area' then
+				if self._unit:base().kpr_is_keeper then
+					self._logic_data.objective = Keepers:GetStayObjective(self._unit)
+					CopLogicBase.on_new_objective(self._logic_data, old_objective)
+					if Keepers:CanChangeState(self._unit) then
+						self:set_logic('travel')
+						if is_converted then
+							self._unit:movement():action_request({
+								type = 'idle',
+								body_part = 1,
+								sync = true
+							})
+						end
+					end
+					Keepers:ResetLabel(self._unit, is_converted, self._logic_data.objective.kpr_icon, ext_data)
+					return
 				end
+			elseif new_obj_type == 'revive' then
+				icon = Keepers.settings.icon_revive
+				new_objective.kpr_icon = icon
+				local peer = managers.network:session():peer_by_unit(new_objective.follow_unit)
+				ext_data = peer and peer:id() or 0
 			end
-			return
 		end
+
+		if not icon and old_objective and old_objective.kpr_icon then
+			icon = false
+		end
+
+		Keepers:ResetLabel(self._unit, is_converted, icon, ext_data)
 	end
 
 	kpr_original_copbrain_setobjective(self, new_objective, params)

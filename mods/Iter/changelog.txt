@@ -1,3 +1,10 @@
+Revision 70:
+- [Watchdogs D1] forgot to update 2 doors between modified segments causing streamliner to crash
+
+Revision 69:
+- [Transport Train] fixed navigation when warehouse's doors are open with c4 or a saw
+- [Transport Train] decreased use interval for a lot of navlinks
+
 Revision 68:
 - [Watchdogs D1] fixed navigation around (random) police car right in front of truck (spawn)
 - removed an obsolete mechanism (r41's stuff not needed since r51)

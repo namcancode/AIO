@@ -889,6 +889,26 @@ elseif level_id == 'chew' then
 		return itr_original_missionscript_createelements(self, elements)
 	end
 
+elseif level_id == 'arm_for' then
+
+	function MissionManager:_add_script(data)
+		for _, element in pairs(data.elements) do
+			if element.values.is_navigation_link and element.values.interval == 6 then
+				element.values.interval = 1
+			elseif element.id == 105584 or element.id == 105587 then
+				local new_seq = CoreTable.deep_clone(element.values.sequence_list[1])
+				new_seq.sequence = 'int_seq_saw_in'
+				table.insert(element.values.sequence_list, new_seq)
+
+				new_seq = CoreTable.deep_clone(new_seq)
+				new_seq.sequence = 'int_seq_explosion_in'
+				table.insert(element.values.sequence_list, new_seq)
+			end
+		end
+
+		itr_original_missionmanager_addscript(self, data)
+	end
+
 elseif level_id == 'firestarter_1' then
 
 	function MissionManager:_add_script(data)

@@ -919,6 +919,8 @@ elseif level_id == 'watchdogs_1' then
 		local d52t134 = data.nav_segments[52].neighbours[134]
 
 		local old_doors = {
+			1852,
+			1855,
 			1943,
 			1944,
 			1949,

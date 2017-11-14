@@ -3,8 +3,10 @@ if _G[key] then return else _G[key] = true end
 
 local mvec_cpy = mvector3.copy
 local mvec_dis = mvector3.distance
+local mvec_set = mvector3.set
 local mvec_set_z = mvector3.set_z
 local tmp_vec = Vector3()
+local tmp_vec2 = Vector3()
 
 function json.safe_decode(data)
 	local result = nil
@@ -21,6 +23,9 @@ Keepers.enabled = true
 Keepers.clients = {}
 Keepers.joker_names = {}
 Keepers.radial_health = {}
+Keepers.key_to_unit_id = {}
+Keepers.key_to_SO = {}
+Keepers.element_interactions = {}
 Keepers.settings = {
 	primary_mode = 3,
 	secondary_mode = 4,
@@ -33,7 +38,8 @@ Keepers.settings = {
 	send_my_joker_name = true,
 	show_other_jokers_names = true,
 	my_joker_name = 'Cave',
-	jokers_run_like_teamais = true
+	jokers_run_like_teamais = true,
+	icon_revive = 'wp_revive'
 }
 
 function Keepers:CanCallJokers(current_state_name)
@@ -159,7 +165,30 @@ end
 function Keepers:GetGoonModWaypointPosition(peer_id)
 	local peer_name = peer_id == managers.network:session():local_peer():id() and 'localplayer' or peer_id
 	local wp = managers.hud and managers.hud._hud.waypoints['CustomWaypoint_' .. peer_name]
-	return wp and wp.position or nil
+	if not wp then
+		return nil
+	end
+
+	local pos = wp.position
+	local tracker = managers.navigation:create_nav_tracker(pos, false)
+	local tracker_pos = tracker:field_position()
+	managers.navigation:destroy_nav_tracker(tracker)
+
+	mvec_set(tmp_vec, pos)
+	mvec_set(tmp_vec2, tracker_pos)
+	mvec_set_z(tmp_vec, 0)
+	mvec_set_z(tmp_vec2, 0)
+	if mvec_dis(tmp_vec, tmp_vec2) < 100 then
+		pos = tracker_pos
+	end
+
+	mvec_set(tmp_vec, pos)
+	mvec_set(tmp_vec2, tmp_vec)
+	mvec_set_z(tmp_vec, tmp_vec.z + 10)
+	mvec_set_z(tmp_vec2, tmp_vec.z - 2000)
+	local ground_slotmask = managers.slot:get_mask('AI_graph_obstacle_check')
+	local ray = World:raycast('ray', tmp_vec, tmp_vec2, 'slot_mask', ground_slotmask, 'ray_type', 'walk')
+	return ray and ray.hit_position
 end
 
 function Keepers:GetLuaNetworkingText(peer_id, unit, mode)
@@ -188,7 +217,7 @@ function Keepers:GetTeamAIsOwnedByPeer(peer_id)
 
 	for _, record in pairs(managers.groupai:state():all_AI_criminals()) do
 		local u = record.unit
-		if u:base().kpr_following_peer_id == peer_id then
+		if alive(u) and u:base().kpr_following_peer_id == peer_id then
 			table.insert(result, u)
 		end
 	end
@@ -210,19 +239,27 @@ function Keepers:GetStoppedTeamAIs()
 end
 
 function Keepers:GetStayObjective(unit)
+	local mode_to_icon = {
+		nil,
+		'pd2_goto',
+		'pd2_defend',
+		'pd2_escape'
+	}
 	local kpr_mode = unit:base().kpr_mode
 	local keep_position = unit:base().kpr_keep_position
 	if kpr_mode == 3 or kpr_mode == 4 then
 		return {
 			type = 'defend_area',
+			kpr_icon = mode_to_icon[kpr_mode],
 			nav_seg = managers.navigation:get_nav_seg_from_pos(keep_position),
+			attitude = 'avoid',
 			stance = 'hos',
-			scan = true,
-			attitude = 'avoid'
+			scan = true
 		}
 	else
 		return {
 			type = 'stop',
+			kpr_icon = mode_to_icon[kpr_mode],
 			nav_seg = managers.navigation:get_nav_seg_from_pos(keep_position),
 			pos = mvec_cpy(keep_position)
 		}
@@ -308,23 +345,35 @@ function Keepers:CanChangeState(unit)
 		return false
 	end
 
+	local brain = unit:brain()
+	if brain then
+		local objective = brain.objective and brain:objective()
+		if objective and objective.forced then
+			return false
+		end
+	end
+
 	return true
+end
+
+function Keepers:GetUnit(data)
+	local is_converted = data.charname == 'jokered_cop'
+	if is_converted then
+		for _, minion_unit in pairs(self:GetMinionsByPeer(data.peer_id)) do
+			if minion_unit:id() == data.unit_id then
+				return minion_unit
+			end
+		end
+	else
+		return managers.criminals and managers.criminals:character_unit_by_name(data.charname)
+	end
+	return false
 end
 
 function Keepers:SetState(unit_text_ref, is_keeper, update_teamai_leader)
 	local data = json.safe_decode(unit_text_ref)
 	local peer_id = data.peer_id
-	local unit
-	local is_converted = data.charname == 'jokered_cop'
-	if is_converted then
-		for _, minion_unit in pairs(self:GetMinionsByPeer(peer_id)) do
-			if minion_unit:id() == data.unit_id then
-				unit = minion_unit
-			end
-		end
-	else
-		unit = managers.criminals and managers.criminals:character_unit_by_name(data.charname)
-	end
+	local unit = self:GetUnit(data)
 	if not alive(unit) or not self:CanChangeState(unit) then
 		return
 	end
@@ -340,11 +389,12 @@ function Keepers:SetState(unit_text_ref, is_keeper, update_teamai_leader)
 
 	if Network:is_server() then
 		if is_keeper then
-			unit:brain():set_objective(Keepers:GetStayObjective(unit))
+			unit:brain():set_objective(self:GetWaypointSO(unit) or self:GetStayObjective(unit))
 		else
 			local peer = managers.network:session():peer(peer_id)
 			local peer_unit = peer and peer:unit()
 			local obj = peer_unit and {
+				kpr_icon = nil,
 				type = 'follow',
 				follow_unit = peer_unit,
 				scan = true,
@@ -352,16 +402,20 @@ function Keepers:SetState(unit_text_ref, is_keeper, update_teamai_leader)
 				called = true,
 				pos = peer_unit:movement():nav_tracker():field_position(),
 			}
-			unit:brain():set_objective(obj)
+			unit:brain():set_objective(self:GetWaypointSO(unit, obj) or obj)
 		end
 	end
 
-	self:ResetLabel(unit, is_converted, is_keeper, unit:character_damage():dead())
+	if is_converted and unit:character_damage():dead() then
+		if unit:unit_data().name_label_id then
+			self:DestroyLabel(unit)
+		end
+	end
 end
 
-function Keepers:ResetLabel(unit, is_converted, is_keeper, is_dead)
+function Keepers:ResetLabel(unit, is_converted, icon, ext_data)
 	if is_converted then
-		if is_dead then
+		if unit:character_damage():dead() then
 			if unit:unit_data().name_label_id then
 				self:DestroyLabel(unit)
 			end
@@ -369,8 +423,7 @@ function Keepers:ResetLabel(unit, is_converted, is_keeper, is_dead)
 		end
 
 		if not unit:unit_data().name_label_id then
-			local label_data = { unit = unit }
-			unit:unit_data().name_label_id = managers.hud:_add_name_label(label_data)
+			self:SetJokerLabel(unit)
 		end
 	end
 
@@ -378,7 +431,7 @@ function Keepers:ResetLabel(unit, is_converted, is_keeper, is_dead)
 	local hud = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN_PD2)
 	local name_label = hud.panel:child('name_label' .. tostring(panel_id))
 	if not name_label then
-		log('[KPR] name_label not found')
+		log('[KPR] name_label not found for ' .. tostring(unit:base()._tweak_table))
 		return
 	end
 
@@ -388,15 +441,13 @@ function Keepers:ResetLabel(unit, is_converted, is_keeper, is_dead)
 		previous_icon = nil
 	end
 
-	if is_keeper then
-		local mode_to_icon = {
-			nil,
-			'pd2_goto',
-			'pd2_defend',
-			'pd2_escape'
-		}
-		local color = tweak_data.chat_colors[managers.criminals:character_color_id_by_unit(unit)]
-		local texture, rect = tweak_data.hud_icons:get_icon_data(mode_to_icon[unit:base().kpr_mode])
+	if icon then
+		local icon_color
+		if icon == Keepers.settings.icon_revive then
+			icon_color = ext_data == managers.network:session():local_peer():id() and Color.red or Color.white
+		end
+		local color = icon_color or tweak_data.chat_colors[managers.criminals:character_color_id_by_unit(unit)]
+		local texture, rect = tweak_data.hud_icons:get_icon_data(icon)
 		local bmp = name_label:bitmap({
 			blend_mode = 'add',
 			name = 'infamy',
@@ -411,6 +462,22 @@ function Keepers:ResetLabel(unit, is_converted, is_keeper, is_dead)
 		local txt = name_label:child('text')
 		bmp:set_center_y(txt:center_y())
 		bmp:set_right(txt:left())
+	end
+
+	if icon ~= nil and Network:is_server() then
+		LuaNetworking:SendToPeers('KeepersICON', self:GetLuaNetworkingText(ext_data, unit, icon))
+	end
+end
+
+function Keepers:SetIcon(sender, unit_text_ref)
+	local data = json.safe_decode(unit_text_ref)
+	if not data then
+		return
+	end
+
+	local unit = self:GetUnit(data)
+	if alive(unit) then
+		self:ResetLabel(unit, data.charname == 'jokered_cop', data.mode, data.peer_id)
 	end
 end
 
@@ -428,15 +495,23 @@ function Keepers:DestroyLabel(unit)
 end
 
 Hooks:Add('NetworkReceivedData', 'NetworkReceivedData_KPR', function(sender, messageType, data)
-	if messageType == 'Keepers?' then
+	if messageType == 'KeeperON' then
+		Keepers:RecvState(sender, data, true)
+
+	elseif messageType == 'KeeperOFF' then
+		Keepers:RecvState(sender, data, false)
+
+	elseif messageType == 'KeepersICON' then
+		Keepers:SetIcon(sender, data)
+
+	elseif messageType == 'Keepers?' then
 		if data then
 			Keepers.joker_names[sender] = data:sub(1, 25)
 		end
 		Keepers.clients[sender] = true
 		LuaNetworking:SendToPeer(sender, 'Keepers!', Keepers.settings.send_my_joker_name and Keepers.settings.my_joker_name or '')
-	end
 
-	if messageType == 'Keepers!' then
+	elseif messageType == 'Keepers!' then
 		if sender == 1 then
 			Keepers.enabled = true
 		end
@@ -445,13 +520,6 @@ Hooks:Add('NetworkReceivedData', 'NetworkReceivedData_KPR', function(sender, mes
 		end
 	end
 
-	if messageType == 'KeeperON' then
-		Keepers:RecvState(sender, data, true)
-	end
-
-	if messageType == 'KeeperOFF' then
-		Keepers:RecvState(sender, data, false)
-	end
 end)
 
 Hooks:Add('BaseNetworkSessionOnLoadComplete', 'BaseNetworkSessionOnLoadComplete_KPR', function(local_peer, id)
@@ -564,3 +632,103 @@ function Keepers:ChangeState(new_state)
 	end
 end
 
+function Keepers:GetWaypointSO(bot_unit, followup_objective)
+	local bot_brain = bot_unit:brain()
+	if bot_brain and bot_brain._logic_data and bot_brain._logic_data.is_converted then
+		return
+	end
+
+	local obj_wp_id = CustomWaypoints and CustomWaypoints:GetAssociatedObjectiveWaypoint()
+	if not obj_wp_id then
+		return
+	end
+
+	local wp_element = managers.mission:get_element_by_id(obj_wp_id)
+	if not wp_element then
+		return
+	end
+
+	local key = wp_element._values.instance_name or obj_wp_id
+	local unit
+
+	for id, element in pairs(self.element_interactions) do
+		if element._values.enabled and element._values.instance_name == key then
+			unit = element._unit
+			break
+		end
+	end
+
+	if not unit then
+		local unit_id = self.key_to_unit_id[key]
+		if not unit_id then
+			return
+		end
+
+		unit = managers.worlddefinition:get_unit(unit_id)
+	end
+
+	if not alive(unit) then
+		return
+	end
+
+	local so_id = self.key_to_SO[key]
+	if not so_id then
+		return
+	end
+
+	local so = managers.mission:get_element_by_id(so_id)
+	if not so then
+		return
+	end
+
+	local interaction = unit:interaction()
+	if not interaction or interaction:disabled() or not interaction:active() then
+		return
+	end
+	if interaction._tweak_data.requires_upgrade or interaction._tweak_data.special_equipment then
+		return
+	end
+
+	local so_values = so._values
+	local carry = bot_unit:movement().carry_id and bot_unit:movement():carry_id()
+	local can_run = not carry or tweak_data.carry.types[tweak_data.carry[carry].type].can_run
+	local new_objective = {
+		kpr_icon = wp_element._values.icon,
+		destroy_clbk_key = false,
+		type = 'act',
+		haste = can_run and 'run' or 'walk',
+		pose = 'stand',
+		interrupt_health = 0.4,
+		interrupt_dis = 0,
+		nav_seg = managers.navigation:get_nav_seg_from_pos(so_values.position, true),
+		pos = so_values.position,
+		rot = so_values.rotation and Rotation(so_values.rotation, 0, 0),
+		complete_clbk = callback(self, self, 'OnCompletedSO', {unit, bot_unit}),
+		action = {
+			variant = so_values.so_action,
+			align_sync = true,
+			body_part = 1,
+			type = 'act',
+			blocks = {
+				action = -1,
+				aim = -1,
+				walk = -1
+			}
+		},
+		action_duration = math.max(interaction._tweak_data.timer or 1, so_values.action_duration_min or 0),
+		followup_objective = followup_objective or bot_brain:objective()
+	}
+
+	bot_unit:base().kpr_keep_position = mvec_cpy(so_values.position)
+
+	return new_objective
+end
+
+function Keepers:OnCompletedSO(units)
+	if alive(units[1]) and alive(units[2]) then
+		local interaction = units[1]:interaction()
+		if interaction and interaction:active() and not interaction:disabled() then
+			interaction:interact(units[2])
+		end
+	end
+end

@@ -62,7 +62,7 @@ function PlayerStandard:_get_intimidation_action(prime_target, char_table, amoun
 				local peer_id = managers.network:session():local_peer():id()
 				local is_owned_minion = peer_id == prime_target.unit:base().kpr_minion_owner_peer_id
 
-				if is_converted and is_owned_minion or is_teammate_ai then
+				if is_teammate_ai or is_converted and is_owned_minion then
 					local player_need_revive = self._unit:character_damage():need_revive()
 					local wp = managers.hud and managers.hud._hud.waypoints['CustomWaypoint_localplayer']
 					if player_need_revive or kpr_mode == 1
@@ -72,16 +72,30 @@ function PlayerStandard:_get_intimidation_action(prime_target, char_table, amoun
 					then
 						Keepers:SendState(prime_target.unit, Keepers:GetLuaNetworkingText(peer_id, prime_target.unit, 1), false)
 						if is_converted and not player_need_revive then
+							self._intimidate_t = TimerManager:game():time() - 0.5
 							return 'come', false, prime_target
 						end
 
 					else
+						self._intimidate_t = TimerManager:game():time() - 0.5
 						if is_teammate_ai then
-							prime_target.unit:sound():say('g16')
+							DelayedCalls:Add('DelayedModKPR_bot_ok_' .. prime_target.unit:id(), 1.5, function()
+								if alive(prime_target.unit) then
+									prime_target.unit:sound():say('r03x_sin')
+								end
+							end)
 						end
 						Keepers:SendState(prime_target.unit, Keepers:GetLuaNetworkingText(peer_id, prime_target.unit, kpr_mode), true)
 						Keepers:ShowCovers(prime_target.unit)
-						return 'ai_stay', false, prime_target
+						if wp then
+							self:say_line('f40_any', managers.groupai:state():whisper_mode())
+							if not self:_is_using_bipod() then
+								self:_play_distance_interact_redirect(TimerManager:game():time(), 'cmd_gogo')
+							end
+							return 'kpr_boost', false, prime_target -- will do nothing
+						else
+							return 'ai_stay', false, prime_target
+						end
 					end
 				end
 			end
