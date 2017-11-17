@@ -12,6 +12,8 @@ function MenuDialogManager:Init()
     self.simple = MenuDialog:new()
     self.list = ListDialog:new()
     self.select_list = SelectListDialog:new()
+    self.simple_list = SimpleListDialog:new()
+    self.simple_select_list = SimpleSelectListDialog:new()
     self.color = ColorDialog:new()
     self.filebrowser = FileBrowserDialog:new()
     self.input = InputDialog:new()
@@ -63,7 +65,7 @@ function MenuDialogManager:CloseDialog(dialog)
         end
     end
     for i, to_open in pairs(self._waiting_to_open) do
-        if dialog._params == to_open.params then
+        if table.equals(dialog._params, to_open.params) then
             table.remove(self._waiting_to_open, i)
             break
         end
@@ -127,10 +129,12 @@ function MenuDialogManager:update()
         end
     end
 end
-
 function MenuDialogManager:paused_update() self:update() end
+function MenuDialogManager:Simple() return self.simple end
 function MenuDialogManager:List() return self.list end
 function MenuDialogManager:SelectList() return self.select_list end
+function MenuDialogManager:SimpleList() return self.simple_list end
+function MenuDialogManager:SimpleSelectList() return self.simple_select_list end
 function MenuDialogManager:Color() return self.color end
 function MenuDialogManager:FileBrowser() return self.filebrowser end
 function MenuDialogManager:Input() return self.input end

@@ -70,7 +70,9 @@ function Item:MousePressed(button, x, y)
             return true
         elseif button == Idstring("1") then
             if self._list then
-                self._list:show()
+				self._list:show()
+			elseif self.second_callback then
+				self:RunCallback(self.second_callback)
             end
         end
     end
@@ -114,6 +116,11 @@ function Item:_SetText(text)
         return true
     end
     return false
+end
+
+function Item:SetTextLight(text)
+	self.text = text
+	self.title:set_text(self.localized and text and managers.localization:text(text) or text)
 end
 
 function Item:SetText(text)

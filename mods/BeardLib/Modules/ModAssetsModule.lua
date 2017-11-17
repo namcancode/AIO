@@ -15,7 +15,7 @@ ModAssetsModule._providers = {
             --optimization, mostly you don't really need to check updates again when going back to menu
             local upd = Global.beardlib_checked_updates[self.id]
             if upd then
-                if type(upd) == "string" then
+                if type(upd) == "string" and upd ~= tostring(self.version) then
                     self._new_version = upd
                     self:PrepareForUpdate()
                 end
@@ -33,7 +33,7 @@ ModAssetsModule._providers = {
                         Global.beardlib_checked_updates[self.id] = true
                     end
                 end
-            end)            
+            end)
         end,
         download_file_func = function(self)
             local get_files_url = self._mod:GetRealFilePath(self.provider.get_files_url, self)
@@ -134,7 +134,7 @@ end
 
 function ModAssetsModule:PrepareForUpdate()
     BeardLib.managers.mods_menu:SetModNeedsUpdate(self._mod, self._new_version)
-    if self._config.important then
+    if self._config.important and BeardLib.Options:GetValue("ImportantNotice") then
         local loc = managers.localization
         QuickMenuPlus:new(loc:text("beardlib_mods_manager_important_title", {mod = self._mod.Name}), loc:text("beardlib_mods_manager_important_help"), {{text = loc:text("dialog_yes"), callback = function()
             BeardLib.managers.mods_menu:SetEnabled(true)
@@ -164,12 +164,10 @@ function ModAssetsModule:ShowNoChangePrompt()
     QuickMenu:new(
         managers.localization:text("beardlib_no_change"),
         managers.localization:text("beardlib_no_change_desc"),
-        {
-            {
-                text = managers.localization:text("menu_ok"),
-                is_cancel_button = true
-            }
-        },
+        {{
+            text = managers.localization:text("menu_ok"),
+            is_cancel_button = true
+        }},
         true
     )
 end
@@ -199,7 +197,7 @@ function ModAssetsModule:_DownloadAssets(data)
     local download_url = self._mod:GetRealFilePath(self.provider.download_url, data or self)
     self:log("Downloading assets from url: %s", download_url)
     local mods_menu = BeardLib.managers.mods_menu
-    dohttpreq(download_url, callback(self, self, "StoreDownloadedAssets", false), callback(mods_menu, mods_menu, "SetModProgress", self._mod))
+    dohttpreq(download_url, callback(self, self, "StoreDownloadedAssets", false), callback(mods_menu, mods_menu, "SetModProgress", self._mod))                
 end
 
 function ModAssetsModule:StoreDownloadedAssets(config, data, id)
@@ -295,7 +293,7 @@ function ModAssetsModule:InitializeNode(node)
         node = node,
         callback = "ModAssetsToggleAutoUpdates_Changed",
         value = BeardLib.managers.asset_update:CheckUpdateStatus(self._update_manager_id),
-        merge_data = { mod_key = self._update_manager_id }
+        merge_data = {mod_key = self._update_manager_id}
     })
 
     MenuCallbackHandler.ModAssetsCheckForUpdates = function(this, item)
@@ -309,7 +307,7 @@ function ModAssetsModule:InitializeNode(node)
         node = node,
         callback = "ModAssetsCheckForUpdates",
         enabled = not not managers.menu._is_start_menu,
-        merge_data = { mod_key = self._mod.GlobalKey }
+        merge_data = {mod_key = self._mod.GlobalKey}
     })
 end
 
