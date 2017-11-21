@@ -1,7 +1,0 @@
-{
-    "crnt_align": true
-	"crnt_sort": true
-	"crnt_colorize": true
-	"crnt_size": 0.7
-	"crimenet_cleanup_comp": true
-}
