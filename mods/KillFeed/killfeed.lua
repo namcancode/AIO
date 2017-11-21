@@ -8,24 +8,27 @@ if not KillFeed then
   KillFeed.assist_information = {}
   KillFeed.localized_text = {}
   KillFeed.unit_names = {
-    spooc = "Cloaker",
-    tank_green = "Bulldozer",
-    tank_black = "Blackdozer",
-    tank_skull = "Skulldozer",
-    tank_medic = "Medic Bulldozer",
-    tank_mini = "Minigun Bulldozer",
-    tank_hw = "Headless Bulldozer",
-    swat_van_turret_module = "SWAT Turret",
-    ceiling_turret_module = "Ceiling Turret",
-    ceiling_turret_module_no_idle = "Ceiling Turret",
-    mobster_boss = "Commissar",
-    chavez_boss = "Chavez",
-    hector_boss = "Hector",
-    hector_boss_no_armor = "Hector",
-    drug_lord_boss = "Ernesto Sosa",
-    drug_lord_boss_stealth = "Ernesto Sosa",
-    old_hoxton_mission = "Hoxton",
-    spa_vip = "Charon"
+    spooc = { default = "Cloaker" },
+    tank_green = { default = "Bulldozer" },
+    tank_black = { default = "Blackdozer" },
+    tank_skull = { default = "Skulldozer" },
+    tank_medic = { default = "Medic Bulldozer" },
+    tank_mini = { default = "Minigun Bulldozer" },
+    tank_hw = { default = "Headless Titandozer" },
+    swat_van_turret_module = { default = "SWAT Turret" },
+    ceiling_turret_module = { default = "Ceiling Turret" },
+    ceiling_turret_module_no_idle = { default = "Ceiling Turret" },
+    mobster_boss = { default = "The Commissar" },
+    chavez_boss = { default = "Chavez" },
+    hector_boss = { default = "Hector Morales" },
+    hector_boss_no_armor = { default = "Hector Morales" },
+    drug_lord_boss = { default = "Ernesto Sosa" },
+    drug_lord_boss_stealth = { default = "Ernesto Sosa" },
+    old_hoxton_mission = { default = "Hoxton" },
+    spa_vip = { default = "Charon" },
+    phalanx_vip = { default = "Neville Winters" },
+    phalanx_minion = { default = "Phalanx Shield" },
+    bank_manager = { default = "Bank Manager", dah = "Ralph Garnet" }
   }
   KillFeed.settings = {
     x_align = 1,
@@ -157,6 +160,7 @@ if not KillFeed then
     self:load()
     self._ws = managers.hud._workspace
     self._panel = self._panel or hud and hud.panel or self._ws:panel({name = "KillFeed" })
+    self._current_level_id = managers.job and managers.job:current_level_id() or ""
   end
 
   function KillFeed:update(t, dt)
@@ -186,9 +190,9 @@ if not KillFeed then
       return
     end
     if not self.unit_names[tweak] then
-      self.unit_names[tweak] = string.capitalize(tweak:gsub("_", " ")):gsub("Swat", "SWAT"):gsub("Fbi", "FBI")
+      self.unit_names[tweak] = { [self._current_level_id] = tweak:pretty(true):gsub("Swat", "SWAT"):gsub("Fbi", "FBI") }
     end
-    return self.unit_names[tweak]
+    return self.unit_names[tweak][self._current_level_id] or self.unit_names[tweak].default
   end
   
   function KillFeed:get_unit_information(unit)
@@ -224,7 +228,7 @@ if not KillFeed then
       name = unit_base:nick_name()
     else
       unit_type = "npc"
-      if Keepers and gstate:is_enemy_converted_to_criminal(unit) then
+      if Keepers and unit_base.kpr_minion_owner_peer_id then
         name = Keepers:GetJokerNameByPeer(unit_base.kpr_minion_owner_peer_id)
       end
       if not name or name == "" then
