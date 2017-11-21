@@ -1,5 +1,5 @@
 {
-	"name"	:   "NamBoss",
+	"name"	:   "AIO",
 	"description"	:   "Mod hay dung va huu ich nhat",
 	"author"   :   "NamBoss",
 	"blt_version" : 2,
