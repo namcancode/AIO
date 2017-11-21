@@ -1,0 +1,7 @@
+1.Boost +3 concealment
+2.Chống fail khi crash crime, chống diss khi join crime cao.
+3. Giảm lag, tăng fps
+4. Menu mở hòm trong inventory
+5. Thanh máu mới.
+6. Chỉnh ngày đêm map
+7. Xoá bóng mờ map cookoff, tự chat nguyên liệu luôn
