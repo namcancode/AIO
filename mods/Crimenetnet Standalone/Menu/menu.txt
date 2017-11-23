@@ -1,0 +1,56 @@
+{
+    "menu_id": "betterCrNt_options",
+    "parent_menu_id": "blt_options",
+    "title": "betterCrNt_options",
+    "description": "betterCrNt_options_desc",
+    "items": [
+		{
+            "type": "toggle",
+            "id": "crnt_sort",
+            "title": "betterCrNt_sort",
+            "description": "betterCrNt_sort_desc",
+            "callback": "callback_crnt_sort",
+            "value": "crnt_sort",
+            "default_value": true
+        },
+		{
+            "type": "toggle",
+            "id": "crnt_align",
+            "title": "betterCrNt_align",
+            "description": "betterCrNt_align_desc",
+            "callback": "callback_crnt_align",
+            "value": "crnt_align",
+            "default_value": true
+        },
+		{
+            "type": "toggle",
+            "id": "crnt_colorize",
+            "title": "betterCrNt_colorize",
+            "description": "betterCrNt_colorize_desc",
+            "callback": "callback_crnt_colorize",
+            "value": "crnt_colorize",
+            "default_value": true
+        },
+		{
+			"type" : "slider",
+			"id" : "crnt_size",
+			"title" : "betterCrNt_resize",
+			"description" : "betterCrNt_resize_desc",
+			"callback" : "callback_crnt_size",
+			"value" : "crnt_size",
+			"default_value" : 0.7,
+			"max" : 1.1,
+			"min" : 0.7,
+			"step" : 0.1
+		},
+		{
+            "type": "toggle",
+            "id": "crimenet_cleanup_comp",
+            "title": "betterCrNt_gui",
+            "description": "betterCrNt_gui_desc",
+            "callback": "callback_crimenet_cleanup_comp",
+            "value": "crimenet_cleanup_comp",
+            "default_value": false
+        }
+    ]
+}
