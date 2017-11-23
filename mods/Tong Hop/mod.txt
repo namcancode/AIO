@@ -3,7 +3,7 @@
 	"description"	:   "Mod hay dung va huu ich nhat",
 	"author"   :   "NamBoss",
 	"blt_version" : 2,
-	"revision" : 1.3,
+	"revision" : 1.4,
 	"color" : "0.4 0.1 1",
 	"image" : "nam.png",
 	"updates" : [
