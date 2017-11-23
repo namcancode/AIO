@@ -1,3 +1,6 @@
+Revision 17:
+- extended waypoint cycling to some objects of interest
+
 Revision 16:
 - added one more sanity check
 

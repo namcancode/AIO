@@ -1,6 +1,6 @@
 {
 	"blt_version" : 2,
-	"name" : "Keepers",
+	"name" : "",
 	"description" : "Give the ability to issue orders to your AI teammates and jokers.",
 	"author" : "TdlQ\n    russian translation by chrom[K]a",
 	"image" : "tdlq.png",
@@ -9,7 +9,7 @@
 	"version" : "97",
 	"updates" : [
 		{
-			"identifier" : "KPR"
+			"identifier" : "KPRr"
 		}
 	],
 	"dependencies" : [

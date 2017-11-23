@@ -5,6 +5,7 @@ local mvec3_add = mvector3.add
 local mvec3_ang = mvector3.angle
 local mvec3_dis = mvector3.distance
 local mvec3_mul = mvector3.multiply
+local mvec3_neq = mvector3.not_equal
 local mvec3_set = mvector3.set
 local mvec3_set_z = mvector3.set_z
 local tmp_vec1 = Vector3()
@@ -22,6 +23,19 @@ CustomWaypoints.settings = {
 	show_distance = true,
 	always_show_my_waypoint = true,
 	always_show_others_waypoints = false
+}
+CustomWaypoints.interactive_units_white_list = {
+	[Idstring('units/equipment/apartment_saw/apartment_saw'):t()] = true,
+	[Idstring('units/equipment/garden_tap_interactive/hose_end_interactive_suburbia'):t()] = true,
+	[Idstring('units/payday2/equipment/gen_interactable_lance_huge/gen_interactable_lance_huge'):t()] = true,
+	[Idstring('units/payday2/equipment/gen_interactable_zipline/gen_interactable_zipline_mount_ground'):t()] = true,
+	[Idstring('units/payday2/equipment/item_door_drill_small/item_door_drill_small'):t()] = true,
+	[Idstring('units/pd2_dlc_casino/props/cas_prop_drill/cas_prop_watertank_01'):t()] = true,
+	[Idstring('units/pd2_dlc_casino/props/cas_prop_drill/cas_prop_watertank_02'):t()] = true,
+	[Idstring('units/pd2_dlc_casino/props/cas_prop_drill/cas_prop_watertank_static'):t()] = true,
+	[Idstring('units/pd2_dlc_jolly/equipment/gen_interactable_saw/gen_interactable_saw'):t()] = true,
+	[Idstring('units/pd2_dlc_peta/equipment/pta_interactable_saw/pta_interactable_saw'):t()] = true,
+	[Idstring('units/pd2_dlc_peta/props/pta_interactable_electric_box/pta_interactable_electric_box'):t()] = true, -- fail, no material :/
 }
 
 function CustomWaypoints:Save()
@@ -98,21 +112,26 @@ Hooks:Add('MenuManagerInitialize', 'MenuManagerInitialize_CustomWaypoints', func
 	MenuHelper:LoadFromJsonFile(CustomWaypoints._path .. 'menu/options.txt', CustomWaypoints, CustomWaypoints.settings)
 end)
 
-function CustomWaypoints:GetAssociatedObjectiveWaypoint()
+function CustomWaypoints:GetAssociatedObjectiveWaypoint(search_pos, radius)
 	local waypoints = managers.hud and managers.hud._hud and managers.hud._hud.waypoints
 	if not waypoints then
 		return
 	end
 
-	local my_wp = waypoints[self.prefix .. 'localplayer']
-	if not my_wp then
-		return
+	radius = radius or 10
+
+	if not search_pos then
+		local my_wp = waypoints[self.prefix .. 'localplayer']
+		if not my_wp then
+			return
+		end
+		search_pos = my_wp.position
 	end
 
 	for id, waypoint in pairs(waypoints) do
 		if type(id) == 'string' and id:find(self.prefix) then
 		elseif waypoint.position then
-			if mvec3_dis(my_wp.position, waypoint.position) < 10 then
+			if mvec3_dis(search_pos, waypoint.position) < radius then
 				return id, waypoint
 			end
 		end
@@ -158,8 +177,8 @@ function Utils:GetCrosshairRay(from, to, slot_mask)
 		mvec3_add(to, from)
 	end
 
-	local colRay = World:raycast('ray', from, to, 'slot_mask', managers.slot:get_mask(slot_mask))
-	return colRay
+	local col_ray = World:raycast('ray', from, to, 'slot_mask', managers.slot:get_mask(slot_mask))
+	return col_ray
 end
 
 function CustomWaypoints:GetMyAimPos()
@@ -218,7 +237,11 @@ function CustomWaypoints:NetworkRemove(peer_id)
 end
 
 -- Cycle
-function CustomWaypoints:SortWaypoints()
+local ids_contour_color = Idstring('contour_color')
+local ids_contour_opacity = Idstring('contour_opacity')
+local no_color = Vector3(0, 0, 0)
+
+function CustomWaypoints:GetSortedWaypoints(include_points_of_interest)
 	local waypoints = managers.hud and managers.hud._hud and managers.hud._hud.waypoints
 	if not waypoints then
 		return
@@ -235,11 +258,40 @@ function CustomWaypoints:SortWaypoints()
 	for id, waypoint in pairs(waypoints) do
 		if type(id) == 'string' and id:find(self.prefix) then
 		elseif waypoint.position then
-			table.insert(result, {
-				id = id,
-				position = waypoint.position,
-				angle = mvec3_ang(my_aim, waypoint.position - camera_pos)
-			})
+			local angle = mvec3_ang(my_aim, waypoint.position - camera_pos)
+			if angle < 40 then
+				table.insert(result, {
+					id = id,
+					position = waypoint.position,
+					angle = mvec3_ang(my_aim, waypoint.position - camera_pos)
+				})
+			end
+		end
+	end
+
+	if include_points_of_interest then
+		for _, unit in ipairs(managers.interaction._interactive_units) do
+			if alive(unit) and unit:in_slot(1) and self.interactive_units_white_list[unit:name():t()] then
+				local interaction = unit:interaction()
+				if interaction and interaction:active() and not interaction:disabled() then
+					local material = interaction._materials[1]
+					if material and alive(material) then
+						local color = material:get_variable(ids_contour_color)
+						local opacity = material:get_variable(ids_contour_opacity)
+						if opacity and opacity > 0 and color and mvec3_neq(color, no_color) then
+							local ipos = interaction:interact_position()
+							local angle = mvec3_ang(my_aim, ipos - camera_pos)
+							if angle < 40 then
+								table.insert(result, {
+									unit = unit,
+									position = ipos,
+									angle = angle
+								})
+							end
+						end
+					end
+				end
+			end
 		end
 	end
 
@@ -251,7 +303,7 @@ function CustomWaypoints:SortWaypoints()
 end
 
 function CustomWaypoints:CycleWaypoint(dir)
-	local sorted_waypoints = self:SortWaypoints()
+	local sorted_waypoints = self:GetSortedWaypoints(true)
 	if not sorted_waypoints then
 		return
 	end
