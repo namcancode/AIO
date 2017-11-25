@@ -12,6 +12,8 @@ function FriendsBoxGui:init(ws, title, text, content_data, config, type)
 	config.no_scroll_legend = true
 
 	self._users = {}
+	self._steam_retrieved_infamy = -1
+	self._steam_retrieved_level = -1
 	
 	self._default_font_size = tweak_data.menu.pd2_small_font_size
 	self._font = tweak_data.menu.pd2_large_font
@@ -21,26 +23,28 @@ function FriendsBoxGui:init(ws, title, text, content_data, config, type)
 	self._online_color = Color(0.6, 0.75, 1)
 	self._offline_color = Color("717171")
 
+	self._options_exists = false
+
+	if NepgearsyMM and NepgearsyMM.Data then
+		self._options_exists = true
+	end
+
 	FriendsBoxGui.super.init(self, ws, title, text, content_data, config)
 
 	self:update_friends()
-	--self:_init_steamapi_infos(Steam:userid()) -- high wip stuff
 	self:set_layer(0)
 end
 
-function FriendsBoxGui:_init_steamapi_infos(steam_id)
-	local built_link = "http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=218620&key=" .. dummy_api_key .. "&steamid=" .. tostring(steam_id)
+function FriendsBoxGui:GetOption(option)
+	if not NepgearsyMM and NepgearsyMM.Data then
+		return false
+	end
 
-	dohttpreq( built_link, function (data, id)
-		if data then
-			local table_data = {}
-			for k, v in pairs(json.decode(data or {})) do
-				if k then
-					table_data["playerstats"]["stats"] = v
-				end
-			end
-		end
-	end)
+	return NepgearsyMM.Data[option]
+end
+
+function FriendsBoxGui:_init_api_infamy(steam_id)
+	return 0
 end
 
 function FriendsBoxGui:_create_text_box(ws, title, text, content_data, config)
@@ -186,12 +190,16 @@ function FriendsBoxGui:_layout_friends_panel()
     self:_check_scroll_indicator_states()
 end
 
-function FriendsBoxGui:_create_user(h, user, state, sub_state, level, is_in_lobby)
+function FriendsBoxGui:_create_user(h, user, state, sub_state, level, is_in_lobby, infamy)
 	local color = state == "online" and self._online_color or state == "ingame" and self._ingame_color or self._offline_color
 	local panel = self._canvas:panel({
 		layer = 0,
 		name = user:id(),
 	})
+
+	if level == "" or nil then
+		level = "???"
+	end
 
 	local bg_rect = panel:rect({
 		name = "background",
@@ -241,24 +249,34 @@ function FriendsBoxGui:_create_user(h, user, state, sub_state, level, is_in_lobb
 
 	user_name:set_size(tw, th)
 
+	local infamy_to_numeral = ""
+
+	if infamy > 0 then
+		infamy_to_numeral = managers.experience:rank_string(infamy) .. "-"
+	end
+
 	local user_level = panel:text({
 		name = "user_level",
 		vertical = "center",
 		hvertical = "center",
-		align = "right",
-		halign = "right",
-		text = "",
+		align = "left",
+		halign = "left",
+		text = infamy_to_numeral .. level,
 		font = self._font,
-		font_size = self._font_size,
+		font_size = self._default_font_size,
 		y = math.round(0),
-		color = color,
-		visible = false
+		x = 6 + avatar:right(),
+		color = Color(0.5, 0.5, 0.5),
+		visible = state == "ingame" and self:GetOption("NepgearsyMM_FriendList_EnableRepLevel_Value") == true
 	})
 	local _, _, sw, sh = user_level:text_rect()
-
 	user_level:set_size(sw, sh)
-	user_level:set_right(math.floor(panel:w()))
 	user_level:set_center_y(math.round(user_name:center_y()))
+
+	self:_make_fine_text(user_level)
+
+	local is_user_level_visible = user_level:visible()
+	user_name:set_x(is_user_level_visible and 10 + user_level:right() or 6 + avatar:right())
 
 	local user_state = panel:text({
 		name = "user_state",
@@ -350,14 +368,25 @@ function FriendsBoxGui:update_friends()
 	local friends = Steam:friends() or {}
 	
 	for _, user in pairs(friends) do
+
 		local main_state, sub_state = nil
 		local state = user:state()
 		local rich_presence_status = user:rich_presence("status")
 		local rich_presence_level = user:rich_presence("level")
+		local rich_presence_rank = user:rich_presence("infamy") or nil
 		local payday1 = rich_presence_level == ""
 		local playing_this = user:playing_this()
+		local infamy = 0
 
 		local s = string.find(rich_presence_status, "\n")
+
+		if rich_presence_rank == "" or nil then
+			-- Nothing
+		else
+			if tonumber(rich_presence_rank) > 0 then
+				infamy = tonumber(rich_presence_rank)
+			end
+		end
 
 		if s then
 			rich_presence_status = string.gsub(rich_presence_status, "(\n)", ", ")
@@ -405,6 +434,7 @@ function FriendsBoxGui:update_friends()
 		user_tbl.lobby = user:lobby()
 		user_tbl.level = rich_presence_level
 		user_tbl.payday1 = payday1
+		user_tbl.infamy = infamy
 	end
 
 	self._canvas:clear()
@@ -412,11 +442,11 @@ function FriendsBoxGui:update_friends()
 	for _, user in pairs(self._users) do
 		user.panel = nil
 		if user.main_state == "ingame" then
-			user.panel = self:_create_user(0, user.user, "ingame", user.sub_state, user.level, user.lobby)
+			user.panel = self:_create_user(0, user.user, "ingame", user.sub_state, user.level, user.lobby, user.infamy)
 		elseif user.main_state == "online" then
-			user.panel = self:_create_user(0, user.user, "online", user.sub_state, user.level, user.lobby)
+			user.panel = self:_create_user(0, user.user, "online", user.sub_state, user.level, user.lobby, user.infamy)
 		else
-			user.panel = self:_create_user(0, user.user, "offline", user.sub_state, user.level, user.lobby)
+			user.panel = self:_create_user(0, user.user, "offline", user.sub_state, user.level, user.lobby, user.infamy)
 		end
 	end
 

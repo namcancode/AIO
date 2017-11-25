@@ -4,8 +4,8 @@ if RequiredScript == "lib/managers/hudmanager" then
 
 	function HUDManager:add_waypoint(id, data, ...)
 		add_waypoint_original(self, id, data, ...)
-		
-		local wp = self._hud.waypoints[id] 
+
+		local wp = self._hud.waypoints[id]
 		if wp and wp.bitmap and wp.distance and wp.arrow and data.distance then
 			local color = WolfHUD:getColorSetting({"CustomWaypoints", "WAYPOINTS_COLOR"}, "white")
 			wp.bitmap:set_color(color)
@@ -185,6 +185,8 @@ if RequiredScript == "lib/managers/hudmanager" then
 				[ "terry" ]							= { default = "menu_chico" },
 				[ "max" ]							= { default = "menu_max" },
 				[ "myh" ]							= { default = "menu_myh" },
+				[ "ecp_male" ]                                                  = { default = "menu_ecp_male" },
+				[ "ecp_female" ]                                                = { default = "menu_ecp_female" },
 			},
 		},
 	}
