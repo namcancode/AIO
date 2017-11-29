@@ -1,5 +1,5 @@
 FriendsBoxGui = FriendsBoxGui or class(TextBoxGui)
-function FriendsBoxGui:init(ws, title, text, content_data, config, type)
+function FriendsBoxGui:init(ws)
 	self._type = type
 	config = config or {}
 	content_data = content_data or {}
@@ -14,7 +14,7 @@ function FriendsBoxGui:init(ws, title, text, content_data, config, type)
 	self._users = {}
 	self._steam_retrieved_infamy = -1
 	self._steam_retrieved_level = -1
-	
+
 	self._default_font_size = tweak_data.menu.pd2_small_font_size
 	self._font = tweak_data.menu.pd2_large_font
 	self._font_size = tweak_data.menu.pd2_small_font_size - 5
@@ -49,13 +49,13 @@ end
 
 function FriendsBoxGui:_create_text_box(ws, title, text, content_data, config)
     FriendsBoxGui.super._create_text_box(self, ws, title, text, content_data, config)
- 	
+
  	if BeardLib then
  		self._scroll = ScrollablePanelModified:new(self._panel, "scrollable_panel", {
-	        layer = 20, 
-	        padding = 2, 
-	        scroll_width = 6, 
-	        hide_shade = true, 
+	        layer = 20,
+	        padding = 2,
+	        scroll_width = 6,
+	        hide_shade = true,
 	        color = Color.white
 	    })
  	else
@@ -69,7 +69,7 @@ function FriendsBoxGui:_create_text_box(ws, title, text, content_data, config)
         name = "friends_panel",
         x = 0,
         layer = 1
-    }) 
+    })
     self._friends_panel = friends_panel
     local ingame_panel = self._canvas:panel({
         h = 100,
@@ -97,18 +97,22 @@ function FriendsBoxGui:_create_text_box(ws, title, text, content_data, config)
         vertical = "center",
         name = "ingame_text",
         hvertical = "center",
-        align = "left",
-        halign = "left",
-        text = managers.localization:text("menu_ingame"),
+        align = "center",
+        halign = "center",
+        text = "You are in offline mode.\n\nThe friend list will be there as soon you're back online!",
         font = self._font,
         font_size = self._topic_state_font_size,
-        y = h,
-        color = Color(0.75, 0.75, 0.75)
+        y = 0,
+        x = 3,
+        color = Color(0.75, 0.75, 0.75),
+        visible = not Steam:logged_on()
     })
     local _, _, tw, th = ingame_text:text_rect()
- 
+
     ingame_text:set_size(tw, th)
- 
+    ingame_text:set_center_x(self._canvas:center_x())
+    ingame_text:set_center_y(self._canvas:center_y() - 20)
+
     h = h + th
     local online_text = self._canvas:text({
         vertical = "center",
@@ -120,12 +124,13 @@ function FriendsBoxGui:_create_text_box(ws, title, text, content_data, config)
         font = self._font,
         font_size = self._topic_state_font_size,
         y = h,
-        color = Color(0.75, 0.75, 0.75)
+        color = Color(0.75, 0.75, 0.75),
+        visible = false
     })
     local _, _, tw, th = online_text:text_rect()
- 
+
     online_text:set_size(tw, th)
- 
+
     h = h + th
     local offline_text = self._canvas:text({
         vertical = "center",
@@ -137,14 +142,15 @@ function FriendsBoxGui:_create_text_box(ws, title, text, content_data, config)
         font = self._font,
         font_size = self._topic_state_font_size,
         y = h,
-        color = Color(0.75, 0.75, 0.75)
+        color = Color(0.75, 0.75, 0.75),
+        visible = false
     })
     local _, _, tw, th = offline_text:text_rect()
- 
+
     offline_text:set_size(tw, th)
- 
+
     h = h + th
- 
+
     --friends_panel:set_h(h)
     --self._scroll_panel:set_h(math.max(self._scroll_panel:h(), friends_panel:h()))
     self:_set_scroll_indicator()
@@ -224,7 +230,7 @@ function FriendsBoxGui:_create_user(h, user, state, sub_state, level, is_in_lobb
 		w = 33,
 		h = 33,
 		x = 5,
-		y = 3,
+		y = 0,
 		texture = "guis/textures/pd2/none_icon"
 	})
 
@@ -357,6 +363,8 @@ function FriendsBoxGui:_create_user(h, user, state, sub_state, level, is_in_lobb
 		alpha = is_in_lobby and 1 or 0.4
 	})
 
+	avatar:set_center_y(panel:center_y())
+
 	return panel
 end
 
@@ -366,7 +374,7 @@ function FriendsBoxGui:update_friends()
 	end
 
 	local friends = Steam:friends() or {}
-	
+
 	for _, user in pairs(friends) do
 
 		local main_state, sub_state = nil
@@ -474,6 +482,11 @@ function FriendsBoxGui:mouse_clicked( o, button, x, y )
 end
 
 function FriendsBoxGui:mouse_pressed(button, x, y)
+
+	if not Steam:logged_on() then
+		return
+	end
+
 	if self._friend_action_gui and self._friend_action_gui:visible() and self._friend_action_gui:in_info_area_focus(x, y) then
 		if button == Idstring("0") or button == Idstring("1") or button == Idstring("2") then
 			local focus_btn_id = self._friend_action_gui:get_focus_button_id()
@@ -566,7 +579,7 @@ function FriendsBoxGui:mouse_moved(x, y)
 		return
 	end
 
-	local _, pointer = self._scroll:mouse_moved(nil, x, y) 
+	local _, pointer = self._scroll:mouse_moved(nil, x, y)
     if pointer then
         if managers.mouse_pointer.set_pointer_image then
             managers.mouse_pointer:set_pointer_image(pointer)
@@ -595,6 +608,10 @@ function FriendsBoxGui:set_size(x, y)
 	FriendsBoxGui.super.set_size(self, x, y)
 	local friends_panel = self._scroll_panel:child("friends_panel")
 	friends_panel:set_w(self._scroll_panel:w())
+
+	if not Steam:logged_on() then
+		return
+	end
 
 	for _, user_panel in ipairs(self._canvas:children()) do
 		--user_panel:set_w(friends_panel:w())
