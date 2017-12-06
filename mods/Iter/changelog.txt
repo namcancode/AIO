@@ -1,3 +1,22 @@
+Revision 75:
+- [Big Bank] fixed positioning after entering the vault through thermite hole (and before fence door is opened)
+
+Revision 74:
+- [Diamond Heist] unnoticeable polish
+
+Revision 73:
+- [Diamond Heist] restored portal definitions that were removed in a recent game update, which disabled all Iter's optimizations
+
+Revision 72:
+- [The Diamond] added opening by explosion case for front door
+- [The Diamond] removed r53's fix for glitched hiding place in war room (fixed in U167)
+- [Watchdogs D1] removed r19's fix for broken bridge (fixed in U167)
+
+Revision 71:
+- [Beneath The Mountain] fixed AI access to 2 entrance control rooms
+- [Golden Grin Casino] make vault accessible to bots in stealth
+- [The Diamond] fixed blocker and kick script of the front door
+
 Revision 70:
 - [Watchdogs D1] forgot to update 2 doors between modified segments causing streamliner to crash
 

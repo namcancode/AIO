@@ -1,3 +1,13 @@
+Revision 20:
+- improved contour checker
+
+Revision 19:
+- changed cycling behavior so "next" should take what's aimed at more often (timer to ignore old cycling)
+- added an option (enabled by default) to include lootbags in cycle list
+
+Revision 18:
+- extended again list of objects of interest
+
 Revision 17:
 - extended waypoint cycling to some objects of interest
 

@@ -204,6 +204,30 @@
 		},
 		{
 			"type" : "toggle",
+			"id" : "map_change_mus",
+			"title" : "itr_options_map_change_mus_title",
+			"description" : "itr_options_map_change_mus_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "map_change_mus"
+		},
+		{
+			"type" : "toggle",
+			"id" : "map_change_kenaz",
+			"title" : "itr_options_map_change_kenaz_title",
+			"description" : "itr_options_map_change_kenaz_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "map_change_kenaz"
+		},
+		{
+			"type" : "toggle",
+			"id" : "map_change_pbr",
+			"title" : "itr_options_map_change_pbr_title",
+			"description" : "itr_options_map_change_pbr_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "map_change_pbr"
+		},
+		{
+			"type" : "toggle",
 			"id" : "map_change_watchdogs_1",
 			"title" : "itr_options_map_change_watchdogs_1_title",
 			"description" : "itr_options_map_change_watchdogs_1_desc",

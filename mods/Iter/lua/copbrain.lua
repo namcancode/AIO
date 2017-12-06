@@ -12,7 +12,10 @@ if Iter.settings.streamline_path then
 
 		if cur_pos then
 			local cs = managers.navigation._coarse_searches
-			cs[#cs].from_pos = cur_pos
+			local cs_nr = #cs
+			if cs_nr > 0 then
+				cs[cs_nr].from_pos = cur_pos
+			end
 			cur_pos = nil
 		end
 

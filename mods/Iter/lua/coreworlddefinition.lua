@@ -24,6 +24,367 @@ elseif level_id == 'dah' then
 		end
 	end
 
+	local itr_original_worlddefinition_create = WorldDefinition.create
+	function WorldDefinition:create(layer, offset)
+		if layer == 'all' then
+			self._definition.portal.unit_groups = {
+				group1 = {
+					ids = {
+						[102355] = true,
+						[703925] = true,
+						[701893] = true,
+						[702351] = true,
+						[703949] = true,
+						[701863] = true,
+						[702073] = true,
+						[701895] = true,
+						[704113] = true,
+						[703930] = true,
+						[704028] = true,
+						[701518] = true,
+						[704027] = true,
+						[704018] = true,
+						[704003] = true,
+						[701711] = true,
+						[704001] = true,
+						[701884] = true,
+						[701479] = true,
+						[703933] = true,
+						[702961] = true,
+						[701185] = true,
+						[701511] = true,
+						[703932] = true,
+						[102353] = true,
+						[102354] = true,
+					},
+					shapes = {
+						{
+							rotation = Rotation(0, 0, -0),
+							position = Vector3(-4678, -5400, 367.26),
+							type = 'box',
+							width = 2467,
+							depth = 2009,
+							height = 360,
+						}
+					}
+				},
+				group2 = {
+					ids = {
+						[701042] = true,
+					},
+					shapes = {
+						{
+							rotation = Rotation(0, 0, -0),
+							position = Vector3(-5981, -5402, 373),
+							type = 'box',
+							width = 1510,
+							depth = 1431,
+							height = 2000,
+						},
+						{
+							rotation = Rotation(0, 0, -0),
+							position = Vector3(-6564, -4100, 1162),
+							type = 'box',
+							width = 1746,
+							depth = 2700,
+							height = 420,
+						}
+					},
+				},
+				group3 = {
+					ids = {
+						[702001] = true,
+						[701226] = true,
+						[701042] = true,
+						[701496] = true,
+						[701405] = true,
+					},
+					shapes = {
+						{
+							rotation = Rotation(0, 0, -0),
+							position = Vector3(-6000, -5400, 765.001),
+							type = 'box',
+							width = 4721,
+							depth = 2521,
+							height = 650,
+						}
+					},
+				},
+				group4 = {
+					ids = {},
+					shapes = {
+						{
+							rotation = Rotation(-90, 0, -0),
+							position = Vector3(-5700, -300, 770.001),
+							type = 'box',
+							width = 5284,
+							depth = 5310,
+							height = 1220,
+						}
+					},
+				},
+				group5 = {
+					ids = {
+						[600431] = true,
+						[702277] = true,
+						[700457] = true,
+					},
+					shapes = {
+						{
+							rotation = Rotation(4.00716e-005, -0, -0),
+							position = Vector3(-6622, -3350, 771.933),
+							type = 'box',
+							width = 5200,
+							depth = 1620,
+							height = 1000,
+						},
+						{
+							rotation = Rotation(0, 0, -0),
+							position = Vector3(-6618, -2831, 775.001),
+							type = 'box',
+							width = 1000,
+							depth = 4452,
+							height = 390,
+						}
+					},
+				},
+				group6 = {
+					ids = {
+						[702247] = true,
+						[702176] = true,
+						[702213] = true,
+						[702248] = true,
+						[702175] = true,
+					},
+					shapes = {
+						{
+							rotation = Rotation(0, 0, -0),
+							position = Vector3(-6639, -2900, 748.001),
+							type = 'box',
+							width = 6697,
+							depth = 4423,
+							height = 1000,
+						}
+					},
+				},
+				group7 = {
+					ids = {
+						[701576] = true,
+						[700754] = true,
+						[702640] = true,
+						[700792] = true,
+						[700753] = true,
+						[144980] = true,
+						[144981] = true,
+						[144983] = true,
+						[700751] = true,
+						[700730] = true,
+						[700096] = true,
+						[700654] = true,
+						[144982] = true,
+						[700182] = true,
+						[700091] = true,
+						[700116] = true,
+					},
+					shapes = {
+						{
+							rotation = Rotation(-180, 0, -0),
+							position = Vector3(11, 1509, 774.001),
+							type = 'box',
+							width = 2760,
+							depth = 5754,
+							height = 1000,
+						}
+					},
+				},
+				group8 = {
+					ids = {},
+					shapes = {
+						{
+							rotation = Rotation(2.00359e-005, -0, -0),
+							position = Vector3(-6615, -3800, 348),
+							type = 'box',
+							width = 2421,
+							depth = 5338,
+							height = 405,
+						}
+					},
+				},
+				group9 = {
+					ids = {
+						[700154] = true,
+					},
+					shapes = {
+						{
+							rotation = Rotation(-180, 0, -0),
+							position = Vector3(6.99997, 1524, 371.242),
+							type = 'box',
+							width = 2380,
+							depth = 4893,
+							height = 360,
+						}
+					},
+				},
+				group10 = {
+					ids = {
+						[700154] = true,
+						[700084] = true,
+						[700032] = true,
+						[700072] = true,
+					},
+					shapes = {
+						{
+							rotation = Rotation(-180, 0, -0),
+							position = Vector3(-0.000195503, 2200, 214.242),
+							type = 'box',
+							width = 6610,
+							depth = 2724,
+							height = 959,
+						}
+					},
+				},
+				group11 = {
+					ids = {},
+					shapes = {
+						{
+							rotation = Rotation(-180, 0, -0),
+							-- position = Vector3(0, -1800, 373),
+							position = Vector3(0, -1250, 373),
+							type = 'box',
+							width = 6615,
+							-- depth = 2400,
+							depth = 2950,
+							height = 369,
+						}
+					},
+				},
+				group12 = {
+					ids = {},
+					shapes = {
+						{
+							rotation = Rotation(-90, 0, -0),
+							position = Vector3(-6611, 2205, 163),
+							type = 'box',
+							width = 1367,
+							depth = 6659,
+							height = 1558,
+						}
+					},
+				},
+				group13 = {
+					ids = {
+						[102873] = true,
+						[703100] = true,
+						[100676] = true,
+						[102574] = true,
+						[102989] = true,
+						[102990] = true,
+						[100083] = true,
+						[700088] = true,
+						[101455] = true,
+						[700082] = true,
+						[100087] = true,
+						[104194] = true,
+						[104193] = true,
+						[104192] = true,
+						[104191] = true,
+					},
+					shapes = {
+						{
+							rotation = Rotation(0, 0, -0),
+							position = Vector3(-5300, -6688, -284),
+							type = 'box',
+							width = 3933,
+							depth = 4181,
+							height = 590,
+						}
+					},
+				},
+				group14 = {
+					ids = {
+						[104016] = true,
+						[104017] = true,
+						[104018] = true,
+						[102991] = true,
+						[702122] = true,
+						[703084] = true,
+						[104189] = true,
+						[100675] = true,
+						[100174] = true,
+						[100583] = true,
+						[700035] = true,
+						[703041] = true,
+						[702123] = true,
+						[104190] = true,
+						[100089] = true,
+						[104359] = true,
+						[104360] = true,
+						[100088] = true,
+						[104317] = true,
+					},
+					shapes = {
+						{
+							rotation = Rotation(180, 0, -0),
+							position = Vector3(-2338, -354, 25),
+							type = 'box',
+							width = 1920,
+							depth = 1496,
+							height = 720,
+						},
+						{
+							rotation = Rotation(-90, 0, -0),
+							position = Vector3(-5350, -1801, -323),
+							type = 'box',
+							width = 4888,
+							depth = 4132,
+							height = 663,
+						}
+					},
+				},
+				group15 = {
+					ids = {
+						[143950] = true,
+						[142963] = true,
+						[142965] = true,
+						[143923] = true,
+						[135102] = true,
+						[135108] = true,
+						[135110] = true,
+						[135174] = true,
+						[143910] = true,
+						[143945] = true,
+						[143947] = true,
+						[142964] = true,
+						[142966] = true,
+						[703388] = true,
+						[703815] = true,
+						[703389] = true,
+						[703387] = true,
+						[143978] = true,
+						[143953] = true,
+						[135173] = true,
+						[135175] = true,
+						[143944] = true,
+						[143946] = true,
+						[135115] = true,
+					},
+					shapes = {
+						{
+							rotation = Rotation(0, 0, -0),
+							position = Vector3(-6643, -5457, 58.0001),
+							type = 'box',
+							width = 7078,
+							depth = 7630,
+							height = 1000,
+						}
+					}
+				}
+			}
+		end
+
+		return itr_original_worlddefinition_create(self, layer, offset)
+	end
+
 elseif level_id == 'chill_combat' then
 
 	local itr_original_worlddefinition_serializetoscript = WorldDefinition._serialize_to_script

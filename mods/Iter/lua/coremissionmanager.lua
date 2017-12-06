@@ -25,11 +25,13 @@ Iter.settings = {
 	map_change_friend = true,
 	map_change_gallery = true,
 	map_change_jolly = true,
+	map_change_kenaz = true,
 	map_change_kosugi = true,
 	map_change_mad = true,
 	map_change_mia_1 = true,
 	map_change_moon = true,
 	map_change_mus = true,
+	map_change_pbr = true,
 	map_change_pbr2 = true,
 	map_change_peta = true,
 	map_change_rat = true,
@@ -503,18 +505,6 @@ elseif level_id == 'arena' then
 		itr_original_missionmanager_addscript(self, data)
 	end
 
-elseif level_id == 'watchdogs_1' then
-
-	function MissionManager:_add_script(data)
-		for _, element in pairs(data.elements) do
-			if element.id == 103619 then
-				element.values.position = Vector3(-1501, 2350, 825)
-				element.values.search_position = Vector3(-995, 2350, 825)
-			end
-		end
-		itr_original_missionmanager_addscript(self, data)
-	end
-
 elseif level_id == 'red2' then
 
 	function MissionManager:_add_script(data)
@@ -907,6 +897,54 @@ elseif level_id == 'arm_for' then
 		end
 
 		itr_original_missionmanager_addscript(self, data)
+	end
+
+elseif level_id == 'mus' then
+
+	function MissionManager:_add_script(data)
+		table.insert(itr_custom_elements, 105000)
+
+		local entrance_trigger = {
+			id = 105000,
+			class = 'ElementUnitSequenceTrigger',
+			module = 'CoreElementUnitSequenceTrigger',
+			editor_name = 'itr_entrance_trigger',
+			values = {
+				base_delay = 0,
+				enabled = true,
+				execute_on_startup = false,
+				trigger_times = 1,
+				sequence_list = {
+					{ unit_id = 300022, guis_id = 1, sequence = 'interact' },
+					{ unit_id = 300022, guis_id = 1, sequence = 'int_seq_saw_in' },
+					{ unit_id = 300022, guis_id = 1, sequence = 'int_seq_saw_out' },
+					{ unit_id = 300022, guis_id = 1, sequence = 'int_seq_bullet_hit_in' },
+					{ unit_id = 300022, guis_id = 1, sequence = 'int_seq_bullet_hit_out' },
+					{ unit_id = 300022, guis_id = 1, sequence = 'int_seq_explosion_in' },
+					{ unit_id = 300022, guis_id = 1, sequence = 'int_seq_explosion_out' },
+				},
+				on_executed = {
+					{ delay = 0, id = 101225 },
+					{ delay = 0, id = 100796 },
+					{ delay = 0, id = 100797 },
+				},
+			}
+		}
+		table.insert(data.elements, entrance_trigger)
+
+		itr_original_missionmanager_addscript(self, data)
+	end
+
+elseif level_id == 'kenaz' then
+
+	function MissionScript:_create_elements(elements)
+		for _, element in pairs(elements) do
+			if element.id == 196574 then
+				table.insert(element.values.on_executed, { delay = 0, id = 102887 })
+			end
+		end
+
+		return itr_original_missionscript_createelements(self, elements)
 	end
 
 elseif level_id == 'firestarter_1' then

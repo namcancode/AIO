@@ -656,7 +656,6 @@ elseif level_id == 'alex_2'
 	or level_id == 'big'
 	or level_id == 'branchbank'
 	or level_id == 'mia_1'
-	or level_id == 'mus'
 	or level_id == 'roberts'
 	or level_id == 'wwh'
 then
@@ -943,6 +942,31 @@ elseif level_id == 'watchdogs_1' then
 			table.insert(d134t52, door_id)
 			table.insert(d52t134, door_id)
 		end
+
+		itr_original_navigationmanager_setloaddata(self, data)
+	end
+
+elseif level_id == 'pbr' then
+
+	function NavigationManager:set_load_data(data)
+		data.room_borders_y_pos[1222] = -286
+		local did = #data.door_high_pos + 1
+		data.door_low_pos[did] = Vector3(38, -287, -58)
+		data.door_high_pos[did] = Vector3(38, -286, -82)
+		data.door_low_rooms[did] = 1147
+		data.door_high_rooms[did] = 1222
+		data.nav_segments[39].neighbours[40] = {did}
+		data.nav_segments[40].neighbours[39] = data.nav_segments[39].neighbours[40]
+
+		data.room_borders_x_pos[5714] = -30
+		data.room_borders_y_pos[5714] = -96
+		did = did + 1
+		data.door_low_pos[did] = Vector3(-30, -97, -160.145)
+		data.door_high_pos[did] = Vector3(-30, -96, -160.145)
+		data.door_low_rooms[did] = 1818
+		data.door_high_rooms[did] = 5714
+		data.nav_segments[30].neighbours[52] = {did}
+		data.nav_segments[52].neighbours[30] = data.nav_segments[30].neighbours[52]
 
 		itr_original_navigationmanager_setloaddata(self, data)
 	end

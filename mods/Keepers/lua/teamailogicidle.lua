@@ -26,3 +26,12 @@ function TeamAILogicIdle.update(data)
 
 	kpr_original_teamailogicidle_update(data)
 end
+
+local kpr_original_teamailogicidle_actioncompleteclbk = TeamAILogicIdle.action_complete_clbk
+function TeamAILogicIdle.action_complete_clbk(data, action)
+	if action and action._action_desc and action._action_desc.kpr_so_expiration then
+		action._expired = true
+	end
+
+	return kpr_original_teamailogicidle_actioncompleteclbk(data, action)
+end

@@ -23,3 +23,7 @@ Hooks:PostHook(HostNetworkSession, 'on_peer_sync_complete' , 'HostNetworkSession
 		end
 	end
 end)
+
+Hooks:Add('BaseNetworkSessionOnPeerRemoved', 'BaseNetworkSessionOnPeerRemoved_Keepers', function(peer, peer_id, reason)
+	Keepers.clients[peer_id] = false
+end)

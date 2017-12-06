@@ -1,10 +1,15 @@
 local key = ModPath .. '	' .. RequiredScript
 if _G[key] then return else _G[key] = true end
 
-local mvec_cpy = mvector3.copy
-local mvec_dis = mvector3.distance
-local mvec_set = mvector3.set
-local mvec_set_z = mvector3.set_z
+local mvec3_add = mvector3.add
+local mvec3_cpy = mvector3.copy
+local mvec3_dir = mvector3.direction
+local mvec3_dis = mvector3.distance
+local mvec3_mul = mvector3.multiply
+local mvec3_set = mvector3.set
+local mvec3_set_z = mvector3.set_z
+local mvec3_sub = mvector3.subtract
+local mvec3_z = mvector3.z
 local tmp_vec = Vector3()
 local tmp_vec2 = Vector3()
 
@@ -23,9 +28,8 @@ Keepers.enabled = true
 Keepers.clients = {}
 Keepers.joker_names = {}
 Keepers.radial_health = {}
-Keepers.key_to_unit_id = {}
-Keepers.key_to_SO = {}
-Keepers.element_interactions = {}
+Keepers.wp_to_unit_id = {}
+Keepers.unitid_to_SO = {}
 Keepers.settings = {
 	primary_mode = 3,
 	secondary_mode = 4,
@@ -174,18 +178,18 @@ function Keepers:GetGoonModWaypointPosition(peer_id)
 	local tracker_pos = tracker:field_position()
 	managers.navigation:destroy_nav_tracker(tracker)
 
-	mvec_set(tmp_vec, pos)
-	mvec_set(tmp_vec2, tracker_pos)
-	mvec_set_z(tmp_vec, 0)
-	mvec_set_z(tmp_vec2, 0)
-	if mvec_dis(tmp_vec, tmp_vec2) < 100 then
+	mvec3_set(tmp_vec, pos)
+	mvec3_set(tmp_vec2, tracker_pos)
+	mvec3_set_z(tmp_vec, 0)
+	mvec3_set_z(tmp_vec2, 0)
+	if mvec3_dis(tmp_vec, tmp_vec2) < 100 then
 		pos = tracker_pos
 	end
 
-	mvec_set(tmp_vec, pos)
-	mvec_set(tmp_vec2, tmp_vec)
-	mvec_set_z(tmp_vec, tmp_vec.z + 10)
-	mvec_set_z(tmp_vec2, tmp_vec.z - 2000)
+	mvec3_set(tmp_vec, pos)
+	mvec3_set(tmp_vec2, tmp_vec)
+	mvec3_set_z(tmp_vec, tmp_vec.z + 10)
+	mvec3_set_z(tmp_vec2, tmp_vec.z - 2000)
 	local ground_slotmask = managers.slot:get_mask('AI_graph_obstacle_check')
 	local ray = World:raycast('ray', tmp_vec, tmp_vec2, 'slot_mask', ground_slotmask, 'ray_type', 'walk')
 	return ray and ray.hit_position
@@ -251,7 +255,7 @@ function Keepers:GetStayObjective(unit)
 		return {
 			type = 'defend_area',
 			kpr_icon = mode_to_icon[kpr_mode],
-			nav_seg = managers.navigation:get_nav_seg_from_pos(keep_position),
+			nav_seg = managers.navigation:get_nav_seg_from_pos(keep_position, true),
 			attitude = 'avoid',
 			stance = 'hos',
 			scan = true
@@ -260,8 +264,8 @@ function Keepers:GetStayObjective(unit)
 		return {
 			type = 'stop',
 			kpr_icon = mode_to_icon[kpr_mode],
-			nav_seg = managers.navigation:get_nav_seg_from_pos(keep_position),
-			pos = mvec_cpy(keep_position)
+			nav_seg = managers.navigation:get_nav_seg_from_pos(keep_position, true),
+			pos = mvec3_cpy(keep_position)
 		}
 	end
 end
@@ -271,42 +275,45 @@ function Keepers:ShowCovers(unit)
 	local covers = {}
 	local kpr_mode = unit:base().kpr_mode
 
+	local keep_position = unit:base().kpr_keep_position
+	if not keep_position then
+		return
+	end
+
 	if kpr_mode == 3 then
-		local keep_position = unit:base().kpr_keep_position
 		local i = 1
-		for _, cover in pairs(self._covers) do
-			local cover_pos = cover[1]
-			if mvec_dis(keep_position, cover_pos) < 400 then
+		for _, cover_pos in ipairs(self._covers) do
+			if mvec3_dis(keep_position, cover_pos) < 400 then
 				local delta_z = keep_position.z - cover_pos.z
 				if delta_z > -100 and delta_z < 100 then
-					covers[i] = mvec_cpy(cover_pos)
+					covers[i] = mvec3_cpy(cover_pos)
 					i = i + 1
 				end
 			end
 		end
 
 	elseif kpr_mode == 4 then
-		local nav_seg = managers.navigation:get_nav_seg_from_pos(unit:base().kpr_keep_position)
+		local nav_seg = managers.navigation:get_nav_seg_from_pos(keep_position)
 		local i = 1
-		for _, cover in pairs(self._covers) do
-			if managers.navigation:get_nav_seg_from_pos(cover[1]) == nav_seg then
-				covers[i] = mvec_cpy(cover[1])
+		for _, cover_pos in ipairs(self._covers) do
+			if managers.navigation:get_nav_seg_from_pos(cover_pos) == nav_seg then
+				covers[i] = mvec3_cpy(cover_pos)
 				i = i + 1
 			end
 		end
 	end
 
 	for _, cover in pairs(covers) do
-		mvec_set_z(cover, cover.z - 3)
-		tmp_vec = mvec_cpy(cover)
-		mvec_set_z(tmp_vec, tmp_vec.z + 20)
+		mvec3_set_z(cover, cover.z - 3)
+		tmp_vec = mvec3_cpy(cover)
+		mvec3_set_z(tmp_vec, tmp_vec.z + 20)
 		brush:cone(tmp_vec, cover, 30)
 	end
 end
 
 function Keepers:SendState(unit, unit_text_ref, is_keeper)
-	local is_server = Network:is_server()
-	if is_server then
+	self:SetState(unit_text_ref, is_keeper)
+	if Network:is_server() then
 		LuaNetworking:SendToPeers('Keeper' .. (is_keeper and 'ON' or 'OFF'), unit_text_ref)
 		if managers.groupai:state()._ai_criminals[unit:key()] then
 			for peer_id, peer in pairs(managers.network:session():peers()) do
@@ -318,16 +325,12 @@ function Keepers:SendState(unit, unit_text_ref, is_keeper)
 	else
 		LuaNetworking:SendToPeer(1, 'Keeper' .. (is_keeper and 'ON' or 'OFF'), unit_text_ref)
 	end
-
-	self:SetState(unit_text_ref, is_keeper, is_server)
 end
 
 function Keepers:RecvState(sender, unit_text_ref, is_keeper)
-	if Network:is_server() then
+	if self:SetState(unit_text_ref, is_keeper) and Network:is_server() then
 		LuaNetworking:SendToPeers('Keeper' .. (is_keeper and 'ON' or 'OFF'), unit_text_ref)
 	end
-
-	self:SetState(unit_text_ref, is_keeper, true)
 end
 
 function Keepers:CanChangeState(unit)
@@ -370,27 +373,67 @@ function Keepers:GetUnit(data)
 	return false
 end
 
-function Keepers:SetState(unit_text_ref, is_keeper, update_teamai_leader)
+function Keepers:IsPositionOK(pos, threshold)
+	if not pos then
+		return false
+	end
+
+	local result = true
+	local closest_navseg = managers.navigation:get_nav_seg_from_pos(pos, false)
+	local navseg = managers.navigation:get_nav_seg_from_pos(pos, true)
+
+	if navseg ~= closest_navseg then
+		local tracker = managers.navigation:create_nav_tracker(pos, false)
+		local tracker_pos = tracker:field_position()
+		managers.navigation:destroy_nav_tracker(tracker)
+		if mvec3_dis(pos, tracker_pos) > (threshold or 150) then
+			result = false
+		end
+	end
+
+	return result, closest_navseg, navseg
+end
+
+function Keepers:SetState(unit_text_ref, is_keeper)
 	local data = json.safe_decode(unit_text_ref)
 	local peer_id = data.peer_id
+
 	local unit = self:GetUnit(data)
 	if not alive(unit) or not self:CanChangeState(unit) then
 		return
 	end
 
 	local u_base = unit:base()
-	if update_teamai_leader and not is_converted then
+	if data.charname == 'jokered_cop' then
+		if unit:character_damage():dead() and unit:unit_data().name_label_id then
+			self:DestroyLabel(unit)
+		end
+	else
 		u_base.kpr_following_peer_id = peer_id
 	end
 
-	u_base.kpr_is_keeper = is_keeper
-	u_base.kpr_mode = tonumber(data.mode)
-	u_base.kpr_keep_position = is_keeper and mvec_cpy(self:GetGoonModWaypointPosition(peer_id) or unit:movement():nav_tracker():field_position()) or nil
-
 	if Network:is_server() then
+		local previous_kpr_is_keeper = u_base.kpr_is_keeper
+		local previous_kpr_mode = u_base.kpr_mode
 		if is_keeper then
-			unit:brain():set_objective(self:GetWaypointSO(unit) or self:GetStayObjective(unit))
+			local so = self:GetWaypointSO(unit, peer_id)
+			if not so then
+				local wp_pos = self:GetGoonModWaypointPosition(peer_id)
+				local dest_pos = self:IsPositionOK(wp_pos) and self:GetGoonModWaypointPosition(peer_id) or unit:movement():nav_tracker():field_position()
+				u_base.kpr_is_keeper = true
+				u_base.kpr_mode = tonumber(data.mode)
+				u_base.kpr_keep_position = mvec3_cpy(dest_pos)
+				unit:brain():set_objective(self:GetStayObjective(unit))
+			else
+				u_base.kpr_is_keeper = true
+				u_base.kpr_mode = tonumber(data.mode)
+				u_base.kpr_keep_position = mvec3_cpy(so.pos)
+				unit:brain():set_objective(so)
+			end
 		else
+			u_base.kpr_is_keeper = false
+			u_base.kpr_mode = 1
+			u_base.kpr_keep_position = nil
 			local peer = managers.network:session():peer(peer_id)
 			local peer_unit = peer and peer:unit()
 			local obj = peer_unit and {
@@ -402,14 +445,15 @@ function Keepers:SetState(unit_text_ref, is_keeper, update_teamai_leader)
 				called = true,
 				pos = peer_unit:movement():nav_tracker():field_position(),
 			}
-			unit:brain():set_objective(self:GetWaypointSO(unit, obj) or obj)
+			unit:brain():set_objective(obj)
 		end
-	end
 
-	if is_converted and unit:character_damage():dead() then
-		if unit:unit_data().name_label_id then
-			self:DestroyLabel(unit)
-		end
+		local change = previous_kpr_is_keeper ~= u_base.kpr_is_keeper or previous_kpr_mode ~= u_base.kpr_mode
+		return change
+
+	else
+		u_base.kpr_is_keeper = is_keeper
+		u_base.kpr_mode = tonumber(data.mode)
 	end
 end
 
@@ -427,17 +471,15 @@ function Keepers:ResetLabel(unit, is_converted, icon, ext_data)
 		end
 	end
 
-	local panel_id = unit:unit_data().name_label_id
-	local hud = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN_PD2)
-	local name_label = hud.panel:child('name_label' .. tostring(panel_id))
+	local name_label = managers.hud:_get_name_label(unit:unit_data().name_label_id)
 	if not name_label then
 		log('[KPR] name_label not found for ' .. tostring(unit:base()._tweak_table))
 		return
 	end
 
-	local previous_icon = name_label:child('infamy')
+	local previous_icon = name_label.panel:child('infamy')
 	if previous_icon then
-		name_label:remove(previous_icon)
+		name_label.panel:remove(previous_icon)
 		previous_icon = nil
 	end
 
@@ -448,7 +490,7 @@ function Keepers:ResetLabel(unit, is_converted, icon, ext_data)
 		end
 		local color = icon_color or tweak_data.chat_colors[managers.criminals:character_color_id_by_unit(unit)]
 		local texture, rect = tweak_data.hud_icons:get_icon_data(icon)
-		local bmp = name_label:bitmap({
+		local bmp = name_label.panel:bitmap({
 			blend_mode = 'add',
 			name = 'infamy',
 			texture = texture,
@@ -459,7 +501,7 @@ function Keepers:ResetLabel(unit, is_converted, icon, ext_data)
 			h = 16,
 			visible = true,
 		})
-		local txt = name_label:child('text')
+		local txt = name_label.panel:child('text')
 		bmp:set_center_y(txt:center_y())
 		bmp:set_right(txt:left())
 	end
@@ -467,6 +509,7 @@ function Keepers:ResetLabel(unit, is_converted, icon, ext_data)
 	if icon ~= nil and Network:is_server() then
 		LuaNetworking:SendToPeers('KeepersICON', self:GetLuaNetworkingText(ext_data, unit, icon))
 	end
+	unit:base().kpr_icon = icon
 end
 
 function Keepers:SetIcon(sender, unit_text_ref)
@@ -632,103 +675,446 @@ function Keepers:ChangeState(new_state)
 	end
 end
 
-function Keepers:GetWaypointSO(bot_unit, followup_objective)
-	local bot_brain = bot_unit:brain()
-	if bot_brain and bot_brain._logic_data and bot_brain._logic_data.is_converted then
-		return
-	end
+function Keepers:ValidInteraction(unit)
+	local forbidden_interactions = {
+		access_camera = true,
+		c4_bag = true,
+		c4_bag_dynamic = true,
+		cas_take_hook = true,
+		open_from_inside = true,
+		pickup_keycard = true,
+		player_zipline = true,
+	}
 
-	local obj_wp_id = CustomWaypoints and CustomWaypoints:GetAssociatedObjectiveWaypoint()
-	if not obj_wp_id then
-		return
-	end
-
-	local wp_element = managers.mission:get_element_by_id(obj_wp_id)
-	if not wp_element then
-		return
-	end
-
-	local key = wp_element._values.instance_name or obj_wp_id
-	local unit
-
-	for id, element in pairs(self.element_interactions) do
-		if element._values.enabled and element._values.instance_name == key then
-			unit = element._unit
-			break
+	if alive(unit) and unit:in_slot(1, 14) then
+		local interaction = unit:interaction()
+		if interaction and not interaction:disabled() and interaction:active() then
+			if not forbidden_interactions[interaction.tweak_data] then
+				local td = interaction._tweak_data
+				if not td
+					or td.special_equipment
+					or td.equipment_consume
+					or td.special_equipment_block
+					or td.requires_upgrade
+					or td.required_deployable
+					or td.deployable_consume
+					or td.contour == 'deployable'
+				then
+				else
+					return true
+				end
+			end
 		end
 	end
 
-	if not unit then
-		local unit_id = self.key_to_unit_id[key]
-		if not unit_id then
+	return false
+end
+
+function Keepers:GetHorizontalGap(pos)
+	local tracker = managers.navigation:create_nav_tracker(pos, false)
+	local tracker_pos = tracker:field_position()
+	managers.navigation:destroy_nav_tracker(tracker)
+	mvec3_set_z(tracker_pos, mvec3_z(pos))
+	return mvec3_dis(pos, tracker_pos), tracker_pos
+end
+
+function Keepers:GetYaw(interactive_unit, interact_pos)
+	mvec3_set(tmp_vec, interact_pos)
+	mvec3_set_z(tmp_vec, 0)
+	mvec3_set(tmp_vec2, interactive_unit:interaction():interact_position())
+	mvec3_set_z(tmp_vec2, 0)
+	mvec3_dir(tmp_vec, tmp_vec, tmp_vec2)
+	return Rotation(tmp_vec, math.UP):yaw()
+end
+
+function Keepers:FindInteractPosition(interactive_unit, delta_yaw)
+	local slot_mask = managers.slot:get_mask('AI_graph_obstacle_check')
+	local i_pos = interactive_unit:interaction():interact_position()
+	local i_pos_z = mvec3_z(i_pos)
+	mvec3_set(tmp_vec, i_pos)
+
+	local fwd = Rotation(((interactive_unit:rotation():yaw() + delta_yaw + 180) % 360) - 180, 0, 0):y()
+	mvec3_mul(fwd, 80)
+	mvec3_add(tmp_vec, fwd)
+	local z = mvec3_z(tmp_vec)
+	mvec3_set_z(tmp_vec, z + 20)
+	mvec3_set(tmp_vec2, tmp_vec)
+	mvec3_set_z(tmp_vec2, z - 10000)
+	local col_ray = World:raycast('ray', tmp_vec, tmp_vec2, 'slot_mask', slot_mask)
+	if col_ray then
+		mvec3_set(tmp_vec, col_ray.position)
+	end
+
+	local tracker = managers.navigation:create_nav_tracker(tmp_vec, false)
+	local tracker_pos = tracker:field_position()
+	managers.navigation:destroy_nav_tracker(tracker)
+
+	local tracker_z = mvec3_z(tracker_pos) - 25
+	if i_pos_z - tracker_z < -10 then
+		mvec3_set_z(tmp_vec, z - 100)
+		local col_ray = World:raycast('ray', tmp_vec, tmp_vec2, 'slot_mask', slot_mask)
+		if col_ray then
+			mvec3_set(tmp_vec, col_ray.position)
+		end
+	end
+
+	return mvec3_cpy(tmp_vec), i_pos_z - mvec3_z(tmp_vec)
+end
+
+function Keepers:GetInteractionPosition(interactive_unit, wp_position)
+	local data = {
+		{ delta_yaw = 0   },
+		{ delta_yaw = 90  },
+		{ delta_yaw = 180 },
+		{ delta_yaw = 270 }
+	}
+	data[1].opposite = data[3]
+	data[2].opposite = data[4]
+	data[3].opposite = data[1]
+	data[4].opposite = data[2]
+
+	local slot_mask = managers.slot:get_mask('AI_graph_obstacle_check')
+	local yaw = interactive_unit:rotation():yaw()
+	local pos = Vector3()
+	local full_length = 100
+
+	for _, dataset in ipairs(data) do
+		mvec3_set(pos, wp_position)
+		local dir = Rotation(((yaw + dataset.delta_yaw + 180) % 360) - 180, 0, 0):y()
+		mvec3_mul(dir, full_length)
+		mvec3_add(pos, dir)
+		local col_ray = World:raycast('ray', pos, wp_position, 'slot_mask', slot_mask)
+		dataset.dis = col_ray and col_ray.distance or full_length
+		dataset.i_pos, dataset.height = self:FindInteractPosition(interactive_unit, dataset.delta_yaw)
+		dataset.z_ok = math.within(dataset.height, -20, 300)
+		dataset.gap = self:GetHorizontalGap(dataset.i_pos)
+	end
+
+	table.sort(data, function (a, b)
+		if a.z_ok ~= b.z_ok then
+			return a.z_ok
+		end
+		if a.dis == b.dis then
+			if a.gap == b.gap then
+				return a.delta_yaw < b.delta_yaw -- sometimes, everything is ok but 0 is best
+			end
+			return a.gap < b.gap
+		end
+		return a.dis > b.dis
+	end)
+
+	if data[1].dis == full_length and data[2].dis == full_length and data[3].dis == full_length and data[4].dis < full_length then
+		return data[4].opposite.i_pos
+	end
+
+	return data[1].i_pos
+end
+
+function Keepers:GetAnimation(interaction, height, action_duration)
+	local interaction_name = interaction.tweak_data
+	local computer_interactions = {
+		big_computer_hackable = 35,
+		big_computer_server = 35,
+		hold_search_computer = 35,
+		hack_suburbia_outline = false,
+		security_station_keyboard = false,
+	}
+
+	if interaction_name == 'hold_signal_driver' then
+		return 'e_so_low_kicks', nil, nil, -130
+
+	elseif height > 130 then
+		if action_duration <= 3 then
+			return 'e_so_tube_interact'
+		else
+			return 'interact_enter', 'interact_exit'
+		end
+
+	elseif height > 60 then
+		if interaction_name == 'drill_jammed' then
+			return 'e_so_low_lockpick_enter', 'e_so_low_lockpick_exit', true, 10
+		elseif interaction._tweak_data.is_lockpicking then
+			return 'e_so_low_lockpick_enter', 'e_so_low_lockpick_exit', true
+		elseif computer_interactions[interaction_name] ~= nil then
+			return 'e_so_keyboard_type_loop', nil, nil, computer_interactions[interaction_name]
+		elseif action_duration <= 3 then
+			return 'e_so_interact_mid'
+		else
+			return 'interact_enter', 'interact_exit'
+		end
+
+	elseif height < 5 then
+		if action_duration <= 1 then
+			return 'e_so_plant_c4_floor'
+		end
+	end
+
+	return 'untie'
+end
+
+function Keepers:GetInteractionIcon(interaction, icon)
+	if interaction._tweak_data.is_lockpicking then
+		return 'wp_key'
+	end
+
+	local td_icon = interaction._tweak_data.icon
+	if td_icon and td_icon ~= 'develop' then
+		return td_icon
+	end
+
+	return icon or 'pd2_generic_interact'
+end
+
+local ids_gen_drill_small_upright = Idstring('units/pd2_dlc_pal/equipment/gen_interactable_drill_small_upright/gen_interactable_drill_small_upright')
+local ids_gen_saw_no_jam = Idstring('units/pd2_dlc_glace/equipment/gen_interactable_saw_no_jam/gen_interactable_saw_no_jam')
+function Keepers:GetWaypointSO(bot_unit, peer_id)
+	if not CustomWaypoints then
+		return
+	end
+
+	local bot_brain = bot_unit:brain()
+	if not bot_brain or not bot_brain._logic_data or bot_brain._logic_data.is_converted then
+		return
+	end
+
+	local unit, unit_id, icon
+
+	local wp = managers.hud._hud.waypoints[CustomWaypoints.prefix .. (peer_id == 1 and 'localplayer' or tostring(peer_id))]
+	if not wp or not wp.position then
+		return
+	end
+
+	local obj_wp_id = CustomWaypoints:GetAssociatedObjectiveWaypoint(wp.position)
+	if obj_wp_id then
+		local wp_element = managers.mission:get_element_by_id(obj_wp_id)
+		if not wp_element then
 			return
 		end
 
+		unit_id = self.wp_to_unit_id[wp_element._values.instance_name or obj_wp_id]
+		icon = wp_element._values.icon
+	end
+
+	if unit_id then
 		unit = managers.worlddefinition:get_unit(unit_id)
 	end
 
-	if not alive(unit) then
-		return
+	if not self:ValidInteraction(unit) then
+		local best_unit
+		local min_dis = 0
+		for _, int_unit in ipairs(managers.interaction._interactive_units) do
+			if self:ValidInteraction(int_unit) then
+				local ipos = int_unit:interaction():interact_position()
+				local dis = mvec3_dis(wp.position, ipos) - int_unit:interaction():interact_distance()
+				if dis < min_dis then
+					best_unit = int_unit
+					min_dis = dis
+				end
+			end
+		end
+
+		if not best_unit then
+			return
+		end
+		unit_id = best_unit and best_unit:unit_data() and best_unit:unit_data().unit_id
+		unit = best_unit
 	end
 
-	local so_id = self.key_to_SO[key]
-	if not so_id then
+	if not self:ValidInteraction(unit) then
 		return
 	end
-
-	local so = managers.mission:get_element_by_id(so_id)
-	if not so then
-		return
-	end
-
 	local interaction = unit:interaction()
-	if not interaction or interaction:disabled() or not interaction:active() then
-		return
+	local action_duration = interaction._tweak_data.timer or 0.5
+	local clbk_data = {
+		interactive_unit = unit,
+		interaction_name = interaction.tweak_data,
+		bot_unit = bot_unit,
+		duration = action_duration,
+	}
+
+	local so_values
+	local so_id = self.unitid_to_SO[unit_id]
+	if so_id then
+		local so = managers.mission:get_element_by_id(so_id)
+		if not so then
+			return
+		end
+		so_values = so._values
+
+		local inappropriate_anim = {
+			e_so_balloon = true,
+		}
+		if inappropriate_anim[so_values.so_action] then
+			local height = so_values.position and (mvec3_z(interaction:interact_position()) - mvec3_z(so_values.position)) or 75
+			so_values.so_action, clbk_data.exit_animation, clbk_data.hidden_weapon, repos = self:GetAnimation(interaction, height, action_duration)
+			icon = self:GetInteractionIcon(interaction, icon)
+		end
 	end
-	if interaction._tweak_data.requires_upgrade or interaction._tweak_data.special_equipment then
+
+	if not so_values or not so_values.position then
+		so_values = {}
+		icon = self:GetInteractionIcon(interaction, icon)
+
+		local pos, repos
+		local ub = unit:base()
+		if ub and ub._sabotage_align_obj_name and (math.within(unit:rotation():pitch(), -10, 10) and unit:name() ~= ids_gen_drill_small_upright or unit:name() == ids_gen_saw_no_jam) then
+			local align_obj = unit:get_object(Idstring(ub._sabotage_align_obj_name))
+			pos = mvec3_cpy(align_obj:position())
+			mvec3_set(tmp_vec, pos)
+			mvec3_set_z(tmp_vec, mvec3_z(pos) - 300)
+			local col_ray = World:raycast('ray', pos, tmp_vec, 'slot_mask', managers.slot:get_mask('AI_graph_obstacle_check'))
+			if col_ray then
+				pos = col_ray.position
+			else
+				mvec3_set_z(pos, mvec3_z(pos) - 25)
+			end
+		else
+			pos = self:GetInteractionPosition(unit, wp.position)
+		end
+
+		local height = mvec3_z(interaction:interact_position()) - mvec3_z(pos)
+		so_values.so_action, clbk_data.exit_animation, clbk_data.hidden_weapon, repos = self:GetAnimation(interaction, height, action_duration)
+		so_values.rotation = self:GetYaw(unit, pos)
+
+		if repos then
+			mvec3_set(tmp_vec, interaction:interact_position())
+			mvec3_set_z(tmp_vec, mvec3_z(pos))
+			mvec3_dir(tmp_vec, pos, tmp_vec)
+			mvec3_mul(tmp_vec, repos)
+			mvec3_add(pos, tmp_vec)
+		end
+		so_values.position = pos
+	end
+
+	local pos_ok, closest_navseg = self:IsPositionOK(so_values.position)
+	if not pos_ok then
 		return
 	end
 
-	local so_values = so._values
+	clbk_data.icon = icon
 	local carry = bot_unit:movement().carry_id and bot_unit:movement():carry_id()
-	local can_run = not carry or tweak_data.carry.types[tweak_data.carry[carry].type].can_run
+	local can_run = (not carry or tweak_data.carry.types[tweak_data.carry[carry].type].can_run) and mvec3_dis(bot_unit:position(), unit:position()) > 200
+
 	local new_objective = {
-		kpr_icon = wp_element._values.icon,
+		kpr_important_location = not not (obj_wp_id or CustomWaypoints:GetAssociatedObjectiveWaypoint(so_values.position, 200)),
+		kpr_icon = icon,
 		destroy_clbk_key = false,
 		type = 'act',
 		haste = can_run and 'run' or 'walk',
 		pose = 'stand',
 		interrupt_health = 0.4,
 		interrupt_dis = 0,
-		nav_seg = managers.navigation:get_nav_seg_from_pos(so_values.position, true),
+		nav_seg = closest_navseg,
 		pos = so_values.position,
 		rot = so_values.rotation and Rotation(so_values.rotation, 0, 0),
-		complete_clbk = callback(self, self, 'OnCompletedSO', {unit, bot_unit}),
+		action_start_clbk = callback(self, self, 'OnActionStartedSO', clbk_data),
+		complete_clbk = callback(self, self, 'OnCompletedSO', clbk_data),
+		fail_clbk = callback(self, self, 'OnFailedSO', clbk_data),
 		action = {
+			kpr_so_expiration = true,
 			variant = so_values.so_action,
 			align_sync = true,
 			body_part = 1,
 			type = 'act',
 			blocks = {
+				act = -1,
 				action = -1,
 				aim = -1,
+				heavy_hurt = -1,
+				hurt = -1,
+				light_hurt = -1,
+				shoot = -1,
+				turn = -1,
 				walk = -1
 			}
 		},
-		action_duration = math.max(interaction._tweak_data.timer or 1, so_values.action_duration_min or 0),
-		followup_objective = followup_objective or bot_brain:objective()
+		action_duration = action_duration,
+		followup_objective = bot_brain:objective()
 	}
-
-	bot_unit:base().kpr_keep_position = mvec_cpy(so_values.position)
 
 	return new_objective
 end
 
-function Keepers:OnCompletedSO(units)
-	if alive(units[1]) and alive(units[2]) then
-		local interaction = units[1]:interaction()
-		if interaction and interaction:active() and not interaction:disabled() then
-			interaction:interact(units[2])
+function Keepers:OnActionStartedSO(data)
+	local bot_name = alive(data.bot_unit) and managers.criminals:character_name_by_unit(data.bot_unit)
+	if not bot_name then
+		return
+	end
+
+	local interaction = alive(data.interactive_unit) and data.interactive_unit:interaction()
+	if not interaction or not interaction:active() or interaction:disabled() then
+		local objective = data.bot_unit:brain():objective()
+		data.bot_unit:brain():set_objective(objective and objective.followup_objective)
+		return
+	end
+
+	local str = 'kpr;' .. bot_name .. ';' .. data.interaction_name .. (data.hidden_weapon and ';hw' or '')
+	if managers.hud then
+		managers.hud:kpr_teammate_progress(str, true, data.duration, false)
+	end
+
+	local session = managers.network:session()
+	for peer_id, peer in pairs(session:peers()) do
+		if peer_id ~= 1 and self.clients[peer_id] then
+			session:send_to_peer_synched(peer, 'sync_teammate_progress', 1, true, str, data.duration, false)
 		end
 	end
+end
+
+function Keepers:FinalizeSO(data, success)
+	local bot_name = alive(data.bot_unit) and managers.criminals:character_name_by_unit(data.bot_unit)
+	if not bot_name then
+		return
+	end
+
+	data.bot_unit:movement():action_request({
+		body_part = 1,
+		type = 'act',
+		variant = data.exit_animation or 'idle',
+	})
+
+	local str = 'kpr;' .. bot_name .. ';' .. data.interaction_name .. (data.hidden_weapon and ';hw' or '')
+	if managers.hud then
+		managers.hud:kpr_teammate_progress(str, false, data.duration, success)
+	end
+
+	local session = managers.network:session()
+	for peer_id, peer in pairs(session:peers()) do
+		if peer_id ~= 1 and self.clients[peer_id] then
+			session:send_to_peer_synched(peer, 'sync_teammate_progress', 1, false, str, data.duration, success)
+		end
+	end
+end
+
+function Keepers:OnFailedSO(data)
+	self:FinalizeSO(data, false)
+end
+
+function Keepers:OnCompletedSO(data)
+	local interaction = alive(data.interactive_unit) and data.interactive_unit:interaction()
+	if interaction then
+		local bot_unit = data.bot_unit
+		if alive(bot_unit) and interaction:active() and not interaction:disabled() then
+			interaction:interact(bot_unit)
+		end
+
+		local objective = bot_unit:brain():objective()
+		if objective and not objective.kpr_important_location then
+			-- bot should stay around if he was sent to interact on something that may be interactable again
+			if interaction._remove_on_interact then
+				Keepers:SendState(bot_unit, self:GetLuaNetworkingText(bot_unit:base().kpr_following_peer_id, bot_unit, 1), false)
+			else
+				DelayedCalls:Add('DelayedModKPR_OnCompletedSO_' .. bot_unit:id(), 1.1, function()
+					local interaction = alive(data.interactive_unit) and data.interactive_unit:interaction()
+					if interaction and not interaction:disabled() and interaction:active() then
+						-- qued
+					elseif alive(bot_unit) and bot_unit:base().kpr_is_keeper then
+						Keepers:SendState(bot_unit, self:GetLuaNetworkingText(bot_unit:base().kpr_following_peer_id, bot_unit, 1), false)
+					end
+				end)
+			end
+		end
+	end
+
+	self:FinalizeSO(data, true)
 end

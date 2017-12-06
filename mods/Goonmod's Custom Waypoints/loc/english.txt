@@ -21,5 +21,8 @@
 	"gm_options_custom_waypoints_previous_desc" : "Set your custom waypoint on a game objective.",
 
 	"gm_options_custom_waypoints_next_title" : "Next waypoint",
-	"gm_options_custom_waypoints_next_desc" : "Set your custom waypoint on a game objective."
+	"gm_options_custom_waypoints_next_desc" : "Set your custom waypoint on a game objective.",
+
+	"gm_options_custom_waypoints_include_bags_title" : "Bags are objects of interest",
+	"gm_options_custom_waypoints_include_bags_desc" : "Include lootbags in waypoints list used to cycle."
 }

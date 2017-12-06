@@ -1,6 +1,10 @@
 local key = ModPath .. '	' .. RequiredScript
 if _G[key] then return else _G[key] = true end
 
+if not Network:is_server() then
+	return
+end
+
 local kpr_original_copactionhurt_init = CopActionHurt.init
 function CopActionHurt:init(action_desc, common_data)
 	self.original_kpr_keep_position = common_data.unit:base().kpr_keep_position
@@ -9,7 +13,7 @@ end
 
 local kpr_original_copactionhurt_onexit = CopActionHurt.on_exit
 function CopActionHurt:on_exit()
-	if self._expired and not self._died and Network:is_server() then
+	if self._expired and not self._died then
 		local keep_position = self._unit:base().kpr_keep_position
 		if keep_position and keep_position == self.original_kpr_keep_position then
 			if self._unit:base().kpr_mode == 2 and Keepers:CanChangeState(self._unit) then

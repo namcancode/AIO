@@ -14,6 +14,9 @@
 	"itr_options_map_change_gallery_title" : "Art Gallery",
 	"itr_options_map_change_gallery_desc" : "added access to main hall when front doors are closed",
 
+	"itr_options_map_change_pbr_title" : "Beneath The Mountain",
+	"itr_options_map_change_pbr_desc" : "fixed AI access to 2 entrance control rooms",
+
 	"itr_options_map_change_mad_title" : "Boiling Point",
 	"itr_options_map_change_mad_desc" : "fixed issue with blown up wall on the left",
 
@@ -37,6 +40,9 @@
 
 	"itr_options_map_change_peta_title" : "Goat Simulator D1",
 	"itr_options_map_change_peta_desc" : "fixed navigation around a random white truck",
+
+	"itr_options_map_change_kenaz_title" : "Golden Grin Casino",
+	"itr_options_map_change_kenaz_desc" : "make vault accessible to bots in stealth",
 
 	"itr_options_map_change_mia_1_title" : "Hotline Miami D1",
 	"itr_options_map_change_mia_1_desc" : "fixed multiple issues with segments going underground and many glitchy hiding places",
@@ -64,6 +70,9 @@
 
 	"itr_options_map_change_moon_title" : "Stealing Xmas",
 	"itr_options_map_change_moon_desc" : "fixed access to the backroom of the shoe store",
+
+	"itr_options_map_change_mus_title" : "The Diamond",
+	"itr_options_map_change_mus_desc" : "fixed navigation blocker of the museum entrance",
 
 	"itr_options_map_change_born_title" : "The Biker Heist D1",
 	"itr_options_map_change_born_desc" : "fixed navigation around the underground entrance",

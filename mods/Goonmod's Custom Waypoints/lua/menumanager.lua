@@ -11,10 +11,13 @@ local mvec3_set_z = mvector3.set_z
 local tmp_vec1 = Vector3()
 local tmp_vec2 = Vector3()
 
+local table_insert = table.insert
+
 _G.CustomWaypoints = _G.CustomWaypoints or {}
 CustomWaypoints._path = ModPath
 CustomWaypoints._data_path = SavePath .. 'CustomWaypoints.txt'
 CustomWaypoints.prefix = 'CustomWaypoint_'
+CustomWaypoints.last_cycle_t = 0
 CustomWaypoints.network = {
 	place_waypoint = 'CustomWaypointPlace',
 	remove_waypoint = 'CustomWaypointRemove'
@@ -22,20 +25,35 @@ CustomWaypoints.network = {
 CustomWaypoints.settings = {
 	show_distance = true,
 	always_show_my_waypoint = true,
-	always_show_others_waypoints = false
+	always_show_others_waypoints = false,
+	include_lootbags_in_points_of_interest = true,
 }
 CustomWaypoints.interactive_units_white_list = {
 	[Idstring('units/equipment/apartment_saw/apartment_saw'):t()] = true,
+	[Idstring('units/equipment/c4_charge/c4_plantable'):t()] = true,
 	[Idstring('units/equipment/garden_tap_interactive/hose_end_interactive_suburbia'):t()] = true,
+	[Idstring('units/payday2/architecture/res_ext_apartment/res_pipes_valve'):t()] = true,
 	[Idstring('units/payday2/equipment/gen_interactable_lance_huge/gen_interactable_lance_huge'):t()] = true,
 	[Idstring('units/payday2/equipment/gen_interactable_zipline/gen_interactable_zipline_mount_ground'):t()] = true,
 	[Idstring('units/payday2/equipment/item_door_drill_small/item_door_drill_small'):t()] = true,
+	[Idstring('units/payday2/pickups/gen_pku_bodybag/gen_pku_bodybag'):t()] = true,
+	[Idstring('units/payday2/pickups/gen_pku_lootbag/gen_pku_lootbag'):t()] = true,
+	[Idstring('units/pd2_dlc_arena/props/are_prop_security_button/are_prop_security_button'):t()] = true,
+	[Idstring('units/pd2_dlc_berry/props/bry_prop_breaching_charge/bry_prop_breaching_charge'):t()] = true,
 	[Idstring('units/pd2_dlc_casino/props/cas_prop_drill/cas_prop_watertank_01'):t()] = true,
 	[Idstring('units/pd2_dlc_casino/props/cas_prop_drill/cas_prop_watertank_02'):t()] = true,
 	[Idstring('units/pd2_dlc_casino/props/cas_prop_drill/cas_prop_watertank_static'):t()] = true,
+	[Idstring('units/pd2_dlc_dah/dah_interactable_laptop/dah_interactable_laptop'):t()] = true,
+	[Idstring('units/pd2_dlc_glace/equipment/glc_interactable_ejectionseat/glc_interactable_ejectionseat'):t()] = true,
+	[Idstring('units/pd2_dlc_glace/equipment/gen_interactable_saw_no_jam/gen_interactable_saw_no_jam'):t()] = true,
+	[Idstring('units/pd2_dlc_glace/equipment/gen_interactable_saw_no_jam/gen_interactable_saw_no_jam_rotated'):t()] = true,
 	[Idstring('units/pd2_dlc_jolly/equipment/gen_interactable_saw/gen_interactable_saw'):t()] = true,
+	[Idstring('units/pd2_dlc_peta/characters/wld_goat_1/wld_goat_1'):t()] = true,
 	[Idstring('units/pd2_dlc_peta/equipment/pta_interactable_saw/pta_interactable_saw'):t()] = true,
-	[Idstring('units/pd2_dlc_peta/props/pta_interactable_electric_box/pta_interactable_electric_box'):t()] = true, -- fail, no material :/
+	[Idstring('units/pd2_dlc_peta/props/pta_interactable_electric_box/pta_interactable_electric_box'):t()] = true, -- fail
+	[Idstring('units/pd2_dlc_peta/props/pta_prop_debris_wood/pta_prop_debris_wood_01'):t()] = true,
+	[Idstring('units/pd2_dlc_peta/props/pta_prop_debris_wood/pta_prop_debris_wood_02'):t()] = true,
+	[Idstring('units/pd2_dlc_spa/vehicles/str_vehicle_car_police_new_york/str_vehicle_car_police_new_york'):t()] = true,
 }
 
 function CustomWaypoints:Save()
@@ -68,16 +86,8 @@ Hooks:Add('LocalizationManagerPostInit', 'LocalizationManagerPostInit_CustomWayp
 end)
 
 Hooks:Add('MenuManagerInitialize', 'MenuManagerInitialize_CustomWaypoints', function(menu_manager)
-	MenuCallbackHandler.ToggleWaypointShowDistance = function(this, item)
-		CustomWaypoints.settings.show_distance = item:value() == 'on'
-	end
-
-	MenuCallbackHandler.ToggleWaypointAlwaysShowMyWaypoint = function(this, item)
-		CustomWaypoints.settings.always_show_my_waypoint = item:value() == 'on'
-	end
-
-	MenuCallbackHandler.ToggleWaypointAlwaysShowOthersWaypoints = function(this, item)
-		CustomWaypoints.settings.always_show_others_waypoints = item:value() == 'on'
+	MenuCallbackHandler.CustomWaypointsMenuCheckboxClbk = function(this, item)
+		CustomWaypoints.settings[item:name()] = item:value() == 'on'
 	end
 
 	MenuCallbackHandler.CustomWaypointsSave = function(this, item)
@@ -239,7 +249,22 @@ end
 -- Cycle
 local ids_contour_color = Idstring('contour_color')
 local ids_contour_opacity = Idstring('contour_opacity')
+local ids_material = Idstring('material')
 local no_color = Vector3(0, 0, 0)
+function CustomWaypoints.UnitHasContour(unit)
+	for _, material in ipairs(unit:get_objects_by_type(ids_material)) do
+		if alive(material) then
+			local opacity = material:get_variable(ids_contour_opacity)
+			if opacity and opacity > 0 then
+				local color = material:get_variable(ids_contour_color)
+				if color and mvec3_neq(color, no_color) then
+					return true
+				end
+			end
+		end
+	end
+	return false
+end
 
 function CustomWaypoints:GetSortedWaypoints(include_points_of_interest)
 	local waypoints = managers.hud and managers.hud._hud and managers.hud._hud.waypoints
@@ -260,7 +285,7 @@ function CustomWaypoints:GetSortedWaypoints(include_points_of_interest)
 		elseif waypoint.position then
 			local angle = mvec3_ang(my_aim, waypoint.position - camera_pos)
 			if angle < 40 then
-				table.insert(result, {
+				table_insert(result, {
 					id = id,
 					position = waypoint.position,
 					angle = mvec3_ang(my_aim, waypoint.position - camera_pos)
@@ -270,24 +295,20 @@ function CustomWaypoints:GetSortedWaypoints(include_points_of_interest)
 	end
 
 	if include_points_of_interest then
+		local include_lootbags = self.settings.include_lootbags_in_points_of_interest
 		for _, unit in ipairs(managers.interaction._interactive_units) do
-			if alive(unit) and unit:in_slot(1) and self.interactive_units_white_list[unit:name():t()] then
+			if alive(unit) and (include_lootbags and unit:in_slot(14) or unit:in_slot(1)) then
 				local interaction = unit:interaction()
 				if interaction and interaction:active() and not interaction:disabled() then
-					local material = interaction._materials[1]
-					if material and alive(material) then
-						local color = material:get_variable(ids_contour_color)
-						local opacity = material:get_variable(ids_contour_opacity)
-						if opacity and opacity > 0 and color and mvec3_neq(color, no_color) then
-							local ipos = interaction:interact_position()
-							local angle = mvec3_ang(my_aim, ipos - camera_pos)
-							if angle < 40 then
-								table.insert(result, {
-									unit = unit,
-									position = ipos,
-									angle = angle
-								})
-							end
+					if unit:visible() and self.interactive_units_white_list[unit:name():t()] and self.UnitHasContour(unit) then
+						local ipos = interaction:interact_position()
+						local angle = mvec3_ang(my_aim, ipos - camera_pos)
+						if angle < 40 then
+							table_insert(result, {
+								unit = unit,
+								position = ipos,
+								angle = angle
+							})
 						end
 					end
 				end
@@ -313,24 +334,37 @@ function CustomWaypoints:CycleWaypoint(dir)
 		return
 	end
 
-	local rank = 1
+	local current_wp_rank
 	local my_wp = managers.hud._hud.waypoints[self.prefix .. 'localplayer']
 	if my_wp then
 		for i = 1, nr do
 			wp = sorted_waypoints[i]
 			if mvec3_dis(my_wp.position, wp.position) < 10 then
-				rank = i
+				current_wp_rank = i
 				break
 			end
 		end
-		rank = rank + dir
+	end
+
+	local rank
+	local t = TimerManager:game():time()
+	if not current_wp_rank then
+		rank = dir > 0 and 1 or nr
+	elseif t - self.last_cycle_t < 2 then
+		rank = current_wp_rank + dir
 		rank = ((rank - 1) % nr) + 1
 	else
 		rank = dir > 0 and 1 or nr
+		if rank == current_wp_rank then
+			rank = current_wp_rank + dir
+			rank = ((rank - 1) % nr) + 1
+		end
 	end
 
 	local chosen_wp = sorted_waypoints[rank]
 	self:PlaceMyWaypoint(chosen_wp.position)
+
+	self.last_cycle_t = t
 end
 
 function CustomWaypoints:PreviousWaypoint()

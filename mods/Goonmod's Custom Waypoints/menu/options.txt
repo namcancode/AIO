@@ -51,30 +51,39 @@
 		},
 		{
 			"type" : "toggle",
-			"id" : "gm_cm_toggle_show_distance",
+			"id" : "show_distance",
 			"title" : "gm_options_custom_waypoints_distance_title",
 			"description" : "gm_options_custom_waypoints_distance_desc",
-			"callback" : "ToggleWaypointShowDistance",
+			"callback" : "CustomWaypointsMenuCheckboxClbk",
 			"value" : "show_distance",
-			"default_value" : false
+			"default_value" : true
 		},
 		{
 			"type" : "toggle",
-			"id" : "gm_cm_toggle_always_show_my_waypoint",
+			"id" : "always_show_my_waypoint",
 			"title" : "gm_options_custom_waypoints_always_show_my_waypoint_title",
 			"description" : "gm_options_custom_waypoints_always_show_my_waypoint_desc",
-			"callback" : "ToggleWaypointAlwaysShowMyWaypoint",
+			"callback" : "CustomWaypointsMenuCheckboxClbk",
 			"value" : "always_show_my_waypoint",
+			"default_value" : true
+		},
+		{
+			"type" : "toggle",
+			"id" : "always_show_others_waypoints",
+			"title" : "gm_options_custom_waypoints_always_show_others_waypoints_title",
+			"description" : "gm_options_custom_waypoints_always_show_others_waypoints_desc",
+			"callback" : "CustomWaypointsMenuCheckboxClbk",
+			"value" : "always_show_others_waypoints",
 			"default_value" : false
 		},
 		{
 			"type" : "toggle",
-			"id" : "gm_cm_toggle_always_show_others_waypoints",
-			"title" : "gm_options_custom_waypoints_always_show_others_waypoints_title",
-			"description" : "gm_options_custom_waypoints_always_show_others_waypoints_desc",
-			"callback" : "ToggleWaypointAlwaysShowOthersWaypoints",
-			"value" : "always_show_others_waypoints",
-			"default_value" : false
+			"id" : "include_lootbags_in_points_of_interest",
+			"title" : "gm_options_custom_waypoints_include_bags_title",
+			"description" : "gm_options_custom_waypoints_include_bags_desc",
+			"callback" : "CustomWaypointsMenuCheckboxClbk",
+			"value" : "include_lootbags_in_points_of_interest",
+			"default_value" : true
 		}
 	]
 }

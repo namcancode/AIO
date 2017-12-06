@@ -1,3 +1,93 @@
+Revision 112:
+- prevent bots from interacting with players' deployables
+
+Revision 111:
+- added basic lootbag support, see https://youtu.be/tPklhMa8zuk
+- improved slightly if a bot should leave or stay after having interacted with something
+
+Revision 110:
+- fixed recent network changes that broke stop commands for clients
+
+Revision 109:
+- fixed an issue when a bot on an interaction objective gets replaced by a player
+- fixed bot's weapon still visible for clients during lockpick animation
+- fixed loot taken by bots not always synchronized on clients
+
+Revision 108:
+- fixed a serious compatibility issue with non-modded clients
+
+Revision 107:
+- fixed a crash with patrol covers
+
+Revision 106:
+- don't assume panel ID are the same for host and clients
+- fixed generic interaction animation synchronization with clients (but non-modded clients won't see it)
+- fixed bots turning away when executing a generic interaction animation
+
+Revision 105:
+- blocked ability to send bots doing objectives having a waypoint but not yet reachable
+- fixed interaction orientation in a few cases
+
+Revision 104:
+- changed icon used for revive interaction in teammate panel so difference between providing help and needing help is clear
+- fixed a crash when managers.hud is not available
+- improved method to find best interaction position
+- blacklisted a few bogus interaction types
+
+Revision 103:
+- added interaction circle for bots reviving players
+- fixed team panel icons not correctly reset
+- fixed vertical issues mostly seen on Undercover
+
+Revision 102:
+- fixed some crash issues with interaction UI elements
+- fixed interaction with armored car on Hoxton Breakout D1 (some locations don't work due to navdata being picky)
+- (MUI only) fixed interaction circle not removed for cancelled interaction
+
+Revision 101:
+- added interaction circle and description for bots
+
+Revision 100:
+- changed a few animations
+- made sure a bot doesn't get stuck, looping an interaction animation forever
+- fixed a crash with objects lacking a position (computer of jewelry store of Stealing Xmas)
+
+Revision 99:
+- added checks so bots won't interact on wrong side of a door/wall
+- fixed incorrect animations with some drills
+- some crashes have disappeared without me remembering the exact reason
+- due to the lack of proper animation for long+high interactions, bots will convince objects to act solely through power of words! (I'll have to ask for one to OVERKILL for Christmas... actually, I might just do that)
+
+Revision 98:
+- extended support for interaction on waypoint, see https://youtu.be/OCdTeoJ008g
+it includes anything without skill or equipment requirements, from repairing a drill to getting a code number on GGC
+known bug: bots try to interact on the wrong side of some doors
+
+Revision 97:
+- fixed bots' icons not appearing at all for clients
+
+Revision 96:
+- removed forgotten debug leftovers
+- fixed a crash on clients
+
+Revision 95:
+- fixed bots' icons not removed client-side
+- bots can't be interrupted when executing an objective having the forced attribute
+
+Revision 94:
+- changed and delayed bot response to order so all characters have something to say
+- changed player's gesture when sending a bot to a waypoint (stop replaced by move)
+
+Revision 93:
+- fixed bots' interaction position with powerbox
+- reworked scan of powerbox in mission scripts: wasn't working on certain maps such as Election or The Diamond, afaik Counterfeit is the only not working one 
+
+Revision 92:
+- improved positioning of bots when sending them to a custom waypoint put on a wall
+- reworked how teammates' icons are set
+- added medic icon on bots having an objective of type "revive", see https://youtu.be/YQGfROmP6QM
+- added ability to repair powerboxes, see https://youtu.be/xwmTztNwiQ4
+
 Revision 91:
 - fixed a crash when marking a camera
 
