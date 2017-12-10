@@ -1,3 +1,13 @@
+Revision 78:
+- [Big Oil D2] fixed AI access to computer room of 1st floor if opened with a drill or a keycard
+
+Revision 77:
+- [Green Bridge] forced truck to contain only types of loot able to trigger drop zones
+from http://steamcommunity.com/app/218620/discussions/14/135514287302619401#c135514507318007216
+
+Revision 76:
+- [Beneath The Mountain] fixed a wrong room id from r71 update
+
 Revision 75:
 - [Big Bank] fixed positioning after entering the vault through thermite hole (and before fence door is opened)
 

@@ -47,9 +47,9 @@ function HUDManager:kpr_teammate_progress(packed_data, enabled, timer, success)
 			if enabled and name_label.panel:child('infamy') then
 				name_label.panel:child('infamy'):set_center(name_label.interact:center())
 			end
-		elseif enabled then
+		elseif enabled and name_label.interact then
 			name_label.panel:animate(callback(self, self, '_animate_label_interact'), name_label.interact, timer)
-			if name_label.panel:child('infamy') then
+			if name_label.panel:child('infamy') and name_label.interact._circle then
 				name_label.panel:child('infamy'):set_center(name_label.interact._circle:center())
 			end
 		end

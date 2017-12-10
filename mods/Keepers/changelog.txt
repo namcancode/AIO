@@ -1,3 +1,12 @@
+Revision 115:
+- improved compatibility with MUI (hoping it was the cause of name labels sometimes getting misplaced)
+
+Revision 114:
+- fixed a crash when a joker is exchanged
+
+Revision 113:
+- added a check for presence of interaction circle (blabla custom hud blabla crash)
+
 Revision 112:
 - prevent bots from interacting with players' deployables
 

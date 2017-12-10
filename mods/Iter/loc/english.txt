@@ -17,11 +17,14 @@
 	"itr_options_map_change_pbr_title" : "Beneath The Mountain",
 	"itr_options_map_change_pbr_desc" : "fixed AI access to 2 entrance control rooms",
 
-	"itr_options_map_change_mad_title" : "Boiling Point",
-	"itr_options_map_change_mad_desc" : "fixed issue with blown up wall on the left",
+	"itr_options_map_change_welcome_to_the_jungle_2_title" : "Big Oil D2",
+	"itr_options_map_change_welcome_to_the_jungle_2_desc" : "fixed AI access to computer room of 1st floor if opened with a drill or a keycard",
 
 	"itr_options_map_change_pbr2_title" : "Birth of Sky",
 	"itr_options_map_change_pbr2_desc" : "fixed access to roof of gas station",
+
+	"itr_options_map_change_mad_title" : "Boiling Point",
+	"itr_options_map_change_mad_desc" : "fixed issue with blown up wall on the left",
 
 	"itr_options_map_change_rat_title" : "Cook Off",
 	"itr_options_map_change_rat_desc" : "added roof access to the bots",
@@ -43,6 +46,9 @@
 
 	"itr_options_map_change_kenaz_title" : "Golden Grin Casino",
 	"itr_options_map_change_kenaz_desc" : "make vault accessible to bots in stealth",
+
+	"itr_options_map_change_glace_title" : "Green Bridge",
+	"itr_options_map_change_glace_desc" : "fixed truck loot type",
 
 	"itr_options_map_change_mia_1_title" : "Hotline Miami D1",
 	"itr_options_map_change_mia_1_desc" : "fixed multiple issues with segments going underground and many glitchy hiding places",
@@ -84,5 +90,5 @@
 	"itr_options_map_change_arm_for_desc" : "fixed accessibility in the entrance of TF-WAGON 1 which is close to TF-WAGON 2",
 
 	"itr_options_map_change_watchdogs_1_title" : "Watchdogs D1",
-	"itr_options_map_change_watchdogs_1_desc" : "fixed access on the bridge (jump back)"
+	"itr_options_map_change_watchdogs_1_desc" : "fixed navigation around police car in front of spawn truck"
 }

@@ -24,6 +24,7 @@ Iter.settings = {
 	map_change_framing_frame_1 = true,
 	map_change_friend = true,
 	map_change_gallery = true,
+	map_change_glace = true,
 	map_change_jolly = true,
 	map_change_kenaz = true,
 	map_change_kosugi = true,
@@ -38,6 +39,7 @@ Iter.settings = {
 	map_change_red2 = true,
 	map_change_roberts = true,
 	map_change_watchdogs_1 = true,
+	map_change_welcome_to_the_jungle_2 = true,
 	map_change_wwh = true
 }
 
@@ -915,13 +917,7 @@ elseif level_id == 'mus' then
 				execute_on_startup = false,
 				trigger_times = 1,
 				sequence_list = {
-					{ unit_id = 300022, guis_id = 1, sequence = 'interact' },
-					{ unit_id = 300022, guis_id = 1, sequence = 'int_seq_saw_in' },
-					{ unit_id = 300022, guis_id = 1, sequence = 'int_seq_saw_out' },
-					{ unit_id = 300022, guis_id = 1, sequence = 'int_seq_bullet_hit_in' },
-					{ unit_id = 300022, guis_id = 1, sequence = 'int_seq_bullet_hit_out' },
-					{ unit_id = 300022, guis_id = 1, sequence = 'int_seq_explosion_in' },
-					{ unit_id = 300022, guis_id = 1, sequence = 'int_seq_explosion_out' },
+					{ unit_id = 300022, guis_id = 1, sequence = 'done_opened' },
 				},
 				on_executed = {
 					{ delay = 0, id = 101225 },
@@ -945,6 +941,38 @@ elseif level_id == 'kenaz' then
 		end
 
 		return itr_original_missionscript_createelements(self, elements)
+	end
+
+elseif level_id == 'glace' then
+
+	function MissionManager:_add_script(data)
+		local e102392, e102243
+		for _, element in pairs(data.elements) do
+			if element.id == 102392 then
+				e102392 = element
+			elseif element.id == 102243 then
+				e102243 = element
+			end
+		end
+		if e102392 and e102243 then
+			e102243.values.trigger_list = CoreTable.deep_clone(e102392.values.trigger_list)
+			e102243.values.trigger_list[1].notify_unit_id = 102519
+			e102243.values.trigger_list[1].notify_unit_sequence = 'set_type_gold'
+		end
+
+		itr_original_missionmanager_addscript(self, data)
+	end
+
+elseif level_id == 'welcome_to_the_jungle_2' then
+
+	function MissionManager:_add_script(data)
+		for _, element in pairs(data.elements) do
+			if element.id == 102507 then
+				element.values.sequence_list[1].sequence = 'done_opened'
+			end
+		end
+
+		itr_original_missionmanager_addscript(self, data)
 	end
 
 elseif level_id == 'firestarter_1' then

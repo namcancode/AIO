@@ -228,6 +228,22 @@
 		},
 		{
 			"type" : "toggle",
+			"id" : "map_change_glace",
+			"title" : "itr_options_map_change_glace_title",
+			"description" : "itr_options_map_change_glace_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "map_change_glace"
+		},
+		{
+			"type" : "toggle",
+			"id" : "map_change_welcome_to_the_jungle_2",
+			"title" : "itr_options_map_change_welcome_to_the_jungle_2_title",
+			"description" : "itr_options_map_change_welcome_to_the_jungle_2_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "map_change_welcome_to_the_jungle_2"
+		},
+		{
+			"type" : "toggle",
 			"id" : "map_change_watchdogs_1",
 			"title" : "itr_options_map_change_watchdogs_1_title",
 			"description" : "itr_options_map_change_watchdogs_1_desc",

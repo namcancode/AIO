@@ -287,6 +287,14 @@ if not KillFeed then
       end
     end
   end
+  
+  Hooks:Add("HopLibOnUnitDamaged", "HopLibOnUnitDamagedKillFeed", function (unit, damage_info)
+    if unit:character_damage():dead() then
+      KillFeed:add_kill(damage_info, unit)
+    elseif KillFeed.settings.show_assists and alive(damage_info.attacker_unit) and type(damage_info.damage) == "number" then
+      KillFeed:set_assist_information(unit, damage_info.attacker_unit, damage_info.damage)
+    end
+  end)
 
 end
 
@@ -309,60 +317,27 @@ if RequiredScript == "lib/managers/hudmanager" then
 end
 
 
-if RequiredScript == "lib/units/enemies/cop/copdamage" then
-
-  local convert_to_criminal_original = CopDamage.convert_to_criminal
-  function CopDamage:convert_to_criminal(...)
-    KillFeed.assist_information[self._unit:key()] = nil
-    return convert_to_criminal_original(self, ...)
-  end
-
-  local _call_listeners_original = CopDamage._call_listeners
-  function CopDamage:_call_listeners(damage_info, ...)
-    if self._dead then
-      if not self._kill_feed_shown then
-        KillFeed:add_kill(damage_info, self._unit)
-        self._kill_feed_shown = true
-      end
-    elseif KillFeed.settings.show_assists and alive(damage_info.attacker_unit) and type(damage_info.damage) == "number" then
-      KillFeed:set_assist_information(self._unit, damage_info.attacker_unit, damage_info.damage)
-    end
-    return _call_listeners_original(self, damage_info, ...)
-  end
-
-end
-
-
-if RequiredScript == "lib/units/equipment/sentry_gun/sentrygundamage" then
-
-  local _apply_damage_original = SentryGunDamage._apply_damage
-  function SentryGunDamage:_apply_damage(damage, dmg_shield, dmg_body, is_local, attacker_unit, ...)
-    local result = _apply_damage_original(self, damage, dmg_shield, dmg_body, is_local, attacker_unit, ...)
-    if self._dead then
-      if not self._kill_feed_shown then
-        KillFeed:add_kill({ attacker_unit = attacker_unit }, self._unit, "destroy")
-        self._kill_feed_shown = true
-      end
-    elseif KillFeed.settings.show_assists and alive(attacker_unit) and type(damage) == "number" then
-      KillFeed:set_assist_information(self._unit, attacker_unit, damage)
-    end
-    return result
-  end
-  
-end
-
-
 if RequiredScript == "lib/managers/menumanager" then
 
   Hooks:Add("LocalizationManagerPostInit", "LocalizationManagerPostInitKillFeed", function(loc)
-    loc:load_localization_file(KillFeed.mod_path .. "loc/english.txt")
-    for _, filename in pairs(file.GetFiles(KillFeed.mod_path .. "loc/") or {}) do
-      local str = filename:match("^(.*).txt$")
-      if str and Idstring(str) and Idstring(str):key() == SystemInfo:language():key() then
-        loc:load_localization_file(KillFeed.mod_path .. "loc/" .. filename)
-        break
+    local loaded = false
+    if Idstring("english"):key() ~= SystemInfo:language():key() then
+      for _, filename in pairs(file.GetFiles(KillFeed.mod_path .. "loc/") or {}) do
+        local str = filename:match("^(.*).txt$")
+        if str and Idstring(str) and Idstring(str):key() == SystemInfo:language():key() then
+          loc:load_localization_file(KillFeed.mod_path .. "loc/" .. filename)
+          loaded = true
+          break
+        end
       end
     end
+    if not loaded then
+      local file = KillFeed.mod_path .. "loc/" .. BLT.Localization:get_language().language .. ".txt"
+      if io.file_is_readable(file) then
+        loc:load_localization_file(file)
+      end
+    end
+    loc:load_localization_file(KillFeed.mod_path .. "loc/english.txt", false)
   end)
 
   local menu_id_main = "KillFeedMenu"

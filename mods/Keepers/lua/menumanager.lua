@@ -14,7 +14,7 @@ local tmp_vec = Vector3()
 local tmp_vec2 = Vector3()
 
 function json.safe_decode(data)
-	local result = nil
+	local result
 	pcall(function()
 		result = json.decode(data)
 	end)
@@ -41,7 +41,7 @@ Keepers.settings = {
 	show_my_joker_name = true,
 	send_my_joker_name = true,
 	show_other_jokers_names = true,
-	my_joker_name = 'Cave',
+	my_joker_name = 'My Joker',
 	jokers_run_like_teamais = true,
 	icon_revive = 'wp_revive'
 }
@@ -107,10 +107,10 @@ function Keepers:GetJokerNameByPeer(peer_id)
 		return name
 	elseif not self.settings.show_other_jokers_names then
 		return ''
-	elseif name == 'Cave' or name == '' then
+	elseif name == 'My Joker' or name == '' then
 		local peer = managers.network:session():peer(peer_id)
 		if peer then
-			name = "X"
+			name = tostring(peer:name()) .. "'s joker"
 		end
 	end
 	return name
@@ -124,20 +124,18 @@ function Keepers:SetJokerLabel(unit)
 		unit:unit_data().name_label_id = panel_id
 	end
 
-	local hud = managers.hud:script(PlayerBase.PLAYER_INFO_HUD_FULLSCREEN_PD2)
-	local name_label = hud.panel:child('name_label' .. tostring(panel_id))
-
+	local name_label = managers.hud:_get_name_label(panel_id)
 	if not name_label then
 		return
 	end
 
-	local previous_icon = name_label:child('bag')
+	local previous_icon = name_label.panel:child('bag')
 	if previous_icon then
-		name_label:remove(previous_icon)
+		name_label.panel:remove(previous_icon)
 		previous_icon = nil
 	end
 
-	local radial_health = name_label:bitmap({
+	local radial_health = name_label.panel:bitmap({
 		name = 'bag',
 		texture = 'guis/textures/pd2/hud_health',
 		texture_rect = {
@@ -153,7 +151,8 @@ function Keepers:SetJokerLabel(unit)
 		h = 16,
 		layer = 0,
 	})
-	local txt = name_label:child('text')
+	name_label.bag = radial_health
+	local txt = name_label.panel:child('text')
 	radial_health:set_center_y(txt:center_y())
 	local l, r, w, h = txt:text_rect()
 	radial_health:set_left(txt:left() + w + 2)
@@ -473,7 +472,6 @@ function Keepers:ResetLabel(unit, is_converted, icon, ext_data)
 
 	local name_label = managers.hud:_get_name_label(unit:unit_data().name_label_id)
 	if not name_label then
-		log('[KPR] name_label not found for ' .. tostring(unit:base()._tweak_table))
 		return
 	end
 
@@ -501,6 +499,7 @@ function Keepers:ResetLabel(unit, is_converted, icon, ext_data)
 			h = 16,
 			visible = true,
 		})
+		name_label.infamy = bmp
 		local txt = name_label.panel:child('text')
 		bmp:set_center_y(txt:center_y())
 		bmp:set_right(txt:left())
@@ -1107,6 +1106,8 @@ function Keepers:OnCompletedSO(data)
 				DelayedCalls:Add('DelayedModKPR_OnCompletedSO_' .. bot_unit:id(), 1.1, function()
 					local interaction = alive(data.interactive_unit) and data.interactive_unit:interaction()
 					if interaction and not interaction:disabled() and interaction:active() then
+						-- qued
+					elseif interaction and CustomWaypoints:GetAssociatedObjectiveWaypoint(interaction:interact_position(), 200) then
 						-- qued
 					elseif alive(bot_unit) and bot_unit:base().kpr_is_keeper then
 						Keepers:SendState(bot_unit, self:GetLuaNetworkingText(bot_unit:base().kpr_following_peer_id, bot_unit, 1), false)

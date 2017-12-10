@@ -963,7 +963,7 @@ elseif level_id == 'pbr' then
 		did = did + 1
 		data.door_low_pos[did] = Vector3(-30, -97, -160.145)
 		data.door_high_pos[did] = Vector3(-30, -96, -160.145)
-		data.door_low_rooms[did] = 1818
+		data.door_low_rooms[did] = 990
 		data.door_high_rooms[did] = 5714
 		data.nav_segments[30].neighbours[52] = {did}
 		data.nav_segments[52].neighbours[30] = data.nav_segments[30].neighbours[52]

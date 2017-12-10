@@ -49,7 +49,9 @@ function CopBrain:set_objective(new_objective, params)
 			icon = false
 		end
 
-		Keepers:ResetLabel(self._unit, is_converted, icon, ext_data)
+		if self:is_active() then
+			Keepers:ResetLabel(self._unit, is_converted, icon, ext_data)
+		end
 	end
 
 	kpr_original_copbrain_setobjective(self, new_objective, params)
