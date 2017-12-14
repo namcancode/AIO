@@ -19,6 +19,7 @@ Iter.settings = {
 	map_change_crojob2 = true,
 	map_change_dah = true,
 	map_change_escape_garage = true,
+	map_change_family = true,
 	map_change_firestarter_1 = true,
 	map_change_flat = true,
 	map_change_framing_frame_1 = true,
@@ -969,6 +970,18 @@ elseif level_id == 'welcome_to_the_jungle_2' then
 		for _, element in pairs(data.elements) do
 			if element.id == 102507 then
 				element.values.sequence_list[1].sequence = 'done_opened'
+			end
+		end
+
+		itr_original_missionmanager_addscript(self, data)
+	end
+
+elseif level_id == 'family' then
+
+	function MissionManager:_add_script(data)
+		for _, element in pairs(data.elements) do
+			if element.id == 104059 then
+				element.values.elements[1] = 101527
 			end
 		end
 

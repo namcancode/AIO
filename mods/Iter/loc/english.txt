@@ -32,6 +32,9 @@
 	"itr_options_map_change_dah_title" : "Diamond Heist",
 	"itr_options_map_change_dah_desc" : "optimized",
 
+	"itr_options_map_change_family_title" : "Diamond Store",
+	"itr_options_map_change_family_desc" : "fixed door between security room and store when opened by AI",
+
 	"itr_options_map_change_escape_garage_title" : "Escape: Garage",
 	"itr_options_map_change_escape_garage_desc" : "fixed navigation when some doors are opened with a saw",
 

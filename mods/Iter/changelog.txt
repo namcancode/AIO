@@ -1,3 +1,6 @@
+Revision 79:
+- [Diamond Store] fixed door between security room and store when opened by AI
+
 Revision 78:
 - [Big Oil D2] fixed AI access to computer room of 1st floor if opened with a drill or a keycard
 
