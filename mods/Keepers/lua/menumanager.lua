@@ -900,14 +900,17 @@ function Keepers:GetWaypointSO(bot_unit, peer_id)
 
 	if not self:ValidInteraction(unit) then
 		local best_unit
-		local min_dis = 0
+		local min_dis = 100000
 		for _, int_unit in ipairs(managers.interaction._interactive_units) do
 			if self:ValidInteraction(int_unit) then
-				local ipos = int_unit:interaction():interact_position()
-				local dis = mvec3_dis(wp.position, ipos) - int_unit:interaction():interact_distance()
-				if dis < min_dis then
-					best_unit = int_unit
-					min_dis = dis
+				local interaction = int_unit:interaction()
+				local ipos = interaction:interact_position()
+				local dis = mvec3_dis(wp.position, ipos)
+				if dis < min_dis and dis < interaction:interact_distance() then
+					if dis < 50 or interaction.tweak_data ~= 'carry_drop' then
+						best_unit = int_unit
+						min_dis = dis
+					end
 				end
 			end
 		end

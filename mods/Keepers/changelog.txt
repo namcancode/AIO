@@ -1,3 +1,10 @@
+Revision 117:
+- added code that should prevent a rare vanilla crash related to joker removal
+- changed again some interaction threshold
+
+Revision 116:
+- changed objective acceptance threshold so it's not impossible to place a bot to guard bags close to him
+
 Revision 115:
 - improved compatibility with MUI (hoping it was the cause of name labels sometimes getting misplaced)
 

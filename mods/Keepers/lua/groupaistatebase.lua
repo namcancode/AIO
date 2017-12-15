@@ -116,3 +116,45 @@ function GroupAIStateBase:force_attention_data(unit)
 		return force_attention_data
 	end
 end
+
+local kpr_original_groupaistatebase_removeminion = GroupAIStateBase.remove_minion
+function GroupAIStateBase:remove_minion(minion_key, player_key)
+	local minion_unit = self._converted_police[minion_key]
+	if not minion_unit then
+		return
+	end
+
+	if not player_key then
+		for u_key, u_data in pairs(self._player_criminals) do
+			if u_data.minions and u_data.minions[minion_key] then
+				player_key = u_key
+				break
+			end
+		end
+	end
+
+	if not player_key then
+		local owner_id = minion_unit:base().kpr_minion_owner_peer_id
+		if not owner_id then
+			return
+		end
+		local peer = managers.network:session():peer(owner_id)
+		if not peer then
+			return
+		end
+		local peer_unit = peer:unit()
+		if not alive(peer_unit) then
+			return
+		end
+		player_key = peer_unit:key()
+		local owner_data = self._player_criminals[player_key]
+		if not owner_data.minions then
+			owner_data.minions = {}
+		end
+		owner_data.minions[minion_key] = {}
+	end
+
+	if player_key then
+		kpr_original_groupaistatebase_removeminion(self, minion_key, player_key)
+	end
+end
