@@ -1,3 +1,9 @@
+Revision 22:
+- added Reservoir's vault drill to prev/next list
+
+Revision 21:
+- extended list of objects of interest
+
 Revision 20:
 - improved contour checker
 

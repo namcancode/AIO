@@ -1,0 +1,41 @@
+{
+	"menu_id" : "mws_options_menu",
+	"parent_menu_id" : "blt_options",
+	"title" : "mws_options_menu_title",
+	"description" : "mws_options_menu_desc",
+	"back_callback" : "MoreWeaponStatsSave",
+	"items" : [
+		{
+			"type" : "toggle",
+			"id" : "mws_toggle_show_dlc_info",
+			"title" : "mws_options_show_dlc_info_title",
+			"description" : "mws_options_show_dlc_info_desc",
+			"callback" : "MoreWeaponStatsShowDLCInfo",
+			"value" : "show_dlc_info"
+		},
+		{
+			"type" : "toggle",
+			"id" : "mws_toggle_show_spread_and_recoil",
+			"title" : "mws_options_show_spread_and_recoil_title",
+			"description" : "mws_options_show_spread_and_recoil_desc",
+			"callback" : "MoreWeaponStatsShowSpreadAndRecoil",
+			"value" : "show_spread_and_recoil"
+		},
+		{
+			"type" : "toggle",
+			"id" : "mws_toggle_show_all_hit_nr_bp",
+			"title" : "mws_options_show_all_hit_nr_bp_title",
+			"description" : "mws_options_show_all_hit_nr_bp_desc",
+			"callback" : "MoreWeaponStatsFillBreakpoints",
+			"value" : "fill_breakpoints"
+		},
+		{
+			"type" : "toggle",
+			"id" : "mws_toggle_use_preview_key_to_switch_bp",
+			"title" : "mws_options_use_preview_key_to_switch_bp_title",
+			"description" : "mws_options_use_preview_key_to_switch_bp_desc",
+			"callback" : "MoreWeaponStatsUsePreviewForBreakpoints",
+			"value" : "use_preview_to_switch_breakpoints"
+		}
+	]
+}

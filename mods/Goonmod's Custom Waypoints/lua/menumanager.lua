@@ -47,12 +47,17 @@ CustomWaypoints.interactive_units_white_list = {
 	[Idstring('units/pd2_dlc_glace/equipment/glc_interactable_ejectionseat/glc_interactable_ejectionseat'):t()] = true,
 	[Idstring('units/pd2_dlc_glace/equipment/gen_interactable_saw_no_jam/gen_interactable_saw_no_jam'):t()] = true,
 	[Idstring('units/pd2_dlc_glace/equipment/gen_interactable_saw_no_jam/gen_interactable_saw_no_jam_rotated'):t()] = true,
+	[Idstring('units/pd2_dlc_jerry/pickups/jry_pku_ladder/jry_pku_pickable_ladder'):t()] = true,
+	[Idstring('units/pd2_dlc_jerry/pickups/jry_pku_money_pile/jry_pku_money_pile'):t()] = true,
 	[Idstring('units/pd2_dlc_jolly/equipment/gen_interactable_saw/gen_interactable_saw'):t()] = true,
 	[Idstring('units/pd2_dlc_peta/characters/wld_goat_1/wld_goat_1'):t()] = true,
 	[Idstring('units/pd2_dlc_peta/equipment/pta_interactable_saw/pta_interactable_saw'):t()] = true,
 	[Idstring('units/pd2_dlc_peta/props/pta_interactable_electric_box/pta_interactable_electric_box'):t()] = true, -- fail
 	[Idstring('units/pd2_dlc_peta/props/pta_prop_debris_wood/pta_prop_debris_wood_01'):t()] = true,
 	[Idstring('units/pd2_dlc_peta/props/pta_prop_debris_wood/pta_prop_debris_wood_02'):t()] = true,
+	[Idstring('units/pd2_dlc_rvd/equipment/rvd_interactable_drill_small_jam_once/rvd_interactable_drill_small_jam_once'):t()] = true,
+	[Idstring('units/pd2_dlc_rvd/equipment/rvd_interactable_saw_no_jam/rvd_interactable_saw_no_jam'):t()] = true,
+	[Idstring('units/pd2_dlc_rvd/props/rvd_prop_diamond_bag/rvd_prop_diamond_bag'):t()] = true,
 	[Idstring('units/pd2_dlc_spa/vehicles/str_vehicle_car_police_new_york/str_vehicle_car_police_new_york'):t()] = true,
 }
 

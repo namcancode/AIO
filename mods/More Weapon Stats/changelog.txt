@@ -1,0 +1,98 @@
+Revision 28:
+- added support of damage breakpoints for explosives (and more or less fire)
+- fixed damage breakpoints for grenade launchers and crits
+- fixed a crash when all breakpoints where discarded (flamethrower)
+- fixed an issue where the active breakpoint would not be shown
+
+Revision 27:
+- added damage breakpoints (bullet type)
+	* adapt enemy health to crime spree
+	* by default, keybind of weapon preview is used to swtich breakpoints (toggleable in options)
+	* berserker simulates damage done with health level that player gets after being revived
+	* crits can't be exact due to RNG, when enabled, first bullet is always accounted as a crit
+	* trigger happy uses 2 distinct methods depending on skill level:
+		> if basic, it calculates damage starting from 0
+		> if aced, it considers the stack as always full
+	* HVT only applies bonus player unlocked
+
+Revision 26:
+- display more stats in buy interface
+
+Revision 25:
+- even more absolutely essential BLT2 integration
+
+Revision 24:
+- more absolutely essential BLT2 integration
+
+Revision 23:
+- BLT2
+
+Revision 22:
+- updated to U145
+
+Revision 21:
+- fixed JSON errors
+
+Revision 20:
+- hide OVK's "reload time"
+- fixed some GUI alignments
+- show equip/unequip delays independently of option "extended spread and recoil"
+- equip/unequip delays are now calculated mostly by game functions
+- fixed some incorrect reload times for bows other than plainsrider
+- switched to functions of the game for some calculations related to reload times
+
+Revision 19:
+- fixed GUI
+- switched to functions of the game to calculate accuracy
+
+Revision 18:
+- updated accuracy calculations to U105.2
+
+Revision 17:
+- added equip/unequip delays for primary and secondary weapons
+
+Revision 16:
+- updated accuracy calculations
+
+Revision 15:
+- properly transmit the sub_category value to spread and recoil functions
+- fixed the displayed reload time of akimbo weapons
+
+Revision 14:
+- updated to U96
+
+Revision 13:
+- r12 fix part 2
+
+Revision 12:
+- fixed a crash due to the attack delay of GSH's melee weapons
+
+Revision 11:
+- fixed revision number
+
+Revision 10:
+- some methods were moved from blackmarketgui to weapondescription
+
+Revision 9:
+- added an option menu to customize the layout
+- fixed the overlap of dlc info text when equipping a new melee weapon
+
+Revision 8:
+- fixed a crash when using the shortcut to the mods of an equipped weapon
+
+Revision 7:
+- aligned melee stats
+
+Revision 6:
+- added 3 melee stats (will align columns later... or never)
+- fixed weapon category taken from the wrong item slot
+
+Revision 5:
+- realigned original stats numbers
+- show the overall weapon stats in the mod screen
+
+Revision 4:
+- extended stats take into account skin bonuses
+
+Revision 1/2/3:
+- initial releases
