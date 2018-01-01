@@ -1,0 +1,3 @@
+1. Cài vcredist_x86.
+2. Copy folder assets + mods + IPHLPAPI.dll vào thư mục game
+...\Steam\steamapps\common\PAYDAY 2\
