@@ -140,7 +140,12 @@ if Iter.settings.streamline_path then
 			return
 		end
 
-		local follow_unit_nav_seg = data.objective.follow_unit:movement():nav_tracker():nav_segment()
+		local follow_unit = data.objective.follow_unit
+		if not alive(follow_unit) then
+			return
+		end
+
+		local follow_unit_nav_seg = follow_unit:movement():nav_tracker():nav_segment()
 		local next_coarse_path_index = my_data.coarse_path_index + 1
 		local coarse_path = my_data.coarse_path
 		local my_next_seg = coarse_path[next_coarse_path_index] and coarse_path[next_coarse_path_index][1]
@@ -158,7 +163,7 @@ if Iter.settings.streamline_path then
 			data.logic.on_new_objective(data)
 
 		elseif data.itr_follow_unit_nav_seg and data.itr_follow_unit_nav_seg ~= follow_unit_nav_seg and coarse_path[coarse_path_nr][1] ~= follow_unit_nav_seg then
-			local pos = managers.navigation:itr_get_door_between(data.itr_follow_unit_nav_seg, follow_unit_nav_seg, data.objective.follow_unit:position())
+			local pos = managers.navigation:itr_get_door_between(data.itr_follow_unit_nav_seg, follow_unit_nav_seg, follow_unit:position())
 			if pos then
 				coarse_path[coarse_path_nr][1] = follow_unit_nav_seg
 				coarse_path[coarse_path_nr][2] = pos

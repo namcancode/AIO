@@ -1,3 +1,15 @@
+Revision 121:
+- prevent some interactions to block game (for those cases, special equipment is transfered to host)
+
+Revision 120:
+- removed a crashy debug leftover
+
+Revision 119:
+- forgot a case in r118
+
+Revision 118:
+- fixed interaction circle for revive objectives
+
 Revision 117:
 - added code that should prevent a rare vanilla crash related to joker removal
 - changed again some interaction threshold

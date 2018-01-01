@@ -12,11 +12,15 @@ function TeamAILogicDisabled._register_revive_SO(data, my_data, rescue_type)
 end
 
 function TeamAILogicDisabled:on_revive_SO_started(data)
+	local rescuer = data.internal_data.rescuer
+	local bot_name = alive(rescuer) and managers.criminals:character_name_by_unit(rescuer)
+	if not bot_name then
+		return
+	end
+
 	local interaction_name = data.kpr_rescue_type == 'untie' and 'free' or data.kpr_rescue_type
 	local timer = tweak_data.interaction[interaction_name].timer
-	local rescuer = data.internal_data.rescuer
-	local unit_data = rescuer:unit_data()
-	local str = 'kpr;' .. unit_data.name_label_id .. ';' .. unit_data.mugshot_id .. ';' .. interaction_name
+	local str = 'kpr;' .. bot_name .. ';' .. interaction_name
 	if managers.hud then
 		managers.hud:kpr_teammate_progress(str, true, timer, false)
 	end
@@ -30,9 +34,14 @@ function TeamAILogicDisabled:on_revive_SO_started(data)
 end
 
 function TeamAILogicDisabled.kpr_finalize_revive(data, rescuer, success)
+	local bot_name = alive(rescuer) and managers.criminals:character_name_by_unit(rescuer)
+	if not bot_name then
+		return
+	end
+
 	local interaction_name = data.kpr_rescue_type == 'untie' and 'free' or data.kpr_rescue_type or 'revive'
 	local unit_data = rescuer:unit_data()
-	local str = 'kpr;' .. unit_data.name_label_id .. ';' .. unit_data.mugshot_id .. ';' .. interaction_name
+	local str = 'kpr;' .. bot_name .. ';' .. interaction_name
 	if managers.hud then
 		managers.hud:kpr_teammate_progress(str, false, 1, success)
 	end

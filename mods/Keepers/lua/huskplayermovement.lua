@@ -10,10 +10,14 @@ function HuskPlayerMovement:_register_revive_SO()
 end
 
 function HuskPlayerMovement:on_revive_SO_started(rescuer)
+	local bot_name = alive(rescuer) and managers.criminals:character_name_by_unit(rescuer)
+	if not bot_name then
+		return
+	end
+
 	local interaction_name = self._state == 'arrested' and 'free' or 'revive'
 	local timer = tweak_data.interaction[interaction_name].timer
-	local unit_data = rescuer:unit_data()
-	local str = 'kpr;' .. unit_data.name_label_id .. ';' .. unit_data.mugshot_id .. ';' .. interaction_name
+	local str = 'kpr;' .. bot_name .. ';' .. interaction_name
 	managers.hud:kpr_teammate_progress(str, true, timer, false)
 
 	local session = managers.network:session()
@@ -25,9 +29,13 @@ function HuskPlayerMovement:on_revive_SO_started(rescuer)
 end
 
 function HuskPlayerMovement:kpr_finalize_revive(rescuer, success)
+	local bot_name = alive(rescuer) and managers.criminals:character_name_by_unit(rescuer)
+	if not bot_name then
+		return
+	end
+
 	local interaction_name = self._state == 'arrested' and 'free' or 'revive'
-	local unit_data = rescuer:unit_data()
-	local str = 'kpr;' .. unit_data.name_label_id .. ';' .. unit_data.mugshot_id .. ';' .. interaction_name
+	local str = 'kpr;' .. bot_name .. ';' .. interaction_name
 	managers.hud:kpr_teammate_progress(str, false, 1, success)
 
 	local session = managers.network:session()

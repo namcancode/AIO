@@ -14,6 +14,15 @@ local math_abs = math.abs
 local table_insert = table.insert
 local table_remove = table.remove
 
+local itr_original_navigationmanager_unregisteranimnavlink = NavigationManager.unregister_anim_nav_link
+function NavigationManager:unregister_anim_nav_link(element)
+	local nav_link = element:nav_link()
+	if nav_link then
+		nav_link:set_delay_time(604800)
+		itr_original_navigationmanager_unregisteranimnavlink(self, element)
+	end
+end
+
 if Iter.settings.streamline_path then
 
 	function NavigationManager:itr_get_all_doors_of_segment(segment_id)

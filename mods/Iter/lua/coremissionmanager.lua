@@ -13,6 +13,7 @@ Iter.settings = {
 	map_change_big = true,
 	map_change_born = true,
 	map_change_branchbank = true,
+	map_change_brb = true,
 	map_change_cane = true,
 	map_change_chew = true,
 	map_change_chill_combat = true,
@@ -982,6 +983,27 @@ elseif level_id == 'family' then
 		for _, element in pairs(data.elements) do
 			if element.id == 104059 then
 				element.values.elements[1] = 101527
+			end
+		end
+
+		itr_original_missionmanager_addscript(self, data)
+	end
+
+elseif level_id == 'brb' then
+
+	function MissionManager:_add_script(data)
+		table.insert(itr_custom_elements, 103000)
+
+		for _, element in pairs(data.elements) do
+			if element.id == 100228 then
+				table.insert(element.values.on_executed, { delay = 0, id = 103000 })
+			elseif element.id == 100469 then
+				table.remove(element.values.graph_ids, 3)
+
+				local ai_graph = CoreTable.deep_clone(element)
+				ai_graph.id = 103000
+				ai_graph.values.graph_ids = { 44 }
+				table.insert(data.elements, ai_graph)
 			end
 		end
 

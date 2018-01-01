@@ -5,10 +5,14 @@ local kpr_original_playerbleedout_onrescuesostarted = PlayerBleedOut.on_rescue_S
 function PlayerBleedOut:on_rescue_SO_started(revive_SO_data, rescuer)
 	kpr_original_playerbleedout_onrescuesostarted(self, revive_SO_data, rescuer)
 
+	local bot_name = alive(rescuer) and managers.criminals:character_name_by_unit(rescuer)
+	if not bot_name then
+		return
+	end
+
 	local interaction_name = revive_SO_data.variant == 'untie' and 'free' or revive_SO_data.variant
 	local timer = tweak_data.interaction[interaction_name].timer
-	local unit_data = rescuer:unit_data()
-	local str = 'kpr;' .. unit_data.name_label_id .. ';' .. unit_data.mugshot_id .. ';' .. interaction_name
+	local str = 'kpr;' .. bot_name .. ';' .. interaction_name
 	if managers.hud then
 		managers.hud:kpr_teammate_progress(str, true, timer, false)
 	end
@@ -22,10 +26,14 @@ function PlayerBleedOut:on_rescue_SO_started(revive_SO_data, rescuer)
 end
 
 function PlayerBleedOut:kpr_finalize_rescue(revive_SO_data, rescuer, success)
+	local bot_name = alive(rescuer) and managers.criminals:character_name_by_unit(rescuer)
+	if not bot_name then
+		return
+	end
+
 	local interaction_name = revive_SO_data.variant == 'untie' and 'free' or revive_SO_data.variant
 	local timer = tweak_data.interaction[interaction_name].timer
-	local unit_data = rescuer:unit_data()
-	local str = 'kpr;' .. unit_data.name_label_id .. ';' .. unit_data.mugshot_id .. ';' .. interaction_name
+	local str = 'kpr;' .. bot_name .. ';' .. interaction_name
 	if managers.hud then
 		managers.hud:kpr_teammate_progress(str, false, 1, success)
 	end

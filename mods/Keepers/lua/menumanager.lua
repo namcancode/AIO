@@ -110,7 +110,7 @@ function Keepers:GetJokerNameByPeer(peer_id)
 	elseif name == 'My Joker' or name == '' then
 		local peer = managers.network:session():peer(peer_id)
 		if peer then
-			name = tostring(peer:name()) .. "'s joker"
+			name = "X"
 		end
 	end
 	return name
@@ -687,21 +687,23 @@ function Keepers:ValidInteraction(unit)
 
 	if alive(unit) and unit:in_slot(1, 14) then
 		local interaction = unit:interaction()
-		if interaction and not interaction:disabled() and interaction:active() then
-			if not forbidden_interactions[interaction.tweak_data] then
-				local td = interaction._tweak_data
-				if not td
-					or td.special_equipment
-					or td.equipment_consume
-					or td.special_equipment_block
-					or td.requires_upgrade
-					or td.required_deployable
-					or td.deployable_consume
-					or td.contour == 'deployable'
-				then
-				else
-					return true
-				end
+		if not interaction then
+		elseif interaction:disabled() then
+		elseif not interaction:active() then
+		elseif forbidden_interactions[interaction.tweak_data] then
+		else
+			local td = interaction._tweak_data
+			if not td
+				or td.special_equipment
+				or td.equipment_consume
+				or td.special_equipment_block
+				or td.requires_upgrade
+				or td.required_deployable
+				or td.deployable_consume
+				or td.contour == 'deployable'
+			then
+			else
+				return true
 			end
 		end
 	end

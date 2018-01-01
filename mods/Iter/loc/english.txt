@@ -26,6 +26,9 @@
 	"itr_options_map_change_mad_title" : "Boiling Point",
 	"itr_options_map_change_mad_desc" : "fixed issue with blown up wall on the left",
 
+	"itr_options_map_change_brb_title" : "Brooklyn Bank",
+	"itr_options_map_change_brb_desc" : "fixed navigation in the sewers entrance",
+
 	"itr_options_map_change_rat_title" : "Cook Off",
 	"itr_options_map_change_rat_desc" : "added roof access to the bots",
 

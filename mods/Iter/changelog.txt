@@ -1,3 +1,12 @@
+Revision 82:
+- fixed a crash when a bot follows a player who's instantly sent in jail
+
+Revision 81:
+- added a generic workaround for navlinks not properly erased (meaning no more cops going through planked windows on Reservoir Dogs and a few other funny things)
+
+Revision 80:
+- [Brooklyn Bank] fixed navigation in the sewers entrance
+
 Revision 79:
 - [Diamond Store] fixed door between security room and store when opened by AI
 
