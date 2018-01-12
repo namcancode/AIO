@@ -19,7 +19,7 @@
 	"wolfhud_int_locked" : "PRESS $BTN_CANCEL TO INTERRUPT",
 	"wolfhud_int_locked_pager" : "PRESS $BTN_CANCEL TO INTERRUPT\n(TRIGGERS ALARM)",
 
-	"wolfhud_buy_all_assets" : "Mua Het",
+	"wolfhud_buy_all_assets" : "Buy all",
 	"wolfhud_buy_all_assets_desc" : "Buy all the assets that you are permitted to acquire.",
 
 	"wolfhud_preplanning_save" : "Save Plan",
@@ -169,6 +169,7 @@
 	"wolfhud_enemy_escort_heatstreet" : "Matt",
 	"wolfhud_enemy_escort_chinese_prisoner" : "Kazo",
 	"wolfhud_enemy_escort_cfo" : "Garnett CFO",
+	"wolfhud_enemy_escort_reservoirdogs" : "Mr. Pink",
 	"wolfhud_enemy_drunk_pilot" : "Drunk Pilot",
 	"wolfhud_enemy_escort" : "Escort",
 	"wolfhud_enemy_boris" : "Boris",
@@ -178,6 +179,7 @@
 	"wolfhud_enemy_locke_mission" : "Locke",
 	"wolfhud_enemy_hector_boss" : "Armoured Hector",
 	"wolfhud_enemy_hector_boss_no_armor" : "Hector",
+	"wolfhud_enemy_reservoirdogs" : "Mr. Blonde",
 	"wolfhud_enemy_crew" : "Crew Member",
 	"wolfhud_enemy_butler" : "Aldstone",
 	"wolfhud_enemy_vlad" : "Vlad",
@@ -622,6 +624,8 @@
 	"wolfhud_hudlist_sicario_dodge_buff_desc" : "",
 	"wolfhud_hudlist_smoke_screen_buff_title" : "Smoke Bomb (Sicario)",
 	"wolfhud_hudlist_smoke_screen_buff_desc" : "",
+	"wolfhud_hudlist_tag_team_buff_title" : "Gas Dispenser (Tag Team)",
+	"wolfhud_hudlist_tag_team_buff_desc" : "",
 	"wolfhud_hudlist_swan_song_buff_title" : "Swan Song",
 	"wolfhud_hudlist_swan_song_buff_desc" : "",
 	"wolfhud_hudlist_tooth_and_claw_buff_title" : "Tooth and Claw (Hitman)",
