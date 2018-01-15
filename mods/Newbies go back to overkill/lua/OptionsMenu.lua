@@ -82,8 +82,14 @@ if not _G.NoobJoin then
 		trip_mine = false,
 		first_aid_kit = false,
 		}
-	NoobJoin.Name = "Thong bao"
+	NoobJoin.Name = "NGBTO"
 	NoobJoin.Prefix = "[" .. NoobJoin.Name .. "]"
+	NoobJoin.Update_message = {
+		"Changelog:",
+		"Updated at 01-09-2017",
+		"BLT 2 SupportBLT 2 Support",
+		"Fixed error print due to json files",
+	}
 	NoobJoin.Needed_message = 76
 	NoobJoin.Players = {}
 	local num_player_slots = BigLobbyGlobals and BigLobbyGlobals:num_player_slots() or 4

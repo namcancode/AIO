@@ -100,7 +100,7 @@ if RequiredScript == "lib/network/base/basenetworksession" then
 					kpm =(math.floor(((peer_kills / ((Current_time/60)-(NoobJoin.Players[peer_id][4]/60))) + 1/2)/1) * 1)
 				end
 				if peer:has_statistics() then
-					local message = peer:name() .. " | Kill:" .. peer_kills .. " | S/K:" .. peer_specials_kills .. " | Downs:" .. downs .. " "
+					local message = peer:name() .. " | Kill:" .. peer_kills .. " | DB:" .. peer_specials_kills .. " | Downs:" .. downs .. " "
 					NoobJoin:Message_Receive(message, 2)
 				end
 			end
