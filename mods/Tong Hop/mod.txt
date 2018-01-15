@@ -3,7 +3,7 @@
 	"description"	:   "Mod hay dung va huu ich nhat",
 	"author"   :   "NamBoss",
 	"blt_version" : 2,
-	"revision" : 1.4,
+	"version" : "1.5",
 	"color" : "0.4 0.1 1",
 	"image" : "nam.png",
 	"updates" : [
@@ -12,7 +12,15 @@
     }
 	],
 	"keybinds" : [
-		
+		{
+			"keybind_id" : "level",
+			"name" : "Unlock level 99",
+			"description" : "Mot phat levell 99 luon"
+			"script_path" : "level.lua",
+			"run_in_menu" : false,
+			"run_in_game" : true,
+			"localized" : false
+		},
 				{
 			"keybind_id" : "MH-GUI_keybind",
 			"name" : "Toggle Meth Helper",
