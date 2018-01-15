@@ -87,7 +87,7 @@ if RequiredScript == "lib/network/base/basenetworksession" then
 			Current_time = managers.game_play_central and managers.game_play_central:get_heist_timer() or 0
 			DelayedCalls:Add("NoobJoin:Statistics_message", 0.5, function()
 				if NoobJoin.settings.Stats_Print == true then
-					local message = managers.localization:text("Newbie_Statistics") .. ":" .. " " .. managers.localization:text("Newbie_Kills") .. " | " .. managers.localization:text("Newbie_Downs")
+					local message = managers.localization:text("Newbie_Statistics") .. ":" .. " " .. managers.localization:text("Newbie_Kills") .. " | " .. managers.localization:text("Newbie_Spec_Kills") .. " | "  .. managers.localization:text("Newbie_Downs")
 					NoobJoin:Message_Receive(message, 2)
 				end
 			end)
@@ -100,9 +100,8 @@ if RequiredScript == "lib/network/base/basenetworksession" then
 					kpm =(math.floor(((peer_kills / ((Current_time/60)-(NoobJoin.Players[peer_id][4]/60))) + 1/2)/1) * 1)
 				end
 				if peer:has_statistics() then
-					local message = peer:name() .. " | Killed:" .. peer_kills .. " | Downs:" .. downs .. " " "| Linh Dac Biet:" .. peer_specials_kills .. "
+					local message = peer:name() .. " | Kill:" .. peer_kills .. " | S/K:" .. peer_specials_kills .. " | Downs:" .. downs .. " "
 					NoobJoin:Message_Receive(message, 2)
-					
 				end
 			end
 		end)
