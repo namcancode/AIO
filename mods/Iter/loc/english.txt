@@ -68,6 +68,9 @@
 	"itr_options_map_change_alex_2_title" : "Rats D2",
 	"itr_options_map_change_alex_2_desc" : "added wooden bridge access to all AI",
 
+	"itr_options_map_change_rvd1_title" : "Reservoir Dogs D1",
+	"itr_options_map_change_rvd1_desc" : "fixed navigation when a fence locker is shot open",
+
 	"itr_options_map_change_chill_combat_title" : "Safe House Raid",
 	"itr_options_map_change_chill_combat_desc" : "optimized",
 

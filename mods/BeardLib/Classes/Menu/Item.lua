@@ -2,9 +2,6 @@ BeardLib.Items.Item = BeardLib.Items.Item or class(BeardLib.Items.BaseItem)
 local Item = BeardLib.Items.Item
 function Item:Init(params)
 	self:WorkParams(params)
-	if self.override_parent then
-		self.override_parent:AddItem(self)
-	end
 	self.panel = self.parent_panel:panel({
 		name = self.name,
 		visible = self.visible,
@@ -18,7 +15,10 @@ function Item:Init(params)
 	self:Reposition()
     if self.items then
 		self._list = BeardLib.Items.ContextMenu:new(self, self.parent_panel:layer() + 100) 
-    end
+	end
+	if self.override_panel then
+		self.override_panel:AddItem(self)
+	end
 end
 
 function Item:GetForeground(highlight)
@@ -177,9 +177,9 @@ end
 
 function Item:MouseMoved(x, y)
 	if not self.menu_type then
-	    for _, item in pairs(self._adopted_items) do
-	        if item:MouseMoved(x, y) then
-	            return true
+		for _, item in pairs(self._adopted_items) do
+			if item:MouseMoved(x, y) then
+				return true
 	        end
 	    end
 	end

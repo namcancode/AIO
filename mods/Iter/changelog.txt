@@ -1,3 +1,6 @@
+Revision 83:
+- [Reservoir Dogs D1] fixed navigation when a fence locker is shot open
+
 Revision 82:
 - fixed a crash when a bot follows a player who's instantly sent in jail
 

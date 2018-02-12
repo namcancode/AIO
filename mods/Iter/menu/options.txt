@@ -260,6 +260,14 @@
 		},
 		{
 			"type" : "toggle",
+			"id" : "map_change_rvd1",
+			"title" : "itr_options_map_change_rvd1_title",
+			"description" : "itr_options_map_change_rvd1_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "map_change_rvd1"
+		},
+		{
+			"type" : "toggle",
 			"id" : "map_change_watchdogs_1",
 			"title" : "itr_options_map_change_watchdogs_1_title",
 			"description" : "itr_options_map_change_watchdogs_1_desc",

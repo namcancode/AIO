@@ -40,6 +40,7 @@ Iter.settings = {
 	map_change_rat = true,
 	map_change_red2 = true,
 	map_change_roberts = true,
+	map_change_rvd1 = true,
 	map_change_watchdogs_1 = true,
 	map_change_welcome_to_the_jungle_2 = true,
 	map_change_wwh = true
@@ -1004,6 +1005,18 @@ elseif level_id == 'brb' then
 				ai_graph.id = 103000
 				ai_graph.values.graph_ids = { 44 }
 				table.insert(data.elements, ai_graph)
+			end
+		end
+
+		itr_original_missionmanager_addscript(self, data)
+	end
+
+elseif level_id == 'rvd1' then
+
+	function MissionManager:_add_script(data)
+		for _, element in pairs(data.elements) do
+			if element.id == 101436 then
+				table.insert(element.values.sequence_list, { unit_id = 100072, guis_id = 1, sequence = 'int_seq_break' } )
 			end
 		end
 

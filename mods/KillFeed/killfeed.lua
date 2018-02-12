@@ -53,17 +53,17 @@ if not KillFeed then
     local attacker_name, attacker_color, target_name, target_color, assist_name, assist_color
     
     attacker_name = attacker_info:nickname()
-    attacker_color = attacker_info._is_special and KillFeed.colors.special or attacker_info._color_id and attacker_info._color_id < #tweak_data.chat_colors and tweak_data.chat_colors[attacker_info._color_id]
+    attacker_color = (attacker_info._is_special or attacker_info._is_boss) and KillFeed.colors.special or attacker_info._color_id and attacker_info._color_id < #tweak_data.chat_colors and tweak_data.chat_colors[attacker_info._color_id]
     
     target_name = target_info:nickname()
-    target_color = target_info._is_special and KillFeed.colors.special or target_info._color_id and target_info._color_id < #tweak_data.chat_colors and tweak_data.chat_colors[target_info._color_id]
+    target_color = (target_info._is_special or target_info._is_boss) and KillFeed.colors.special or target_info._color_id and target_info._color_id < #tweak_data.chat_colors and tweak_data.chat_colors[target_info._color_id]
     
     if assist_info then
       assist_name = assist_info:nickname()
-      assist_color = assist_info._is_special and KillFeed.colors.special or assist_info._color_id and assist_info._color_id < #tweak_data.chat_colors and tweak_data.chat_colors[assist_info._color_id]
+      assist_color = (assist_info._is_special or assist_info._is_boss) and KillFeed.colors.special or assist_info._color_id and assist_info._color_id < #tweak_data.chat_colors and tweak_data.chat_colors[assist_info._color_id]
     end
     
-    if KillFeed.settings.style == 1 or KillFeed.settings.style == 2 then
+    if KillFeed.settings.style >= 1 and KillFeed.settings.style <= 3 then
       local show_assist = assist_info and assist_name ~= attacker_name
       local kill_text, assist_text
       if KillFeed.settings.style == 1 then
@@ -72,6 +72,10 @@ if not KillFeed then
       elseif KillFeed.settings.style == 2 then
         assist_text = " " .. KillFeed:get_localized_text("KillFeed_text_and") .. " "
         kill_text = attacker_name .. (show_assist and (assist_text .. assist_name) or "") .. " " .. KillFeed:get_localized_text("KillFeed_text_" .. status, show_assist) .. " " .. target_name
+      elseif KillFeed.settings.style == 3 then
+        local slang = KillFeed.killtexts and table.random(KillFeed.killtexts) or "killed"
+        assist_text = " " .. KillFeed:get_localized_text("KillFeed_text_and") .. " "
+        kill_text = attacker_name .. (show_assist and (assist_text .. assist_name) or "") .. " " .. slang .. " " .. target_name
       end
       local text = self._panel:text({
         text = kill_text,
@@ -199,7 +203,7 @@ if not KillFeed then
         most_damage = v.damage
       end
     end
-    return HopLib.unit_info_manager:get_info(most_damage_unit)
+    return HopLib:unit_info_manager():get_info(most_damage_unit)
   end
   
   function KillFeed:set_assist_information(unit, attacker, damage)
@@ -216,12 +220,12 @@ if not KillFeed then
   end
 
   function KillFeed:add_kill(damage_info, target, status)
-    local target_info = HopLib.unit_info_manager:get_info(target)
+    local target_info = HopLib:unit_info_manager():get_info(target)
     target_info = target_info and target_info:user()
     if not target_info or self.settings.special_kills_only and not target_info._is_special then
       return
     end
-    local attacker_info = HopLib.unit_info_manager:get_user_info(damage_info.attacker_unit)
+    local attacker_info = HopLib:unit_info_manager():get_user_info(damage_info.attacker_unit)
     if not attacker_info or not self.settings["show_" .. (attacker_info._sub_type or attacker_info._type) .. "_kills"] then
       return
     end
@@ -320,24 +324,36 @@ end
 if RequiredScript == "lib/managers/menumanager" then
 
   Hooks:Add("LocalizationManagerPostInit", "LocalizationManagerPostInitKillFeed", function(loc)
-    local loaded = false
-    if Idstring("english"):key() ~= SystemInfo:language():key() then
-      for _, filename in pairs(file.GetFiles(KillFeed.mod_path .. "loc/") or {}) do
-        local str = filename:match("^(.*).txt$")
-        if str and Idstring(str) and Idstring(str):key() == SystemInfo:language():key() then
-          loc:load_localization_file(KillFeed.mod_path .. "loc/" .. filename)
-          loaded = true
+    
+    local language = "english"
+    local system_language_key = SystemInfo:language():key()
+    local system_is_english = system_language_key == Idstring("english"):key()
+    local blt_language = BLT.Localization:get_language().language
+    
+    for _, filename in pairs(file.GetFiles(KillFeed.mod_path .. "loc/") or {}) do
+      local str = filename:match("^(.*).txt$")
+      if str then
+        local system_match = not system_is_english and Idstring(str):key() == system_language_key
+        local blt_match = system_is_english and str == blt_language
+        local mod_match = PD2KR and str == "korean"
+        if system_match or blt_match or mod_match then
+          language = str
+          loc:load_localization_file(KillFeed.mod_path .. "loc/" .. language .. ".txt")
           break
         end
       end
     end
-    if not loaded then
-      local file = KillFeed.mod_path .. "loc/" .. BLT.Localization:get_language().language .. ".txt"
-      if io.file_is_readable(file) then
-        loc:load_localization_file(file)
-      end
-    end
+
     loc:load_localization_file(KillFeed.mod_path .. "loc/english.txt", false)
+    
+    local kt_saved = KillFeed.save_path .. "killtexts.txt"
+    local kt_loc = KillFeed.mod_path .. "data/killtexts_" .. language .. ".txt"
+    local killtexts_file = io.file_is_readable(kt_saved) and kt_saved or io.file_is_readable(kt_loc) and kt_loc or KillFeed.mod_path .. "data/killtexts_english.txt"
+    local file = io.open(killtexts_file)
+    if file then
+      KillFeed.killtexts = json.decode(file:read("*all")) or {}
+      file:close()
+    end
   end)
 
   local menu_id_main = "KillFeedMenu"
@@ -423,7 +439,7 @@ if RequiredScript == "lib/managers/menumanager" then
       title = "KillFeed_menu_style_name",
       callback = "KillFeed_value",
       value = KillFeed.settings.style,
-      items = { "KillFeed_menu_style_icon", "KillFeed_menu_style_text" },
+      items = { "KillFeed_menu_style_icon", "KillFeed_menu_style_text", "KillFeed_menu_style_slang" },
       menu_id = menu_id_main,
       priority = 88
     })

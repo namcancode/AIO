@@ -1,6 +1,6 @@
 {
 	"NepgearsyMM_Title" : "Nepgearsy Menu Options",
-	"NepgearsyMM_Desc" : "Setup your menu preferences here.",
+	"NepgearsyMM_Desc" : "Paramétrer vos préférences ici.",
 
 	"NepgearsyMM_LanguageSelection_Title" : "Language",
 	"NepgearsyMM_LanguageSelection_Desc" : "",
@@ -12,8 +12,8 @@
 	"NepgearsyMM_LanguageSelection_French" : "French",
 	"NepgearsyMM_LanguageSelection_SChinese" : "Simplified Chinese",
 
-	"nepmenu_exp_needed_text" : "$exp EXP NEEDED FOR LEVEL $nextlevel",
-	"nepmenu_exp_max_level_reached" : "MAX LEVEL REACHED",
+	"nepmenu_exp_needed_text" : "$exp EXP POUR LE LEVEL $nextlevel",
+	"nepmenu_exp_max_level_reached" : "NIVEAU MAXIMUM ATTEINT",
 
 	"nepmenu_infamy_title_0" : "Rookie Heister",
 	"nepmenu_infamy_title_1" : "Becoming Infamous",
@@ -43,19 +43,21 @@
 	"nepmenu_infamy_title_25" : "Becoming Monstrous",
 	"nepmenu_infamy_title_hax" : "HAXHAXHAXHAXHAX",
 
-	"nepmenu_spendable_cash_text" : "SPENDABLE CASH",
-	"nepmenu_offshore_cash_text" : "OFFSHORE CASH",
-	"nepmenu_skill_points_used_text" : "SKILL POINTS USED",
+	"nepmenu_spendable_cash_text" : "ARGENT LIQUIDE",
+	"nepmenu_offshore_cash_text" : "ARGENT OFFSHORE",
+	"nepmenu_skill_points_used_text" : "POINTS DE SKILL UTILISE",
 
-	"nepmenu_friendlist_status_ingame" : "Main Menu, $state",
-	"nepmenu_friendlist_status_ltp" : "looking to play / trade",
-	"nepmenu_friendlist_status_ingame_joinable" : "In-Game, joinable",
-	"nepmenu_friendlist_status_ingame_not_joinable" : "In-Game, not joinable",
+	"nepmenu_friendlist_status_ingame" : "Menu Principal, $state",
+	"nepmenu_friendlist_status_ltp" : "Souhaite jouer",
+	"nepmenu_friendlist_status_ingame_joinable" : "En Jeu, Public / Amis",
+	"nepmenu_friendlist_status_ingame_not_joinable" : "En Jeu, Privée",
 
-	"nepmenu_friendlist_button_join_game" : "Join Game",
-	"nepmenu_friendlist_button_invite" : "Invite",
-	"nepmenu_friendlist_button_send_message" : "Send a message",
-	"nepmenu_friendlist_button_view_loadout" : "View player profile",
+	"nepmenu_friendlist_button_join_game" : "Rejoindre",
+	"nepmenu_friendlist_button_invite" : "Inviter",
+	"nepmenu_friendlist_button_send_message" : "Envoyer un message",
+	"nepmenu_friendlist_button_view_loadout" : "Profil du joueur",
+	"nepmenu_friendlist_button_view_profile" : "Profil Steam",
+	"nepmenu_friendlist_button_view_achievements" : "Succés Steam",
 
 	"NepgearsyMM_SceneOptions_Title" : "Menu Scene Options",
 	"NepgearsyMM_SceneOptions_Desc" : "Anything related to the scene, such as the character position - rotation, lights...",
@@ -78,17 +80,17 @@
 	"NepgearsyMM_Scene_HideAds_Title" : "Hide the ads panel",
 	"NepgearsyMM_Scene_HideAds_Desc" : "This will hide the main menu ad panel on the bottom right.",
 
-	"NepgearsyMM_FriendListOptions_Title" : "Friend List Options",
+	"NepgearsyMM_FriendListOptions_Title" : "Options",
 	"NepgearsyMM_FriendListOptions_Desc" : "Anything related to the friend list.",
 	"NepgearsyMM_FriendList_EnableRepLevel_Title" : "Enable the reputation levels",
 	"NepgearsyMM_FriendList_EnableRepLevel_Desc" : "This will add the current level of the player before their name. Showing the current infamy is only possible when both you and your friends have the mod.",
+	"NepgearsyMM_PlayerProfile_Header" : "Profil du joueur",
 
-	"NepgearsyMM_PlayerProfile_Header" : "Player profile",
 	"NepgearsyMM_Description_Header" : "Description",
-	"NepgearsyMM_Loadout_Header" : "Loadout",
+	"NepgearsyMM_Loadout_Header" : "Inventaire",
 	"NepgearsyMM_Skills_Header" : "Skills",
-	"NepgearsyMM_Button_Steam_Profile" : "Steam Profile",
-	"NepgearsyMM_Button_Steam_Achievements" : "Achievements",
+	"NepgearsyMM_Button_Steam_Profile" : "Profil Steam",
+	"NepgearsyMM_Button_Steam_Achievements" : "Succés Steam",
 	"NepgearsyMM_Description_Setup" : "You can setup a custom description here. It will sync with the other users of the mod!\nTo do that, go into PAYDAY 2/mods/saves/NepgearsyMM_PersonalDescription.txt\n\nThen open the file, and put whatever you want in it.",
 	"NepgearsyMM_Loadout_Error" : "$name is not in-game or doesn't have Nepgearsy Main Menu.",
 	"NepgearsyMM_Description_Error" : "$name is not in-game, doesn't have Nepgearsy Main Menu or any description."

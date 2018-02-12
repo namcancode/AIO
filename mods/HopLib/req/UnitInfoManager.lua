@@ -11,7 +11,7 @@ function UnitInfo:init(unit, u_key, manager)
   local u_base = unit:base()
   local cm = managers.criminals
   
-  self._owner = manager:get_info(u_base.get_owner and u_base:get_owner() or u_base._minion_owner or u_base.kpr_minion_owner_peer_id and cm:character_unit_by_peer_id(u_base.kpr_minion_owner_peer_id))
+  self._owner = manager:get_info(u_base._minion_owner or u_base.get_owner and u_base:get_owner() or u_base.kpr_minion_owner_peer_id and cm:character_unit_by_peer_id(u_base.kpr_minion_owner_peer_id))
   if u_base.is_husk_player or u_base.is_local_player then
     self._type = "player"
     self._sub_type = u_base.is_local_player and "local_player" or "remote_player"
@@ -30,26 +30,26 @@ function UnitInfo:init(unit, u_key, manager)
     if gstate:is_unit_team_AI(unit) then
       self._sub_type = "team_ai"
       self._name = u_base:nick_name()
-    elseif gstate._police[u_key] and gstate._police[u_key].is_converted or gstate:is_enemy_converted_to_criminal(unit) then
+    elseif self._owner or gstate._police[u_key] and gstate._police[u_key].is_converted or gstate:is_enemy_converted_to_criminal(unit) then
       self._sub_type = "joker"
-      self._name = manager._name_provider:name_by_id(u_base._stats_name or u_base._tweak_table)
+      self._name = HopLib:name_provider():name_by_id(u_base._stats_name or u_base._tweak_table)
       self._nickname = u_base.kpr_minion_owner_peer_id and Keepers:GetJokerNameByPeer(u_base.kpr_minion_owner_peer_id)
       if not self._nickname or self._nickname == "" then
         self._nickname = self._owner and self._owner:nickname() .. "'s " .. self._name
       end
     elseif u_base.char_tweak then
       self._sub_type = HopLib:is_object_of_class(u_base, CivilianBase) and "civilian"
-      self._name = manager._name_provider:name_by_id(u_base._stats_name or u_base._tweak_table)
+      self._name = HopLib:name_provider():name_by_id(u_base._stats_name or u_base._tweak_table)
       self._is_special = u_base:char_tweak().priority_shout and true
       self._is_boss = u_base._tweak_table:find("boss") and true
     end
   elseif u_base.thrower_unit then
     self._type = "projectile"
-    self._name = manager._name_provider:name_by_id(u_base:get_name_id())
+    self._name = HopLib:name_provider():name_by_id(u_base:get_name_id())
     self._thrower = manager:get_info(u_base:thrower_unit())
   elseif u_base.sentry_gun then
     self._type = "sentry"
-    self._name = manager._name_provider:name_by_id(u_base._tweak_table_id)
+    self._name = HopLib:name_provider():name_by_id(u_base._tweak_table_id)
     self._nickname = self._owner and self._owner:nickname() .. "'s " .. self._name
     self._is_special = u_base._tweak_table_id:find("turret") and true
     self._color_id = self._owner and self._owner._color_id or cm:character_color_id_by_unit(unit)
@@ -77,17 +77,12 @@ end
 
 UnitInfoManager = UnitInfoManager or class()
 
-function UnitInfoManager:init(name_provider)
+function UnitInfoManager:init()
   self._infos = {}
-  self._name_provider = name_provider
 end
 
 function UnitInfoManager:all_infos()
   return self._infos
-end
-
-function UnitInfoManager:name_provider()
-  return self._name_provider
 end
 
 function UnitInfoManager:_create_info(unit, u_key)
