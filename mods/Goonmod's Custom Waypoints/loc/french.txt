@@ -24,5 +24,8 @@
 	"gm_options_custom_waypoints_next_desc" : "Place votre point de repère sur un objectif du jeu.",
 
 	"gm_options_custom_waypoints_include_bags_title" : "Considérer les sacs comme points d'intérêt",
-	"gm_options_custom_waypoints_include_bags_desc" : "Inclus les sacs de butin dans la liste servant aux fonctions précédent/suivant."
+	"gm_options_custom_waypoints_include_bags_desc" : "Inclus les sacs de butin dans la liste servant aux fonctions précédent/suivant.",
+
+	"gm_options_custom_waypoints_include_hostages_title" : "Considérer les otages comme points d'intérêt",
+	"gm_options_custom_waypoints_include_hostages_desc" : "Inclus les otages dans la liste servant aux fonctions précédent/suivant."
 }

@@ -1,3 +1,12 @@
+Revision 25:
+- added stuff for Keepers
+
+Revision 24:
+- added an option (enabled by default) to include hostages in cycle list
+
+Revision 23:
+- added Brooklyn's winch parts to prev/next list
+
 Revision 22:
 - added Reservoir's vault drill to prev/next list
 

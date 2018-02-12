@@ -8,7 +8,8 @@ LobbyPlayerInfo._font_sizes = {
 	tweak_data.menu.pd2_small_font_size - 0,
 }
 LobbyPlayerInfo.settings = {}
-LobbyPlayerInfo.play_times = {}
+LobbyPlayerInfo.play_times = Global.lpi_play_times or {}
+Global.lpi_play_times = LobbyPlayerInfo.play_times
 LobbyPlayerInfo.pd2stats_player_status = {}
 LobbyPlayerInfo.skills_layouts = {
 	'%s:%02u  %s:%02u  %s:%02u  %s:%02u  %s:%02u',
@@ -105,6 +106,11 @@ Hooks:Add('LocalizationManagerPostInit', 'LocalizationManagerPostInit_LobbyPlaye
 	if _G.PD2KR then
 		LobbyPlayerInfo._abbreviation_length_v = 2
 		loc:load_localization_file(LobbyPlayerInfo._path .. 'loc/korean.txt')
+
+	elseif BLT.Localization._current == 'cht' or BLT.Localization._current == 'zh-cn' then
+		LobbyPlayerInfo._abbreviation_length_v = 2
+		loc:load_localization_file(LobbyPlayerInfo._path .. 'loc/chinese.txt')
+
 	else
 		for _, filename in pairs(file.GetFiles(LobbyPlayerInfo._path .. 'loc/')) do
 			local str = filename:match('^(.*).txt$')

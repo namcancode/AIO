@@ -1,3 +1,12 @@
+﻿Revision 31:
+- removed BOM from r30's mod.txt
+
+Revision 30:
+- apply Overkill skill for any type of weapon if aced
+
+Revision 29:
+- added chinese translation by 王君翔（冷丶K）
+
 Revision 28:
 - added support of damage breakpoints for explosives (and more or less fire)
 - fixed damage breakpoints for grenade launchers and crits

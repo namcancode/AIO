@@ -1,3 +1,20 @@
+Revision 127:
+- use proper revive objective when a bot is ordered with a manually set waypoint (not using prev/next functions)
+
+Revision 126:
+- fixed a crash when player goes down
+
+Revision 124:
+- improved handling of revive objectives
+
+Revision 123:
+- a bot can be sent to revive another bot or a player via waypoint
+- a bot sent to interact will stay around if a custom waypoint is nearby
+
+Revision 122:
+- prevent players in custody to issue SO orders
+- when sent to a waypoint, bots will drop their bag once arrived
+
 Revision 121:
 - prevent some interactions to block game (for those cases, special equipment is transfered to host)
 

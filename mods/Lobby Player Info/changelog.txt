@@ -1,3 +1,15 @@
+﻿Revision 63:
+- prevent a crash when bogus outfit data is received
+
+Revision 62:
+- fixed BOM in mod.txt
+
+Revision 61:
+- added chinese translation by 王君翔（冷丶K）
+
+Revision 60:
+- updated HUD stats screen
+
 Revision 59:
 - should fix a vanilla crash occuring sometimes when joining a CS in lobby state
 

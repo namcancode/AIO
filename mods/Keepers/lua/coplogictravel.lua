@@ -23,3 +23,14 @@ function CopLogicTravel.get_pathing_prio(data)
 	end
 	return prio
 end
+
+local kpr_original_coplogictravel_ondestinationreached = CopLogicTravel._on_destination_reached
+function CopLogicTravel._on_destination_reached(data)
+	if data.objective.kpr_drop_carry then
+		if data.unit:movement().throw_bag then
+			data.unit:movement():throw_bag(data.unit)
+		end
+	end
+
+	kpr_original_coplogictravel_ondestinationreached(data)
+end

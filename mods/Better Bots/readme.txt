@@ -28,6 +28,7 @@ List of Features
   shout at civilians immediately if they are not on the floor, no matter what
 - Bots' reactions have been streamlined and optimized for faster reflexes and target acquisition
 - Many of these changes will also apply to Jokers, such as the improved targeting and reloading out of combat
+- Bots will no longer attempt to revive teammates who are already in the process of being revived
 - Bots will count for the "crew alive" experience and money bonus at the end of the heist in offline mode
 
 Explanation of Options
@@ -126,5 +127,6 @@ LycanCHKN - Contributed the Italian localization
 PsychoticFalcon - Contributed the Swedish localization
 chrom[K]a - Contributed the Russian localization
 shadows - Contributed the Chinese localization
-SC - Advice on disabling the "run_stop" and "run_start" animations and general feedback
+SC - Advice on disabling the "run_stop" and "run_start" animations and general feedback; wrote the code
+	fixing the bots' bag carrying speed
 Punk Foxy - Bug reporting and testing; general feedback

@@ -24,5 +24,8 @@
 	"gm_options_custom_waypoints_next_desc" : "Set your custom waypoint on a game objective.",
 
 	"gm_options_custom_waypoints_include_bags_title" : "Bags are objects of interest",
-	"gm_options_custom_waypoints_include_bags_desc" : "Include lootbags in waypoints list used to cycle."
+	"gm_options_custom_waypoints_include_bags_desc" : "Include lootbags in waypoints list used to cycle.",
+
+	"gm_options_custom_waypoints_include_hostages_title" : "Hostages are objects of interest",
+	"gm_options_custom_waypoints_include_hostages_desc" : "Include hostages in waypoints list used to cycle."
 }

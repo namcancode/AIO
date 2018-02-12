@@ -27,6 +27,7 @@ CustomWaypoints.settings = {
 	always_show_my_waypoint = true,
 	always_show_others_waypoints = false,
 	include_lootbags_in_points_of_interest = true,
+	include_hostages_in_points_of_interest = true,
 }
 CustomWaypoints.interactive_units_white_list = {
 	[Idstring('units/equipment/apartment_saw/apartment_saw'):t()] = true,
@@ -38,8 +39,10 @@ CustomWaypoints.interactive_units_white_list = {
 	[Idstring('units/payday2/equipment/item_door_drill_small/item_door_drill_small'):t()] = true,
 	[Idstring('units/payday2/pickups/gen_pku_bodybag/gen_pku_bodybag'):t()] = true,
 	[Idstring('units/payday2/pickups/gen_pku_lootbag/gen_pku_lootbag'):t()] = true,
+	[Idstring('units/payday2/pickups/gen_pku_toolbag_large/gen_pku_toolbag_large'):t()] = true,
 	[Idstring('units/pd2_dlc_arena/props/are_prop_security_button/are_prop_security_button'):t()] = true,
 	[Idstring('units/pd2_dlc_berry/props/bry_prop_breaching_charge/bry_prop_breaching_charge'):t()] = true,
+	[Idstring('units/pd2_dlc_born/props/bor_prop_garage_bike_assembly/parts/bor_prop_garage_assembly_part_engine'):t()] = true,
 	[Idstring('units/pd2_dlc_casino/props/cas_prop_drill/cas_prop_watertank_01'):t()] = true,
 	[Idstring('units/pd2_dlc_casino/props/cas_prop_drill/cas_prop_watertank_02'):t()] = true,
 	[Idstring('units/pd2_dlc_casino/props/cas_prop_drill/cas_prop_watertank_static'):t()] = true,
@@ -127,7 +130,7 @@ Hooks:Add('MenuManagerInitialize', 'MenuManagerInitialize_CustomWaypoints', func
 	MenuHelper:LoadFromJsonFile(CustomWaypoints._path .. 'menu/options.txt', CustomWaypoints, CustomWaypoints.settings)
 end)
 
-function CustomWaypoints:GetAssociatedObjectiveWaypoint(search_pos, radius)
+function CustomWaypoints:GetAssociatedObjectiveWaypoint(search_pos, radius, account_custom_waypoints)
 	local waypoints = managers.hud and managers.hud._hud and managers.hud._hud.waypoints
 	if not waypoints then
 		return
@@ -144,7 +147,7 @@ function CustomWaypoints:GetAssociatedObjectiveWaypoint(search_pos, radius)
 	end
 
 	for id, waypoint in pairs(waypoints) do
-		if type(id) == 'string' and id:find(self.prefix) then
+		if not account_custom_waypoints and type(id) == 'string' and id:find(self.prefix) then
 		elseif waypoint.position then
 			if mvec3_dis(search_pos, waypoint.position) < radius then
 				return id, waypoint
@@ -300,18 +303,37 @@ function CustomWaypoints:GetSortedWaypoints(include_points_of_interest)
 	end
 
 	if include_points_of_interest then
+		if self.settings.include_hostages_in_points_of_interest then
+			for _, unit in ipairs(World:find_units_quick('all', 12, 21, 22)) do
+				if alive(unit) then
+					local anim = unit:anim_data()
+					if anim and (anim.tied or anim.hands_tied) then
+						local pos = unit:position()
+						local angle = mvec3_ang(my_aim, pos - camera_pos)
+						if angle < 40 then
+							table_insert(result, {
+								unit = unit,
+								position = pos,
+								angle = angle
+							})
+						end
+					end
+				end
+			end
+		end
+
 		local include_lootbags = self.settings.include_lootbags_in_points_of_interest
 		for _, unit in ipairs(managers.interaction._interactive_units) do
 			if alive(unit) and (include_lootbags and unit:in_slot(14) or unit:in_slot(1)) then
 				local interaction = unit:interaction()
 				if interaction and interaction:active() and not interaction:disabled() then
 					if unit:visible() and self.interactive_units_white_list[unit:name():t()] and self.UnitHasContour(unit) then
-						local ipos = interaction:interact_position()
-						local angle = mvec3_ang(my_aim, ipos - camera_pos)
+						local pos = interaction:interact_position()
+						local angle = mvec3_ang(my_aim, pos - camera_pos)
 						if angle < 40 then
 							table_insert(result, {
 								unit = unit,
-								position = ipos,
+								position = pos,
 								angle = angle
 							})
 						end

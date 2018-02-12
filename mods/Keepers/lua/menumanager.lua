@@ -241,7 +241,7 @@ function Keepers:GetStoppedTeamAIs()
 	return result
 end
 
-function Keepers:GetStayObjective(unit)
+function Keepers:GetStayObjective(unit, drop_carry)
 	local mode_to_icon = {
 		nil,
 		'pd2_goto',
@@ -253,7 +253,9 @@ function Keepers:GetStayObjective(unit)
 	if kpr_mode == 3 or kpr_mode == 4 then
 		return {
 			type = 'defend_area',
+			kpr_drop_carry = drop_carry,
 			kpr_icon = mode_to_icon[kpr_mode],
+			kpr_objective = true,
 			nav_seg = managers.navigation:get_nav_seg_from_pos(keep_position, true),
 			attitude = 'avoid',
 			stance = 'hos',
@@ -262,7 +264,9 @@ function Keepers:GetStayObjective(unit)
 	else
 		return {
 			type = 'stop',
+			kpr_drop_carry = drop_carry,
 			kpr_icon = mode_to_icon[kpr_mode],
+			kpr_objective = true,
 			nav_seg = managers.navigation:get_nav_seg_from_pos(keep_position, true),
 			pos = mvec3_cpy(keep_position)
 		}
@@ -416,18 +420,27 @@ function Keepers:SetState(unit_text_ref, is_keeper)
 		local previous_kpr_mode = u_base.kpr_mode
 		if is_keeper then
 			local so = self:GetWaypointSO(unit, peer_id)
-			if not so then
+			if so then
+				if so.pos then
+					u_base.kpr_is_keeper = true
+					u_base.kpr_mode = tonumber(data.mode)
+					u_base.kpr_keep_position = mvec3_cpy(so.pos)
+				else
+					u_base.kpr_is_keeper = false
+					u_base.kpr_mode = 1
+					u_base.kpr_keep_position = nil
+				end
+				if so ~= unit:brain():objective() then
+					unit:brain():set_objective(so)
+				end
+			else
 				local wp_pos = self:GetGoonModWaypointPosition(peer_id)
-				local dest_pos = self:IsPositionOK(wp_pos) and self:GetGoonModWaypointPosition(peer_id) or unit:movement():nav_tracker():field_position()
+				local wp_is_ok = self:IsPositionOK(wp_pos)
+				local dest_pos = wp_is_ok and wp_pos or unit:movement():nav_tracker():field_position()
 				u_base.kpr_is_keeper = true
 				u_base.kpr_mode = tonumber(data.mode)
 				u_base.kpr_keep_position = mvec3_cpy(dest_pos)
-				unit:brain():set_objective(self:GetStayObjective(unit))
-			else
-				u_base.kpr_is_keeper = true
-				u_base.kpr_mode = tonumber(data.mode)
-				u_base.kpr_keep_position = mvec3_cpy(so.pos)
-				unit:brain():set_objective(so)
+				unit:brain():set_objective(self:GetStayObjective(unit, wp_is_ok))
 			end
 		else
 			u_base.kpr_is_keeper = false
@@ -685,7 +698,7 @@ function Keepers:ValidInteraction(unit)
 		player_zipline = true,
 	}
 
-	if alive(unit) and unit:in_slot(1, 14) then
+	if alive(unit) and unit:in_slot(1, 3, 14, 16) then
 		local interaction = unit:interaction()
 		if not interaction then
 		elseif interaction:disabled() then
@@ -866,10 +879,29 @@ function Keepers:GetInteractionIcon(interaction, icon)
 	return icon or 'pd2_generic_interact'
 end
 
+local function _get_revive_objective(bot_unit, target_unit_id)
+	local gstate = managers.groupai:state()
+	for so_id, so in pairs(gstate._special_objectives) do
+		if so.unit_id == target_unit_id then
+			local objective = gstate.clone_objective(so.data.objective)
+			bot_unit:brain():set_objective(objective)
+			if so.data.admin_clbk then
+				so.data.admin_clbk(bot_unit)
+			end
+			return objective
+		end
+	end
+end
+
 local ids_gen_drill_small_upright = Idstring('units/pd2_dlc_pal/equipment/gen_interactable_drill_small_upright/gen_interactable_drill_small_upright')
 local ids_gen_saw_no_jam = Idstring('units/pd2_dlc_glace/equipment/gen_interactable_saw_no_jam/gen_interactable_saw_no_jam')
 function Keepers:GetWaypointSO(bot_unit, peer_id)
 	if not CustomWaypoints then
+		return
+	end
+
+	local peer = managers.network:session():peer(peer_id)
+	if not peer or not alive(peer:unit()) then
 		return
 	end
 
@@ -886,14 +918,21 @@ function Keepers:GetWaypointSO(bot_unit, peer_id)
 	end
 
 	local obj_wp_id = CustomWaypoints:GetAssociatedObjectiveWaypoint(wp.position)
-	if obj_wp_id then
+	if type(obj_wp_id) == 'number' then
 		local wp_element = managers.mission:get_element_by_id(obj_wp_id)
 		if not wp_element then
 			return
 		end
-
 		unit_id = self.wp_to_unit_id[wp_element._values.instance_name or obj_wp_id]
 		icon = wp_element._values.icon
+
+	elseif type(obj_wp_id) == 'string' then
+		local objective
+		unit_id = obj_wp_id:match('^ReviveInteractionExt(.*)$')
+		if unit_id then
+			objective = _get_revive_objective(bot_unit, tonumber(unit_id))
+		end
+		return objective
 	end
 
 	if unit_id then
@@ -927,7 +966,12 @@ function Keepers:GetWaypointSO(bot_unit, peer_id)
 	if not self:ValidInteraction(unit) then
 		return
 	end
+
 	local interaction = unit:interaction()
+	if interaction.tweak_data == 'revive' then
+		return _get_revive_objective(bot_unit, unit:id())
+	end
+
 	local action_duration = interaction._tweak_data.timer or 0.5
 	local clbk_data = {
 		interactive_unit = unit,
@@ -1112,7 +1156,7 @@ function Keepers:OnCompletedSO(data)
 					local interaction = alive(data.interactive_unit) and data.interactive_unit:interaction()
 					if interaction and not interaction:disabled() and interaction:active() then
 						-- qued
-					elseif interaction and CustomWaypoints:GetAssociatedObjectiveWaypoint(interaction:interact_position(), 200) then
+					elseif interaction and CustomWaypoints:GetAssociatedObjectiveWaypoint(interaction:interact_position(), 200, true) then
 						-- qued
 					elseif alive(bot_unit) and bot_unit:base().kpr_is_keeper then
 						Keepers:SendState(bot_unit, self:GetLuaNetworkingText(bot_unit:base().kpr_following_peer_id, bot_unit, 1), false)

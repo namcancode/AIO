@@ -9,6 +9,7 @@ function TeamAILogicDisabled._register_revive_SO(data, my_data, rescue_type)
 	local so = managers.groupai:state()._special_objectives[my_data.SO_id]
 	so.data.objective.complete_clbk = callback(TeamAILogicDisabled, TeamAILogicDisabled, 'on_revive_SO_completed', data)
 	so.data.objective.action_start_clbk = callback(TeamAILogicDisabled, TeamAILogicDisabled, 'on_revive_SO_started', data)
+	so.unit_id = data.unit:id()
 end
 
 function TeamAILogicDisabled:on_revive_SO_started(data)

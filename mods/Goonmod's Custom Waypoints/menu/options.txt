@@ -84,6 +84,15 @@
 			"callback" : "CustomWaypointsMenuCheckboxClbk",
 			"value" : "include_lootbags_in_points_of_interest",
 			"default_value" : true
+		},
+		{
+			"type" : "toggle",
+			"id" : "include_hostages_in_points_of_interest",
+			"title" : "gm_options_custom_waypoints_include_hostages_title",
+			"description" : "gm_options_custom_waypoints_include_hostages_desc",
+			"callback" : "CustomWaypointsMenuCheckboxClbk",
+			"value" : "include_hostages_in_points_of_interest",
+			"default_value" : true
 		}
 	]
 }

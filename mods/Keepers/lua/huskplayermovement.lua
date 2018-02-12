@@ -7,6 +7,7 @@ function HuskPlayerMovement:_register_revive_SO()
 
 	local so = managers.groupai:state()._special_objectives[self._revive_SO_id]
 	so.data.objective.action_start_clbk = callback(self, self, 'on_revive_SO_started')
+	so.unit_id = self._unit:id()
 end
 
 function HuskPlayerMovement:on_revive_SO_started(rescuer)

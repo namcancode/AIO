@@ -1,25 +1,27 @@
 local function _get_skills_perk_text(peer)
-	local skills, perk
-	local s = peer:skills():split('-')[1]:split('_')
-	local p = peer:skills():split('-')[2]:split('_')
+	local skills, perk = 'Invalid data', '?'
 
-	if #s == 15 then
-		local man_loc = managers.localization
-		local ppt = LobbyPlayerInfo:GetSkillPointsPerTree(s)
-		local abb_len = LobbyPlayerInfo._abbreviation_length_v
-		local am = utf8.sub(man_loc:text('st_menu_mastermind'), 1, abb_len)
-		local ae = utf8.sub(man_loc:text('st_menu_enforcer'), 1, abb_len)
-		local at = utf8.sub(man_loc:text('st_menu_technician'), 1, abb_len)
-		local ag = utf8.sub(man_loc:text('st_menu_ghost'), 1, abb_len)
-		local af = utf8.sub(man_loc:text('st_menu_hoxton_pack'), 1, abb_len)
-		skills = string.format(LobbyPlayerInfo.skills_layouts[1], am, ppt[1], ae, ppt[2], at, ppt[3], ag, ppt[4], af, ppt[5])
+	local peer_skills = peer:skills()
+	peer_skills = peer_skills and peer_skills:split('-')
+	if #peer_skills == 2 then
+		local s = peer_skills[1]:split('_')
+		local p = peer_skills[2]:split('_')
 
-		abb_len = 5
-		local perk_name = LobbyPlayerInfo:GetPerkText(p[1])
-		perk = string.format('%s%s %s/9', utf8.sub(perk_name, 1, abb_len), (perk_name:len() > abb_len and '.' or ''), p[2])
-	else
-		skills = 'No data'
-		perk = '?'
+		if #s == 15 and #p == 2 then
+			local man_loc = managers.localization
+			local ppt = LobbyPlayerInfo:GetSkillPointsPerTree(s)
+			local abb_len = LobbyPlayerInfo._abbreviation_length_v
+			local am = utf8.sub(man_loc:text('st_menu_mastermind'), 1, abb_len)
+			local ae = utf8.sub(man_loc:text('st_menu_enforcer'), 1, abb_len)
+			local at = utf8.sub(man_loc:text('st_menu_technician'), 1, abb_len)
+			local ag = utf8.sub(man_loc:text('st_menu_ghost'), 1, abb_len)
+			local af = utf8.sub(man_loc:text('st_menu_hoxton_pack'), 1, abb_len)
+			skills = string.format(LobbyPlayerInfo.skills_layouts[1], am, ppt[1], ae, ppt[2], at, ppt[3], ag, ppt[4], af, ppt[5])
+
+			abb_len = 5
+			local perk_name = LobbyPlayerInfo:GetPerkText(p[1])
+			perk = string.format('%s%s %s/9', utf8.sub(perk_name, 1, abb_len), (perk_name:len() > abb_len and '.' or ''), p[2])
+		end
 	end
 
 	return skills, perk

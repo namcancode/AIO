@@ -1,6 +1,14 @@
 local key = ModPath .. '	' .. RequiredScript
 if _G[key] then return else _G[key] = true end
 
+local kpr_original_playerbleedout_registerreviveso = PlayerBleedOut._register_revive_SO
+function PlayerBleedOut._register_revive_SO(revive_SO_data, variant)
+	kpr_original_playerbleedout_registerreviveso(revive_SO_data, variant)
+
+	local so = managers.groupai:state()._special_objectives['Playerrevive']
+	so.unit_id = revive_SO_data.unit:id()
+end
+
 local kpr_original_playerbleedout_onrescuesostarted = PlayerBleedOut.on_rescue_SO_started
 function PlayerBleedOut:on_rescue_SO_started(revive_SO_data, rescuer)
 	kpr_original_playerbleedout_onrescuesostarted(self, revive_SO_data, rescuer)

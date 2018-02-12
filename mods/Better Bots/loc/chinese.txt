@@ -46,4 +46,6 @@
 	"equip_toggle_desc" : "如果选中，BOT将不会携带装备（如护甲、医疗箱、弹药包）。"
 	"combat_toggle_title" : "战斗能力强化"
 	"combat_toggle_desc" : "如果选中，Bot将拥有更高的的准确率、伤害， 这将使得它们更像人类玩家"
+	"ammo_toggle_title" : "Bot的击杀不掉落弹药"
+	"ammo_toggle_desc" : "如果选中，无论何时Bot击杀一名敌人，都不会掉落弹药以供捡起。"
 }
