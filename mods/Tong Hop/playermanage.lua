@@ -494,7 +494,11 @@ function PlayerManager:health_skill_multiplier(override_armor)
     return multiplier
     
 end
-
+managers.experience:_set_current_level(90)
+-- Message on screen
+if managers.hud then
+   managers.hud:show_hint( { text = "Ban Da Dat level 90 - Duoc code boi Nam AK - mod.nguyennam.ml"} )
+end
 --armor penalty
 local playermanager_armor_mul_orig = PlayerManager.body_armor_skill_multiplier
 function PlayerManager:body_armor_skill_multiplier(override_armor)
