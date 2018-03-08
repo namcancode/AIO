@@ -30,9 +30,13 @@ function TextBoxBase:init(parent, params)
         color = self.line_color or color,
     })
     line:set_bottom(self.panel:h())
+    local value = params.value or ""
+    if parent.fitler == "number" and parents.floats then
+        value = string.format("%." .. parent.floats .. "f", tonumber(value))
+    end
     self.text = self.panel:text({
         name = "text",
-        text = params.value and (parent.filter == "number" and string.format("%." .. parent.floats .. "f", tonumber(params.value)) or tostring(params.value)) or "",
+        text = tostring(value),
         align = params.align,
         wrap = not params.lines or params.lines > 1,
         word_wrap = not params.lines or params.lines > 1,
@@ -54,7 +58,7 @@ function TextBoxBase:init(parent, params)
 	self.btn = params.btn or "0"
     self.history = {params.value and self.text:text()}
  	self.text:enter_text(callback(self, TextBoxBase, "enter_text"))
- 	self.update_text = params.update_text or function(self, ...) self.owner:_SetValue(...) end
+ 	self.update_text = params.update_text or ClassClbk(self.owner, "TextBoxSetValue")
 end
 
 function TextBoxBase:PostInit()
@@ -70,9 +74,16 @@ function TextBoxBase:DoHighlight(highlight)
     local color = self:GetForeground(highlight)
     local caret = self.panel:child("caret")
     if caret then
-        play_color(caret, color:with_alpha(1))
-        play_color(self.panel:child("line"), self.line_color or color)
-        play_anim(self.panel:child("text"), {set = {color = color, selection_color = color:with_alpha(0.5)}})
+        if self.owner.animate_colors then
+            play_color(caret, color:with_alpha(1))
+            play_color(self.panel:child("line"), self.line_color or color)
+            play_anim(self.panel:child("text"), {set = {color = color, selection_color = color:with_alpha(0.5)}})
+        else
+            caret:set_color(color:with_alpha(1))
+            self.panel:child("line"):set_color(self.line_color or color)
+            self.panel:child("text"):set_color(color)
+            self.panel:child("text"):set_selection_color(color:with_alpha(0.5))    
+        end
     end
 end
 
@@ -87,17 +98,22 @@ end
 function TextBoxBase:CheckText(text, no_clbk)
     if self.filter == "number" then
         if tonumber(text:text()) ~= nil then
-            self:update_text(self:tonumber(text:text()), not no_clbk, true)
+            self.update_text(self:tonumber(text:text()), not no_clbk, true)
         else
-            self:update_text(self:tonumber(self:one_point_back()), not no_clbk, true)
+            self.update_text(self:tonumber(self:one_point_back()), not no_clbk, true)
         end
     else
-        self:update_text(text:text(), not no_clbk, true)
+        self.update_text(text:text(), not no_clbk, true)
     end
 end
  
 function TextBoxBase:tonumber(text)
-    return tonumber(string.format("%." .. self.owner.floats .. "f", (text or 0)))
+    text = text or 0
+    if self.owner.floats then
+        return tonumber(string.format("%." .. self.owner.floats .. "f", text))
+    else
+        return tonumber(text)
+    end
 end
 
 function TextBoxBase:key_hold(text, k)
@@ -116,7 +132,7 @@ function TextBoxBase:key_hold(text, k)
                 end
                 text:replace_text(tostring(Application:get_clipboard()))
                 self:add_history_point(text:text())
-                self:update_text(text:text(), true, true, true)
+                self.update_text(text:text(), true, true, true)
             elseif shift() then
                 if KB:Down(Idstring("left")) then text:set_selection(s - 1, e)
                 elseif KB:Down(Idstring("right")) then text:set_selection(s, e + 1) end
@@ -128,7 +144,7 @@ function TextBoxBase:key_hold(text, k)
                     local new_point = point and point + (z and -1 or 1)
                     if new_point > 0 then
                         self.history_point = new_point < #self.history and new_point or nil
-                        self:update_text(self.history[new_point], true, true, true)
+                        self.update_text(self.history[new_point], true, true, true)
                     end
                 end
             end
@@ -140,8 +156,8 @@ function TextBoxBase:key_hold(text, k)
                     end
                     text:replace_text("")
                     self:add_history_point(text:text())
-                    if (self.owner.filter ~= "number") or (text:text() ~= "" and self:fixed_text(text:text()) == text:text()) then
-                        self:update_text(text:text(), true, false, true)
+                    if (text:text() ~= "" and self:fixed_text(text:text()) == text:text()) then
+                        self.update_text(text:text(), true, false, true)
                     end
                 end
             elseif k == Idstring("left") then
@@ -191,7 +207,12 @@ function TextBoxBase:fixed_text(text)
 	if self.owner.filter == "number" then
 		local num = tonumber(text) 
         if num then
-		    return string.format("%." .. self.owner.floats .."f", math.clamp(num, self.owner.min or num, self.owner.max or num))
+            local clamp = math.clamp(num, self.owner.min or num, self.owner.max or num)
+            if self.owner.floats then
+                return string.format("%." .. self.owner.floats .."f", clamp)
+            else
+                return clamp
+            end
         end
 	else
 		return text
@@ -213,7 +234,7 @@ function TextBoxBase:enter_text(text, s)
         self:add_history_point(number and (tonumber(text:text()) or self:one_point_back()) or text:text())
         self:update_caret()
         if self:fixed_text(text:text()) == text:text() then
-            self:update_text(text:text(), true, false, true)
+            self.update_text(text:text(), true, false, true)
         end
     end
 end
@@ -273,8 +294,12 @@ function TextBoxBase:update_caret()
     self.caret_visible = self.cantype
 end
 
+function TextBoxBase:alive()
+    return alive(self.panel) and alive(self.panel:child("text"))
+end
+
 function TextBoxBase:MousePressed(button, x, y)
-    if not alive(self.panel) or not alive(self.panel:child("text")) then
+    if not self:alive() then
         return
     end
     local text = self.panel:child("text")
@@ -282,6 +307,9 @@ function TextBoxBase:MousePressed(button, x, y)
     self.cantype = text:inside(x,y) and button == Idstring(self.btn)
     if self.cantype then
         BeardLib:AddUpdater("CheckMouseOut"..tostring(self), function()
+            if not self:alive() then
+                BeardLib:RemoveUpdater("CheckMouseOut"..tostring(self))
+            end
             local x,y = managers.mouse_pointer:world_position()
             local cantype = self.cantype
             if x ~= self._old_x or y ~= self._old_y then
@@ -304,7 +332,7 @@ function TextBoxBase:MousePressed(button, x, y)
         self:update_caret()
         return true
     elseif cantype == true and self.cantype == false then
-        self:update_text(text:text(), false, true, true)
+        self.update_text(text:text(), false, true, true)
         return true
     end
 end

@@ -1,4 +1,5 @@
 local F = table.remove(RequiredScript:split("/"))
+local Hooks = Hooks
 if F == "weaponfactorymanager" then
     --Custom weapons crash fix based of Rokk's mod.
     --I wish I could make a warning dialog for custom weapon crash fix but you'd need to pause the save manager or something..
@@ -11,14 +12,21 @@ if F == "weaponfactorymanager" then
         end
         return orig_unpack(self, factory_id, ...)
     end
+
     local orig_has = WeaponFactoryManager.has_perk
     function WeaponFactoryManager:has_perk(perk_name, factory_id, blueprint, ...)
+        local factory = tweak_data.weapon.factory
+
         for _, part_id in pairs(blueprint) do
-            if not tweak_data.weapon.factory.parts[part_id] then
+            if not factory.parts[part_id] then
                 BeardLib:log("[Fixes][Warning] Weapon mod with the ID '%s' was found in the save but was missing, the weapon mod will be deleted from the save", tostring(part_id))
                 return false
+            elseif type(factory.parts[part_id].perks) == "string" then
+                BeardLib:log("[Fixes][Warning] Perks value is a string when it's supposed to be a table, weapon mod id %s, perk value %s", tostring(part_id), tostring(factory.parts[part_id].perks))
+                factory.parts[part_id].perks = {factory.parts[part_id].perks}
             end
         end
+
         return orig_has(self, perk_name, factory_id, blueprint, ...)
     end
     --https://github.com/simon-wh/PAYDAY-2-BeardLib/issues/112
@@ -128,4 +136,17 @@ elseif F == "coresoundenvironmentmanager" then
     function CoreSoundEnvironmentManager:ambience_events()
         return {""}
     end
+elseif F == "coremenuitemslider" then
+    core:module("CoreMenuItemSlider")
+    --Although slider is supposed to have 5 decimal points(based on decomp), it's 2 by default.
+    Hooks:PostHook(ItemSlider, "init", "BeardLibSliderInit", function(self, row_item)
+        self._decimal_count = 2
+    end)
+
+    --Weirdly the decimal count value is broken, this fixes it.
+    Hooks:PostHook(ItemSlider, "reload", "BeardLibSliderReload", function(self, row_item)
+        if row_item then
+            row_item.gui_slider_text:set_text(self:show_value() and self:value_string() or string.format("%.0f", self:percentage()) .. "%")
+        end
+    end)
 end

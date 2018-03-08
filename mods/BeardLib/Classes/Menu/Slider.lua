@@ -7,7 +7,7 @@ function Slider:Init()
 	Slider.super.Init(self)
     self.step = self.step or 1
     self.value = tonumber(self.value) or 0
-    self.floats = self.floats or 2
+    self:WorkParam("floats", 3)
     self.filter = "number"
     self.min = self.min or 0
     self.max = self.max or self.min
@@ -73,18 +73,18 @@ function Slider:SetStep(step)
     self.step = step
 end
 
-function Slider:_SetValue(value, run_callback, reset_selection, no_format)  
+function Slider:TextBoxSetValue(value, run_callback, reset_selection, no_format)  
     value = tonumber(value) or 0 
     if self.max or self.min then
         value = math.clamp(value, self.min, self.max)    
     end      
-    value = tonumber(not no_format and format or value)     
-    local format = string.format("%." .. self.floats .. "f", value)
+    value = tonumber(not no_format and format or value)
+    local final_number = self.floats and string.format("%." .. self.floats .. "f", value) or tostring(value)
     local text = self._textbox.panel:child("text")
     self.sfg:set_w(self.sbg:w() * ((value - self.min) / (self.max - self.min)))
     self._slider:child("circle"):set_center(self.sfg:right(), self.sfg:center_y())
     if not no_format then
-        text:set_text(format)
+        text:set_text(final_number)
     end
      if reset_selection then
         text:set_selection(text:text():len())
@@ -100,7 +100,7 @@ function Slider:SetValue(value, ...)
     if self.value ~= value then
         self._textbox:add_history_point(value)
     end
-    self:_SetValue(value, ...)
+    self:TextBoxSetValue(value, ...)
     return true
 end
 
@@ -127,9 +127,15 @@ function Slider:DoHighlight(highlight)
     self._textbox:DoHighlight(highlight)
     local fgcolor = self:GetForeground(highlight)
     if self.sfg then
-        play_color(self.sfg, fgcolor)
-        play_color(self.sbg, fgcolor:with_alpha(0.25))
-        play_color(self.circle, fgcolor)
+        if self.animate_colors then
+            play_color(self.sfg, fgcolor)
+            play_color(self.sbg, fgcolor:with_alpha(0.25))
+            play_color(self.circle, fgcolor)
+        else
+            self.sfg:set_color(fgcolor)
+            self.sbg:set_color(fgcolor:with_alpha(0.25))
+            self.circle:set_color(fgcolor)
+        end
     end
 end
 
