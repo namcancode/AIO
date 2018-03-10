@@ -11,7 +11,7 @@
 	auto_image_color="true"
 	mod_override_dir="assets/mod_overrides/">
 	<load_modules>
-		<AssetUpdates id="14924" version="2.86" provider="modworkshop" use_local_dir="true" use_local_path="true" important="true"/>
+		<AssetUpdates id="14924" version="2.87" provider="modworkshop" use_local_dir="true" use_local_path="true" important="true"/>
 		<AddFiles directory="Assets">
 			<texture path="guis/textures/menu_ui_icons"/>
 			<texture path="guis/textures/beardlib_logo"/>
@@ -68,6 +68,7 @@
 	<hooks>
 		<hook source="lib/units/beings/player/huskplayermovement" file="NetworkHooks.lua"/>
 	    <hook source="lib/units/beings/player/playerinventory" file="NetworkHooks.lua"/>
+	    <hook source="lib/units/weapons/newraycastweaponbase" file="NetworkHooks.lua"/>
 		
 	 	<hook source="lib/network/base/handlers/connectionnetworkhandler" file="Fixes.lua"/>
 		<hook source="core/lib/managers/menu/items/coremenuitemslider" file="Fixes.lua"/>
