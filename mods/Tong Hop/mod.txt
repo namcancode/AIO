@@ -3,7 +3,7 @@
 	"description"	:   "Mod hay dung va huu ich nhat",
 	"author"   :   "NamBoss",
 	"blt_version" : 2,
-	"version" : "1.8",
+	"version" : "1.9",
 	"color" : "0.4 0.1 1",
 	"image" : "nam.png",
 	"updates" : [
@@ -45,8 +45,7 @@
 	    [
 	        {"global" : "inventory", "script_path" : "inventory.lua"},
 	        {"global" : "FloatingHealthBars_initialized", "script_path" : "healbar.lua"},
-	        {"global" : "SetVideo", "script_path" : "fixfps.lua"},
-	        {"global" : "OverkillSucksAtProgramming", "script_path" : "fixfps2.lua" }
+	        {"global" : "SetVideo", "script_path" : "fixfps.lua"}
 	    ],
 	"keybinds" : [
 		{
