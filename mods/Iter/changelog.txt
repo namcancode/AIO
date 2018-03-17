@@ -1,3 +1,9 @@
+Revision 85:
+- added code to prevent asking again and again blocked/impossible coarse paths
+
+Revision 84:
+- added code to improve cop movement (it's a gameplay change so this can only be enabled through FSS's option menu)
+
 Revision 83:
 - [Reservoir Dogs D1] fixed navigation when a fence locker is shot open
 

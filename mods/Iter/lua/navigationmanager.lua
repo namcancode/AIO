@@ -526,6 +526,8 @@ if Iter.settings.streamline_path then
 	end
 
 	NavigationManager.itr_navlink_coef = 600
+	NavigationManager.itr_coarse_fail_retry_t = 3
+	NavigationManager.itr_coarse_failures = {}
 	function NavigationManager:_execute_coarce_search(search_data)
 		local navlink_coef = self.itr_navlink_coef
 		local access_pos = search_data.access_pos
@@ -534,11 +536,19 @@ if Iter.settings.streamline_path then
 		local next_seg_id = search_data.start_i_seg
 		local end_i_seg = search_data.end_i_seg
 		local verify_clbk = search_data.verify_clbk
+
+		local fail_key = tostring(access_pos) .. ';' .. next_seg_id .. ';' .. end_i_seg
+		local fail_t = self.itr_coarse_failures[fail_key]
+		local t = TimerManager:game():time()
+		if fail_t and t - fail_t < self.itr_coarse_fail_retry_t then
+			return false
+		end
+
 		local potential_paths = {}
 		local seg_to_search = {}
 		local discovered_seg = {
 			[next_seg_id] = {
-				path = '' .. next_seg_id,
+				path = tostring(next_seg_id),
 				delay = 0,
 				steps_nr = 0,
 				coarse_dis = 0,
@@ -636,6 +646,7 @@ if Iter.settings.streamline_path then
 			return search_data.results_callback and path or self:itr_streamline(path)
 		end
 
+		self.itr_coarse_failures[fail_key] = t
 		return false
 	end
 

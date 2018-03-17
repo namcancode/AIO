@@ -1,11 +1,13 @@
 local key = ModPath .. '	' .. RequiredScript
 if _G[key] then return else _G[key] = true end
 
+local fs_settings = FullSpeedSwarm and FullSpeedSwarm.settings or {}
+
 local itr_original_coplogictravel_enter = CopLogicTravel.enter
 function CopLogicTravel.enter(data, ...)
 	itr_original_coplogictravel_enter(data, ...)
 
-	if data.is_converted then
+	if data.is_converted or fs_settings.iter_chase then
 		data.internal_data.path_ahead = true
 	end
 end
