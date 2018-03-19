@@ -1,4 +1,7 @@
-﻿Revision 63:
+﻿Revision 64:
+- added thai translation by NewPJzuza
+
+Revision 63:
 - prevent a crash when bogus outfit data is received
 
 Revision 62:

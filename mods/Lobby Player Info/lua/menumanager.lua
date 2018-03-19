@@ -103,24 +103,40 @@ function LobbyPlayerInfo:Save()
 end
 
 Hooks:Add('LocalizationManagerPostInit', 'LocalizationManagerPostInit_LobbyPlayerInfo', function(loc)
-	if _G.PD2KR then
-		LobbyPlayerInfo._abbreviation_length_v = 2
-		loc:load_localization_file(LobbyPlayerInfo._path .. 'loc/korean.txt')
+	local language_filename
 
-	elseif BLT.Localization._current == 'cht' or BLT.Localization._current == 'zh-cn' then
+	if BLT.Localization._current == 'cht' or BLT.Localization._current == 'zh-cn' then
 		LobbyPlayerInfo._abbreviation_length_v = 2
-		loc:load_localization_file(LobbyPlayerInfo._path .. 'loc/chinese.txt')
+		language_filename = 'chinese.txt'
+	end
 
-	else
-		for _, filename in pairs(file.GetFiles(LobbyPlayerInfo._path .. 'loc/')) do
-			local str = filename:match('^(.*).txt$')
-			if str and Idstring(str) and Idstring(str):key() == SystemInfo:language():key() then
-				loc:load_localization_file(LobbyPlayerInfo._path .. 'loc/' .. filename)
+	if not language_filename then
+		local modname_to_language = {
+			['Payday 2 Korean patch'] = 'korean.txt',
+			['PAYDAY 2 THAI LANGUAGE Mod'] = 'thai.txt',
+		}
+		for _, mod in pairs(BLT and BLT.Mods:Mods() or {}) do
+			language_filename = mod:IsEnabled() and modname_to_language[mod:GetName()]
+			if language_filename then
+				LobbyPlayerInfo._abbreviation_length_v = 2
 				break
 			end
 		end
 	end
 
+	if not language_filename then
+		for _, filename in pairs(file.GetFiles(LobbyPlayerInfo._path .. 'loc/')) do
+			local str = filename:match('^(.*).txt$')
+			if str and Idstring(str) and Idstring(str):key() == SystemInfo:language():key() then
+				language_filename = filename
+				break
+			end
+		end
+	end
+
+	if language_filename then
+		loc:load_localization_file(LobbyPlayerInfo._path .. 'loc/' .. language_filename)
+	end
 	loc:load_localization_file(LobbyPlayerInfo._path .. 'loc/english.txt', false)
 end)
 

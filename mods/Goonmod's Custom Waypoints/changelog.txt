@@ -1,3 +1,6 @@
+Revision 26:
+- added thai translation by NewPJzuza
+
 Revision 25:
 - added stuff for Keepers
 

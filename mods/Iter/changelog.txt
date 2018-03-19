@@ -1,3 +1,6 @@
+Revision 86:
+- added thai translation by NewPJzuza
+
 Revision 85:
 - added code to prevent asking again and again blocked/impossible coarse paths
 
