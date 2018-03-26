@@ -1,3 +1,12 @@
+Revision 89:
+- [Car Shop] fixed computer bricked by ECM
+
+Revision 88:
+- [Bank Heist: X] made sure that AI can always enter the vault
+
+Revision 87:
+- [Safe House Raid] fixed spawn of civilian heister after a player has left
+
 Revision 86:
 - added thai translation by NewPJzuza
 

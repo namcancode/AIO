@@ -14,6 +14,9 @@
 	"itr_options_map_change_gallery_title" : "Art Gallery",
 	"itr_options_map_change_gallery_desc" : "added access to main hall when front doors are closed",
 
+	"itr_options_map_change_branchbank_title" : "Bank Heist: X",
+	"itr_options_map_change_branchbank_desc" : "made sure that AI can always enter the vault",
+
 	"itr_options_map_change_pbr_title" : "Beneath The Mountain",
 	"itr_options_map_change_pbr_desc" : "fixed AI access to 2 entrance control rooms",
 
@@ -28,6 +31,9 @@
 
 	"itr_options_map_change_brb_title" : "Brooklyn Bank",
 	"itr_options_map_change_brb_desc" : "fixed navigation in the sewers entrance",
+
+	"itr_options_map_change_cage_title" : "Car Shop",
+	"itr_options_map_change_cage_desc" : "fixed computer bricked by ECM",
 
 	"itr_options_map_change_rat_title" : "Cook Off",
 	"itr_options_map_change_rat_desc" : "added roof access to the bots",

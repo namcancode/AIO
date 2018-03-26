@@ -34,6 +34,7 @@ CustomWaypoints.interactive_units_white_list = {
 	[Idstring('units/equipment/c4_charge/c4_plantable'):t()] = true,
 	[Idstring('units/equipment/garden_tap_interactive/hose_end_interactive_suburbia'):t()] = true,
 	[Idstring('units/payday2/architecture/res_ext_apartment/res_pipes_valve'):t()] = true,
+	[Idstring('units/payday2/equipment/gen_interactable_drill_small/gen_interactable_drill_small'):t()] = true,
 	[Idstring('units/payday2/equipment/gen_interactable_lance_huge/gen_interactable_lance_huge'):t()] = true,
 	[Idstring('units/payday2/equipment/gen_interactable_zipline/gen_interactable_zipline_mount_ground'):t()] = true,
 	[Idstring('units/payday2/equipment/item_door_drill_small/item_door_drill_small'):t()] = true,

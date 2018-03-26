@@ -268,6 +268,22 @@
 		},
 		{
 			"type" : "toggle",
+			"id" : "map_change_branchbank",
+			"title" : "itr_options_map_change_branchbank_title",
+			"description" : "itr_options_map_change_branchbank_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "map_change_branchbank"
+		},
+		{
+			"type" : "toggle",
+			"id" : "map_change_cage",
+			"title" : "itr_options_map_change_cage_title",
+			"description" : "itr_options_map_change_cage_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "map_change_cage"
+		},
+		{
+			"type" : "toggle",
 			"id" : "map_change_watchdogs_1",
 			"title" : "itr_options_map_change_watchdogs_1_title",
 			"description" : "itr_options_map_change_watchdogs_1_desc",

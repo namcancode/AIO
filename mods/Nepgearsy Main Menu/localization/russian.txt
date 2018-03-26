@@ -11,6 +11,8 @@
 	"NepgearsyMM_LanguageSelection_Spanish" : "Español",
 	"NepgearsyMM_LanguageSelection_French" : "French",
 	"NepgearsyMM_LanguageSelection_SChinese" : "Simplified Chinese",
+	"NepgearsyMM_LanguageSelection_Portuguese" : "Portuguese",
+	"NepgearsyMM_LanguageSelection_Thai" : "Thai",
 
 	"nepmenu_exp_needed_text" : "$exp опыта необходимо для получения $nextlevel-ого уровня",
 	"nepmenu_exp_max_level_reached" : "ДОСТИГНУТ МАКСИМАЛЬНЫЙ УРОВЕНЬ",
@@ -55,7 +57,7 @@
 	"nepmenu_friendlist_button_join_game" : "Присоединиться",
 	"nepmenu_friendlist_button_invite" : "Пригласить",
 	"nepmenu_friendlist_button_send_message" : "Отправить сообщение",
-	"nepmenu_friendlist_button_view_loadout" : "View player profile",
+	"nepmenu_friendlist_button_view_loadout" : "Посмотреть профиль игрока",
 
 	"NepgearsyMM_SceneOptions_Title" : "Настройки сцены меню",
 	"NepgearsyMM_SceneOptions_Desc" : "Все, что связано со сценой, например, положение персонажа - вращение, свет...",

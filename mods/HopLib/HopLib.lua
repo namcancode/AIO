@@ -12,21 +12,23 @@ if not HopLib then
   HopLib.mod_path = ModPath
   HopLib.save_path = SavePath
   
+  HopLib.language_keys = {
+    [Idstring("english"):key()] = "english",
+    [Idstring("german"):key()] = "german",
+    [Idstring("french"):key()] = "french",
+    [Idstring("italian"):key()] = "italian",
+    [Idstring("spanish"):key()] = "spanish",
+    [Idstring("russian"):key()] = "russian",
+    [Idstring("dutch"):key()] = "dutch",
+    [Idstring("swedish"):key()] = "swedish"
+  }
+  
   -- Returns the current NameProvider instance
   function HopLib:name_provider()
     if not self._name_provider then
       self._name_provider = NameProvider:new()
     end
     return self._name_provider
-  end
-  
-  -- Replaces the default NameProvider with a custom one
-  function HopLib:set_name_provider(provider)
-    if (self:is_object_of_class(provider, NameProvider)) then
-      self._name_provider = provider
-    else
-      log("[HopLib] ERROR: Trying to use an object as name provider that isn't inherited from NameProvider!")
-    end
   end
   
   -- Returns the current UnitInfoManager instance
@@ -39,6 +41,9 @@ if not HopLib then
   
   -- Checks if an object is of a certain class, either directly or by inheritance
   function HopLib:is_object_of_class(object, c)
+    if object == c then
+      return true
+    end
     local m = getmetatable(object)
     while m do
        if m == c then
@@ -47,6 +52,11 @@ if not HopLib then
        m = m.super
     end
     return false
+  end
+  
+  -- Returns the language of the game
+  function HopLib:get_game_language()
+    return self.language_keys[SystemInfo:language():key()] or "english"
   end
 
 end

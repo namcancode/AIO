@@ -23,6 +23,31 @@ function NavigationManager:unregister_anim_nav_link(element)
 	end
 end
 
+local itr_original_navigationmanager_clbknavfield = NavigationManager.clbk_navfield
+function NavigationManager:clbk_navfield(event_name, args, args2, args3)
+	local fuckery
+	if event_name == 'add_nav_seg_neighbours' then
+		for nav_seg_id in pairs(args) do
+			local nav_seg = self._nav_segments[nav_seg_id]
+			if not nav_seg.disabled_neighbours then
+				nav_seg.disabled_neighbours = {}
+				fuckery = true
+			end
+		end
+	end
+
+	itr_original_navigationmanager_clbknavfield(self, event_name, args, args2, args3)
+
+	if fuckery then
+		for nav_seg_id, add_neighbours in pairs(args) do
+			local nav_seg = self._nav_segments[nav_seg_id]
+			if nav_seg.disabled_neighbours and not next(nav_seg.disabled_neighbours) then
+				nav_seg.disabled_neighbours = nil
+			end
+		end
+	end
+end
+
 if Iter.settings.streamline_path then
 
 	function NavigationManager:itr_get_all_doors_of_segment(segment_id)

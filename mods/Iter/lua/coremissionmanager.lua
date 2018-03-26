@@ -14,6 +14,7 @@ Iter.settings = {
 	map_change_born = true,
 	map_change_branchbank = true,
 	map_change_brb = true,
+	map_change_cage = true,
 	map_change_cane = true,
 	map_change_chew = true,
 	map_change_chill_combat = true,
@@ -844,6 +845,14 @@ elseif level_id == 'chill_combat' then
 			end
 		end
 
+		for _, element in pairs(data.elements) do
+			if element.class == 'ElementPlayerCharacterTrigger' then
+				if element.values.trigger_on_left then
+					element.values.enabled = false
+				end
+			end
+		end
+
 		itr_original_missionmanager_addscript(self, data)
 	end
 
@@ -1028,6 +1037,45 @@ elseif level_id == 'brb' then
 		itr_original_missionmanager_addscript(self, data)
 	end
 
+elseif level_id == 'branchbank' then
+
+	function MissionManager:_add_script(data)
+		table.insert(itr_custom_elements, 106000)
+		table.insert(itr_custom_elements, 106001)
+
+		local element106000 = {
+			id = 106000,
+			class = 'ElementAINavSeg',
+			values = {
+				enabled = true,
+				operation = 'add_nav_seg_neighbours',
+				base_delay = 0,
+				on_executed = {},
+				execute_on_startup = false,
+				trigger_times = 0,
+				segment_ids = { 92, 55, 55, 92 }
+			},
+			editor_name = 'ITR_add_link1'
+		}
+		table.insert(data.elements, element106000)
+
+		local element106001 = CoreTable.deep_clone(element106000)
+		element106001.id = 106001
+		element106001.values.segment_ids = { 93, 56, 56, 93 }
+		element106001.editor_name = 'ITR_add_link2'
+		table.insert(data.elements, element106001)
+
+		for _, element in pairs(data.elements) do
+			if element.id == 102160 then
+				table.insert(element.values.on_executed, { delay = 0, id = 106000 })
+			elseif element.id == 100311 then
+				table.insert(element.values.on_executed, { delay = 0, id = 106001 })
+			end
+		end
+
+		itr_original_missionmanager_addscript(self, data)
+	end
+
 elseif level_id == 'rvd1' then
 
 	function MissionManager:_add_script(data)
@@ -1038,6 +1086,43 @@ elseif level_id == 'rvd1' then
 		end
 
 		itr_original_missionmanager_addscript(self, data)
+	end
+
+elseif level_id == 'cage' then
+
+	function MissionScript:_create_elements(elements)
+		local toggle_outlines_off = {}
+		local un_jam = {
+			[130022] = 130040,
+			[130322] = 130340,
+			[130622] = 130640,
+			[130922] = 130940,
+			[131222] = 131240,
+			[131522] = 131540,
+			[131822] = 131840,
+			[132122] = 132140,
+			[132422] = 132440,
+			[132722] = 132740,
+			[133022] = 133040,
+			[133322] = 133340,
+			[133622] = 133640,
+			[133922] = 133940,
+			[134222] = 134240,
+			[134522] = 134540,
+			[134822] = 134840
+		}
+		for k, v in pairs(un_jam) do
+			toggle_outlines_off[v] = true
+		end
+		for _, element in pairs(elements) do
+			if toggle_outlines_off[element.id] then
+				element.values.toggle = nil
+			elseif un_jam[element.id] then
+				table.insert(element.values.on_executed, { delay = 0, id = un_jam[element.id] } )
+			end
+		end
+
+		return itr_original_missionscript_createelements(self, elements)
 	end
 
 elseif level_id == 'firestarter_1' then
