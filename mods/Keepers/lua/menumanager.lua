@@ -41,7 +41,7 @@ Keepers.settings = {
 	show_my_joker_name = true,
 	send_my_joker_name = true,
 	show_other_jokers_names = true,
-	my_joker_name = 'My Joker',
+	my_joker_name = 'Cave',
 	jokers_run_like_teamais = true,
 	icon_revive = 'wp_revive'
 }
@@ -107,7 +107,7 @@ function Keepers:GetJokerNameByPeer(peer_id)
 		return name
 	elseif not self.settings.show_other_jokers_names then
 		return ''
-	elseif name == 'My Joker' or name == '' then
+	elseif name == 'Cave' or name == '' then
 		local peer = managers.network:session():peer(peer_id)
 		if peer then
 			name = "X"
@@ -138,12 +138,6 @@ function Keepers:SetJokerLabel(unit)
 	local radial_health = name_label.panel:bitmap({
 		name = 'bag',
 		texture = 'guis/textures/pd2/hud_health',
-		texture_rect = {
-			128,
-			0,
-			-128,
-			128
-		},
 		render_template = 'VertexColorTexturedRadial',
 		blend_mode = 'add',
 		alpha = 1,
@@ -589,14 +583,31 @@ Hooks:Add('BaseNetworkSessionOnLoadComplete', 'BaseNetworkSessionOnLoadComplete_
 end)
 
 Hooks:Add('LocalizationManagerPostInit', 'LocalizationManagerPostInit_KPR', function(loc)
-	for _, filename in pairs(file.GetFiles(Keepers.path .. 'loc/') or {}) do
-		local str = filename:match('^(.*).txt$')
-		if str and Idstring(str) and Idstring(str):key() == SystemInfo:language():key() then
-			loc:load_localization_file(Keepers.path .. 'loc/' .. filename)
+	local language_filename
+
+	local modname_to_language = {
+		['PAYDAY 2 THAI LANGUAGE Mod'] = 'thai.txt',
+	}
+	for _, mod in pairs(BLT and BLT.Mods:Mods() or {}) do
+		language_filename = mod:IsEnabled() and modname_to_language[mod:GetName()]
+		if language_filename then
 			break
 		end
 	end
 
+	if not language_filename then
+		for _, filename in pairs(file.GetFiles(Keepers.path .. 'loc/')) do
+			local str = filename:match('^(.*).txt$')
+			if str and Idstring(str) and Idstring(str):key() == SystemInfo:language():key() then
+				language_filename = filename
+				break
+			end
+		end
+	end
+
+	if language_filename then
+		loc:load_localization_file(Keepers.path .. 'loc/' .. language_filename)
+	end
 	loc:load_localization_file(Keepers.path .. 'loc/english.txt', false)
 end)
 

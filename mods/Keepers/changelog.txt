@@ -1,3 +1,10 @@
+Revision 129:
+- added thai translation by NewPJzuza
+
+Revision 128:
+- removed obsolete code
+- fixed a graphical glitch with MUI Optional Assets
+
 Revision 127:
 - use proper revive objective when a bot is ordered with a manually set waypoint (not using prev/next functions)
 
