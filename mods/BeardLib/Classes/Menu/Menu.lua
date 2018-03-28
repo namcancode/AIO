@@ -11,7 +11,7 @@ function Menu:Init(params)
         visible = self.visible == true,
         layer = self.layer or 1,
     })
-    self.bg = self.panel:rect({
+    self.bg = self.panel:bitmap({
         name = "background",
         halign = "grow",
         valign = "grow",
@@ -24,10 +24,11 @@ function Menu:Init(params)
     })
     self._scroll = ScrollablePanelModified:new(self.panel, "ItemsPanel", {
         layer = 4,
-        padding = 0.0001, 
+        padding = 0, 
         scroll_width = self.scrollbar == false and 0 or self.scroll_width, 
         hide_shade = true, 
         color = self.scroll_color or self.highlight_color,
+        hide_scroll_background = self.hide_scroll_background,
         scroll_speed = self.scroll_speed
     })
     self.items_panel = self._scroll:canvas()
@@ -241,43 +242,16 @@ function Menu:SetVisible(visible, animate, no_align)
     self.menu:CheckOpenedList()
 end
 
-function Menu:AlignItemsGrid()
-    if not self:alive() then
-        return
-    end
-    local prev_item
-    local max_h = 0
-    local max_x = 0
-    local max_y = 0
-    for i, item in pairs(self._my_items) do
-        if not item.ignore_align and item:Visible() then
-            local offset = item:Offset()
-            local panel = item:Panel()
-            if panel:w() + (max_x + offset[1]) - self:ItemsWidth() > 0.001 then
-                max_y = max_h
-                max_x = 0
-            end
-            panel:set_position(max_x + offset[1], max_y + offset[2])
-            local repos = item:Reposition()
-            if not repos or item.count_as_aligned then
-                prev_item = item
-                max_x = math.max(max_x, panel:right())
-            end
-            if (not repos or item.count_as_aligned or item.count_height) then
-                max_h = math.max(max_h, panel:bottom())
-            end
-        end
-    end    
-    max_h = max_h + self:TextHeight() + (self.last_y_offset or (prev_item and prev_item:Offset()[2] or 0))
-    if self.auto_height and self.h ~= max_h then
-        self:_SetSize(nil, max_h, true)
-    end
-    self:UpdateCanvas()
-end
+local align_methods = {
+    grid = "AlignItemsGrid",
+    normal = "AlignItemsNormal",
+    reversed = "AlignItemsReversed",
+    reversed_grid = "AlignItemsReversedGrid"
+}
 
 function Menu:AlignItems(menus)
-    if self.align_method == "grid" then
-        self:AlignItemsGrid()
+    if self.align_method and align_methods[self.align_method] then
+        self[align_methods[self.align_method]](self)
     else
         self:AlignItemsNormal()
     end
@@ -293,13 +267,22 @@ function Menu:AlignItems(menus)
     end
 end
 
+function Menu:AlignItemsPost(max_h, prev_item)
+    max_h = max_h + self:TextHeight() + (self.last_y_offset or (prev_item and prev_item:Offset()[2] or 0))
+    if self.auto_height and self.h ~= max_h then
+        self:_SetSize(nil, max_h, true)
+    end
+    self:UpdateCanvas()
+end
+
 function Menu:AlignItemsNormal()
     if not self:alive() then
         return
     end
     local max_h = 0
     local prev_item
-    for i, item in pairs(self._my_items) do
+    local last_positioned_item
+    for _, item in pairs(self._my_items) do
         if not item.ignore_align and item:Visible() then
             local offset = item:Offset()
             local panel = item:Panel()
@@ -308,7 +291,10 @@ function Menu:AlignItemsNormal()
             if alive(prev_item) then
                 panel:set_world_y(prev_item:Panel():world_bottom() + offset[2])
             end
-            local repos = item:Reposition()
+            local repos = item:Reposition(last_positioned_item, prev_item)
+            if repos then
+                last_positioned_item = item
+            end
             if not repos or item.count_as_aligned then
                 prev_item = item
             end
@@ -317,11 +303,108 @@ function Menu:AlignItemsNormal()
             end
         end
     end
-    max_h = max_h + self:TextHeight() + (self.last_y_offset or (prev_item and prev_item:Offset()[2] or 0))
-    if self.auto_height and self.h ~= max_h then
-        self:_SetSize(nil, max_h, true)
+    self:AlignItemsPost(max_h, prev_item)
+end
+
+function Menu:AlignItemsReversed()
+    if not self:alive() then
+        return
     end
-    self:UpdateCanvas()
+    local max_h = 0
+    local prev_item
+    local last_positioned_item
+    for i=#self._my_items, 1, -1 do
+        local item = self._my_items[i]
+        if not item.ignore_align and item:Visible() then
+            local offset = item:Offset()
+            local panel = item:Panel()
+            panel:set_x(offset[1])
+            panel:set_y(offset[2])
+            if alive(prev_item) then
+                panel:set_world_y(prev_item:Panel():world_bottom() + offset[2])
+            end
+            local repos = item:Reposition(last_positioned_item, prev_item)
+            if repos then
+                last_positioned_item = item
+            end
+            if not repos or item.count_as_aligned then
+                prev_item = item
+            end
+            if not repos or item.count_as_aligned or item.count_height then
+                max_h = math.max(max_h, panel:bottom())
+            end
+        end
+    end
+    self:AlignItemsPost(max_h, prev_item)
+end
+
+function Menu:AlignItemsGrid()
+    if not self:alive() then
+        return
+    end
+    local prev_item
+    local last_positioned_item
+    local max_h = 0
+    local max_x = 0
+    local max_y = 0
+    for _, item in pairs(self._my_items) do
+        if not item.ignore_align and item:Visible() then
+            local offset = item:Offset()
+            local panel = item:Panel()
+            if panel:w() + (max_x + offset[1]) - self:ItemsWidth() > 0.001 then
+                max_y = max_h
+                max_x = 0
+            end
+            panel:set_position(max_x + offset[1], max_y + offset[2])
+            local repos = item:Reposition(last_positioned_item, prev_item)
+            if repos then
+                last_positioned_item = item
+            end
+            if not repos or item.count_as_aligned then
+                prev_item = item
+                max_x = math.max(max_x, panel:right())
+            end
+            if (not repos or item.count_as_aligned or item.count_height) then
+                max_h = math.max(max_h, panel:bottom())
+            end
+        end
+    end    
+    self:AlignItemsPost(max_h, prev_item)
+end
+
+function Menu:AlignItemsReversedGrid()
+    if not self:alive() then
+        return
+    end
+    local prev_item
+    local last_positioned_item
+    local max_h = 0
+    local max_x = 0
+    local max_y = 0
+    for i=#self._my_items, 1, -1 do
+        local item = self._my_items[i]
+        if not item.ignore_align and item:Visible() then
+            local offset = item:Offset()
+            local panel = item:Panel()
+            if panel:w() + (max_x + offset[1]) - self:ItemsWidth() > 0.001 then
+                max_y = max_h
+                max_x = 0
+            end
+            panel:set_position(max_x + offset[1], max_y + offset[2])
+            local repos = item:Reposition(last_positioned_item, prev_item)
+            if repos then
+                last_positioned_item = item
+            end
+            if not repos or item.count_as_aligned then
+                prev_item = item
+                max_x = math.max(max_x, panel:right())
+            end
+            if (not repos or item.count_as_aligned or item.count_height) then
+                max_h = math.max(max_h, panel:bottom())
+            end
+        end
+    end    
+    self:AlignItemsPost(max_h, prev_item)
 end
 
 function Menu:UpdateCanvas()
@@ -489,11 +572,11 @@ function Menu:Create(type, ...)
 end
 
 function Menu:ImageButton(params)
-    local w = params.w or not params.icon_h and params.items_size
-    local h = params.h or params.icon_h or params.items_size
+    local w = params.w or not params.icon_h and params.size
+    local h = params.h or params.icon_h or params.size
     local _params = self:ConfigureItem(params)
     _params.w = w or _params.w
-    _params.h = h or _params.h or _params.items_size
+    _params.h = h or _params.h or _params.size
     return self:NewItem(BeardLib.Items.ImageButton:new(_params))
 end
 

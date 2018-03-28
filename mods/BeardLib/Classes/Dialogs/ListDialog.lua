@@ -15,7 +15,7 @@ function ListDialog:init(params, menu)
     ListDialog.super.init(self, table.merge({
         h = params.main_h or 20,
         w = 900,
-        items_size = 20,
+        size = 20,
         offset = 0,
         align_method = "grid",
         position = function(item)
@@ -33,7 +33,7 @@ function ListDialog:init(params, menu)
         name = "List",        
         w = 900,
         h = params.h and params.h - self._menu.h or 600,
-        items_size = 18,
+        size = 18,
         auto_foreground = true,
         auto_align = false,
         background_color = self._menu.background_color,
@@ -56,7 +56,7 @@ function ListDialog:CreateShortcuts(params)
         help_localized = true,
         size_by_text = true,
         value = self._limit,
-        callback = function(menu, item)
+        on_callback = function(item)
             self._limit = item:Value()
             self:MakeListItems()
         end,  
@@ -70,7 +70,7 @@ function ListDialog:CreateShortcuts(params)
         help = "beardlib_match_case",
         help_localized = true,
         value = self._case_sensitive,
-        callback = function(menu, item)
+        on_callback = function(item)
             self._case_sensitive = item:Value()
             self:MakeListItems()
         end,  
@@ -92,24 +92,24 @@ function ListDialog:_Show(params)
         name = "Close",
         w = bw,
         offset = offset,
-        h = 20,
+        h = self._menu:H(),
         icon_w = 14,
         icon_h = 14,
         texture = "guis/textures/menu_ui_icons",
         texture_rect = {84, 89, 36, 36},
-        callback = callback(self, self, "hide"),  
+        on_callback = ClassClbk(self, "hide"),  
         label = "temp"
     })
     self._menu:TextBox({
         name = "Search",
-        w = self._menu:ItemsWidth() - close:Right() - offset[1],
+        w = self._menu:ItemsWidth() - close:Right(),
         control_slice = 0.86,
         focus_mode = true,
         auto_focus = true,
         index = 1,
         text = "beardlib_search",
         localized = true,
-        callback = callback(self, self, "Search"),  
+        on_callback = ClassClbk(self, "Search"),  
         label = "temp"
     })
     if params.sort ~= false then
@@ -161,7 +161,7 @@ function ListDialog:MakeListItems(params)
             menu:Button(table.merge(type(v) == "table" and v or {}, {
                 name = t,
                 text = t,
-                callback = function(menu, item)
+                on_callback = function(item)
                     if self._callback then
                         self._callback(v)
                     end
@@ -179,7 +179,7 @@ function ListDialog:ReloadInterface()
     self._list_menu:AlignItems(true)    
 end
 
-function ListDialog:Search(menu, item)
+function ListDialog:Search(item)
     self._filter = {}
     for _, s in pairs(string.split(item:Value(), ",")) do
         table.insert(self._filter, s)

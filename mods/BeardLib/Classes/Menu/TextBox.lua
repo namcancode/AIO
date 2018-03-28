@@ -11,7 +11,6 @@ function TextBox:Init()
 	self._textbox = BeardLib.Items.TextBoxBase:new(self, {
         panel = self.panel,
         lines = self.lines,
-		align = self.textbox_align,
 		focus_mode = self.focus_mode,
 		auto_focus = self.auto_focus,
         line_color = self.line_color or self.highlight_color,
@@ -65,7 +64,7 @@ end
 
 function TextBox:MousePressed(button, x, y)
 	if not self:MouseCheck(true) then
-		return
+		return false, true
 	end
 	if button == Idstring("1") and self.type_name == "NumberBox" and not self.no_slide and self._textbox.panel:inside(x,y) then
 		self.menu._slider_hold = self

@@ -27,7 +27,7 @@ function SelectListDialog:CreateShortcuts(...)
         help = "beardlib_tick_all",
         help_localized = true,
         w = bw,
-        callback = callback(self, self, "TickAllPresent", true),
+        on_callback = ClassClbk(self, "TickAllPresent", true),
         label = "temp"
     })
     self._menu:Button({
@@ -38,7 +38,7 @@ function SelectListDialog:CreateShortcuts(...)
         help = "beardlib_untick_all",
         help_localized = true,
         w = bw,
-        callback = callback(self, self, "TickAllPresent", false),
+        on_callback = ClassClbk(self, "TickAllPresent", false),
         label = "temp"
     })
     return offset, bw
@@ -48,9 +48,10 @@ function SelectListDialog:TickAllPresent(set)
     for _, item in pairs(self._visible_items) do
         if (set and item.can_be_ticked ~= false) or (not set and item.can_be_unticked ~= false) then
             item:SetValue(set, false)
-            item:RunCallback()
+            item:RunCallback(nil, true)
         end
     end
+    self:MakeListItems()
 end
 
 function SelectListDialog:ShowItem(t, selected)
@@ -84,7 +85,7 @@ function SelectListDialog:MakeListItems(params)
     self._list_menu:AlignItems(true)
 end
 
-function SelectListDialog:ToggleClbk(value, menu, item)
+function SelectListDialog:ToggleClbk(value, item, no_refresh)
     if self._single_select then
         for _,v in pairs(self._list) do
             local toggle = self._list_menu:GetItem(type(v) == "table" and v.name or v)
@@ -108,7 +109,9 @@ function SelectListDialog:ToggleClbk(value, menu, item)
             table.delete(self._selected_list, value)
         end
     end
-    self:MakeListItems()
+    if not no_refresh then
+        self:MakeListItems()
+    end
 end
 
 function SelectListDialog:ToggleItem(name, selected, value)
@@ -116,7 +119,7 @@ function SelectListDialog:ToggleItem(name, selected, value)
         name = name,
         text = name,
         value = selected,
-        callback = callback(self, self, "ToggleClbk", value),
+        on_callback = ClassClbk(self, "ToggleClbk", value),
         label = "list_items"
     }))
 end

@@ -15,14 +15,13 @@ function ComboBox:Init()
         name = "combo_bg",
         w = control_size,
         alpha = 0,
-        h = self.items_size,
+        h = self.size,
         layer = 1,
         color = self:GetForeground(),
     })
 	self._textbox = BeardLib.Items.TextBoxBase:new(self, {
         panel = self.panel,
         lines = 1,
-        align = self.textbox_align,
         line_color = self.line_color or self.highlight_color,
         w = self.panel:w() * (self.text == nil and 1 or self.control_slice),
         value = self:GetValueText(),
@@ -31,8 +30,8 @@ function ComboBox:Init()
     combo_bg:set_right(self.panel:w())
     self.icon = self.panel:bitmap({
         name = "icon_arrow",
-        w = self.items_size - 6,
-        h = self.items_size - 6,
+        w = self.size - 6,
+        h = self.size - 6,
         texture = "guis/textures/menu_ui_icons",
         texture_rect = {4,0,16,16},
         color = self:GetForeground(highlight),
@@ -63,12 +62,12 @@ function ComboBox:SetValue(value, run_callback, no_items_clbk)
     if not self:alive() then
 		return false
     end
-    if type(value) == "number" then
-        local v = self.items[value]
-        if run_callback and type(v) == "table" and not no_items_clbk and v.callback then
-            self:RunCallback(v.callback)
-        end
+    
+    local v = self.items[value]
+    if run_callback and not no_items_clbk and v and type(v) == "table" and v.on_callback then
+        self:RunCallback(v.on_callback)
     end
+
     ComboBox.super.SetValue(self, value, run_callback)
     self:UpdateValueText()
     return true
@@ -79,7 +78,7 @@ function ComboBox:GetValueText()
     if type(self.value) == "number" then
         text = self.items[self.value]
         text = type(text) == "table" and text.text or text
-        text = self.localized_items and text and managers.localization:text(text) or type(text) ~= "nil" and tostring(text) or ""
+        text = self.items_localized and text and managers.localization:text(text) or type(text) ~= "nil" and tostring(text) or ""
     elseif self.free_typing then
         text = self.value
     end
@@ -93,11 +92,11 @@ function ComboBox:UpdateValueText()
 end
 
 function ComboBox:SetSelectedItem(value, ...)
-    self:SetValue(table.get_key(self.items, value) or value, ...)
+    self:SetValue(table.get_key(self.items, value) or (self.free_typing and value or nil), ...)
 end
 
 function ComboBox:SelectedItem()
-    return tonumber(self.value) and self.items[self.value] or self.value
+    return self.items[self.value] or (self.free_typing and self.value or nil)
 end
 
 function ComboBox:DoHighlight(highlight)

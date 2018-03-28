@@ -7,7 +7,7 @@ function Item:Init(params)
 		visible = self.visible,
 		alpha = self.enabled and self.enabled_alpha or self.disabled_alpha,
 		w = self.w,
-		h = self.h or self.items_size,
+		h = self.h or self.size,
 	})
 	self:InitBasicItem()
 	if self.divider_type and alive(self.title) then
@@ -55,6 +55,7 @@ function Item:KeyPressed(o, k)
 	end
 end
 
+local mouse_1 = Idstring("1")
 function Item:MousePressed(button, x, y)
 	if not self.menu_type then
 	    for _, item in pairs(self._adopted_items) do
@@ -66,17 +67,19 @@ function Item:MousePressed(button, x, y)
     if not self:MouseCheck(true) then
         return
     end
-    if self:alive() and self:MouseInside(x,y) then
+	if self:alive() and self:MouseInside(x,y) then
         if button == Idstring("0") then
             self:RunCallback()
-            return true
-        elseif button == Idstring("1") then
-            if self._list then
-				self._list:show()
-			elseif self.second_callback then
-				self:RunCallback(self.second_callback)
-            end
-        end
+			return true
+		end
+		local right_click = button == mouse_1
+		if self._list and ((not self.open_list_key and right_click) or (self.open_list_key and button == self.open_list_key:id())) then
+			self._list:show()
+			return true
+		end
+		if self.on_right_click and (not self._list or self.open_list_key ~= mouse_1) then
+			self:RunCallback(self.on_right_click)
+		end
     end
 end
 
@@ -110,7 +113,7 @@ function Item:_SetText(text)
         local _,_,w,h = self.title:text_rect()
         self.title:set_h(math.clamp(h, self.min_height and self.min_height - offset_h or h, self.max_height and self.max_height - offset_h or h))
         if self.size_by_text then
-			local new_w = w + offset_w + (self.type_name == "Toggle" and self.items_size or 0)
+			local new_w = w + offset_w + (self.type_name == "Toggle" and self.size or 0)
 			local new_h = self.title:bottom() + offset_y
             self.panel:set_size(math.clamp(new_w, self.min_width or 0, self.max_width or new_w), math.clamp(new_h, self.min_height or 0, self.max_height or new_h))
             self.w, self.h = self.panel:size()
@@ -119,7 +122,7 @@ function Item:_SetText(text)
 		if self.SetScrollPanelSize then
             self:SetScrollPanelSize()
 		elseif not self.size_by_text and not self.h then
-			local new_h = math.max(self.title:bottom() + offset_y, self.items_size, self._textbox and alive(self._textbox.panel) and self._textbox.panel:h() or 0)
+			local new_h = math.max(self.title:bottom() + offset_y, self.size, self._textbox and alive(self._textbox.panel) and self._textbox.panel:h() or 0)
             self.panel:set_h(math.clamp(new_h, self.min_height or 0, self.max_height or new_h))
 		end
         return true
@@ -137,10 +140,6 @@ function Item:SetText(text)
 	if self.parent.auto_align then
 		self.parent:AlignItems()
 	end
-end
-
-function Item:DoHighlight(highlight)
-	local foreground = self:GetForeground(highlight)
 end
 
 function Item:DoHighlight(highlight)
@@ -222,6 +221,26 @@ function Item:MouseMoved(x, y)
             return false
         end
     end
+end
+
+function Item:AlignRight(last_item)
+	if last_item then
+		local p = last_item:Panel()
+		self:Panel():set_righttop(p:x() - self:OffsetX(), p:y())
+	else
+		self:SetPositionByString("RightTop")
+		self:Panel():move(-self:OffsetX(), self:OffsetY())
+	end
+end
+
+function Item:AlignLeft(last_item)
+	if last_item then
+		local p = last_item:Panel()
+		self:Panel():set_position(p:x() + self:OffsetX(), p:y())
+	else
+		self:SetPositionByString("LeftTop")
+		self:Panel():move(self:OffsetX(), self:OffsetY())
+	end
 end
 
 function Item:MouseReleased(button, x, y)

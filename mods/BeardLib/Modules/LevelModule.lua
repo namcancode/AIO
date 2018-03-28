@@ -35,6 +35,10 @@ function LevelModule:Load()
         end
     end
 
+    if self._config.sounds then --Sounds unload automatically.
+        SoundsModule:new(self._mod, self._config.sounds)
+    end
+
     if self._config.add then
         self._loaded_addfiles = AddFilesModule:new(self._mod, self._config.add)
         Global.level_data._add = Global.level_data._add or self._loaded_addfiles
@@ -90,14 +94,14 @@ function LevelModule:RegisterHook()
     if tweak_data and tweak_data.levels then    
         self:AddLevelDataToTweak(tweak_data.levels)
     else
-        Hooks:PostHook(LevelsTweakData, "init", self._config.id .. "AddLevelData", callback(self, self, "AddLevelDataToTweak"))
+        Hooks:PostHook(LevelsTweakData, "init", self._config.id .. "AddLevelData", ClassClbk(self, "AddLevelDataToTweak"))
     end
 
     if self._config.assets then
         if tweak_data and tweak_data.assets then
             self:AddAssetsDataToTweak(tweak_data.assets)
         else
-            Hooks:PostHook(AssetsTweakData, "init", self._config.id .. "AddAssetsData", callback(self, self, "AddAssetsDataToTweak"))
+            Hooks:PostHook(AssetsTweakData, "init", self._config.id .. "AddAssetsData", ClassClbk(self, "AddAssetsDataToTweak"))
         end
     end
 end

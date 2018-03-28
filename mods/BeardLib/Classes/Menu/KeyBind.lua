@@ -3,16 +3,17 @@ local KeyBindItem = BeardLib.Items.KeyBindItem
 KeyBindItem.type_name = "KeyBind"
 function KeyBindItem:Init()
     self.size_by_text = false
+    self:WorkParam("supports_keyboard", true)
     KeyBindItem.super.Init(self)
     self.keybind_key = self.panel:text({
         name = "keybind_key",
-        h = self.items_size,
+        h = self.size,
         align = "center",
         vertical = self.text_vertical,
         layer = 1,
         color = self:GetForeground(highlight),
         font = self.font,
-        font_size = self.items_size - 2
+        font_size = self.size - 2
     })
     self:SetKeybindKey()
 end
@@ -61,7 +62,7 @@ function KeyBindItem:SetCanEdit(CanEdit)
                 end
                 return key, additional_key
             end
-            local key, additional_key = get(Input:keyboard())
+            local key, additional_key = self.supports_keyboard and get(Input:keyboard())
             local is_mouse
             if not key and self.supports_mouse and not self._ignore_mouse then
                 key = get(Input:mouse())

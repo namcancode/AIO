@@ -3,7 +3,7 @@ local Toggle = BeardLib.Items.Toggle
 Toggle.type_name = "Toggle"
 function Toggle:Init()    
 	Toggle.super.Init(self)
-	local s = self.items_size - 4
+	local s = self.size - 4
 	local fgcolor = self:GetForeground()
     self.toggle = self.panel:bitmap({
 		name = "toggle",
@@ -51,7 +51,7 @@ function Toggle:UpdateToggle(value_changed, highlight)
 	local value = self.value
 	if alive(self.panel) then
 		local fgcolor = self:GetForeground(highlight)
-		local s = value and self.items_size - 4 or 0
+		local s = value and self.size - 4 or 0
 		play_color(self.toggle, fgcolor)
 		play_anim(self.toggle_value, {
 			after = function()
@@ -62,11 +62,13 @@ function Toggle:UpdateToggle(value_changed, highlight)
 	end
 end
 
+local mouse_0 = Idstring("0")
+local enter = Idstring("enter")
 function Toggle:MousePressed(button, x, y)
 	if not self:MouseCheck(true) then
 		return
 	end
-	if button == Idstring("0") then
+	if button == mouse_0 then
 		self:SetValue(not self.value)
 		if managers.menu_component then
 			managers.menu_component:post_event(self.value and "box_tick" or "box_untick")
@@ -77,7 +79,7 @@ function Toggle:MousePressed(button, x, y)
 end
 
 function Toggle:KeyPressed(o, k)
-	if k == Idstring("enter") then
+	if k == enter then
 		self:SetValue(not self.value)
 		self:RunCallback()
 	end
