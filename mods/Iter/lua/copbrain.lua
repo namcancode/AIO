@@ -4,11 +4,32 @@ if _G[key] then return else _G[key] = true end
 if Iter.settings.streamline_path then
 	local cur_pos
 
-	local itr_original_copbrain_searchforcoarsepath = CopBrain.search_for_coarse_path
-	function CopBrain:search_for_coarse_path(...)
+	function CopBrain:search_for_coarse_path(search_id, to_seg, verify_clbk, access_neg)
+		local to_pos
+		local objective = self._logic_data.objective
+		if objective then
+			to_pos = objective.pos
+			if not to_pos and alive(objective.follow_unit) then
+				to_pos = objective.follow_unit:movement():nav_tracker():field_position()
+			end
+		end
+
+		local params = {
+			from_tracker = self._unit:movement():nav_tracker(),
+			to_seg = to_seg,
+			access = {'walk'},
+			id = search_id,
+			results_clbk = callback(self, self, 'clbk_coarse_pathing_results', search_id),
+			verify_clbk = verify_clbk,
+			access_pos = self._logic_data.char_tweak.access,
+			access_neg = access_neg,
+			to_pos = to_pos
+		}
+		self._logic_data.active_searches[search_id] = 2
+
 		cur_pos = self._logic_data.m_pos
 
-		local result = itr_original_copbrain_searchforcoarsepath(self, ...)
+		managers.navigation:search_coarse(params)
 
 		if cur_pos then
 			local cs = managers.navigation._coarse_searches
@@ -19,7 +40,7 @@ if Iter.settings.streamline_path then
 			cur_pos = nil
 		end
 
-		return result
+		return true
 	end
 
 	local itr_original_copbrain_clbkcoarsepathingresults = CopBrain.clbk_coarse_pathing_results

@@ -50,6 +50,9 @@
 	"itr_options_map_change_firestarter_1_title" : "Firestarter D1",
 	"itr_options_map_change_firestarter_1_desc" : "fixed navigation around 2 random fences",
 
+	"itr_options_map_change_firestarter_3_title" : "Firestarter D3",
+	"itr_options_map_change_firestarter_3_desc" : "made sure that AI can always enter the vault",
+
 	"itr_options_map_change_framing_frame_1_title" : "Framing Frame D1",
 	"itr_options_map_change_framing_frame_1_desc" : "added access to main hall when front doors are closed",
 
@@ -64,6 +67,9 @@
 
 	"itr_options_map_change_mia_1_title" : "Hotline Miami D1",
 	"itr_options_map_change_mia_1_desc" : "fixed multiple issues with segments going underground and many glitchy hiding places",
+
+	"itr_options_map_change_jewelry_store_title" : "Jewelry Store",
+	"itr_options_map_change_jewelry_store_desc" : "added navigation between a cop car and a parked car",
 
 	"itr_options_map_change_flat_title" : "Panic Room",
 	"itr_options_map_change_flat_desc" : "better performance regarding windows broken by rappelling, fixed toothbrush drop",

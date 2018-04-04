@@ -700,6 +700,7 @@ if not Iter.settings['map_change_' .. level_id] then
 elseif level_id == 'alex_2'
 	or level_id == 'big'
 	or level_id == 'branchbank'
+	or level_id == 'chew'
 	or level_id == 'mia_1'
 	or level_id == 'roberts'
 	or level_id == 'wwh'
@@ -1005,6 +1006,7 @@ elseif level_id == 'pbr' then
 
 		data.room_borders_x_pos[5714] = -30
 		data.room_borders_y_pos[5714] = -96
+
 		did = did + 1
 		data.door_low_pos[did] = Vector3(-30, -97, -160.145)
 		data.door_high_pos[did] = Vector3(-30, -96, -160.145)
@@ -1012,6 +1014,40 @@ elseif level_id == 'pbr' then
 		data.door_high_rooms[did] = 5714
 		data.nav_segments[30].neighbours[52] = {did}
 		data.nav_segments[52].neighbours[30] = data.nav_segments[30].neighbours[52]
+
+		itr_original_navigationmanager_setloaddata(self, data)
+	end
+
+elseif level_id == 'jewelry_store' then
+
+	function NavigationManager:set_load_data(data)
+		local seg2vg = _segment_to_vis_groups(data)
+
+		local rid = #data.room_borders_x_neg + 1
+		data.room_borders_x_pos[rid] = -8
+		data.room_borders_x_neg[rid] = -12
+		data.room_borders_y_pos[rid] = 87
+		data.room_borders_y_neg[rid] = 86
+		data.room_heights_xp_yp[rid] = 27.5
+		data.room_heights_xp_yn[rid] = 27.5
+		data.room_heights_xn_yp[rid] = 27.5
+		data.room_heights_xn_yn[rid] = 27.5
+		data.room_vis_groups[rid] = seg2vg[5]
+		data.vis_groups[seg2vg[5]].rooms[rid] = true
+
+		local did = #data.door_high_pos + 1
+		data.door_low_pos[did] = Vector3(-12, 86, 27.5)
+		data.door_high_pos[did] = Vector3(-11, 86, 27.5)
+		data.door_low_rooms[did] = 882
+		data.door_high_rooms[did] = rid
+		table.insert(data.nav_segments[5].neighbours[96], did)
+		table.insert(data.nav_segments[96].neighbours[5], did)
+
+		did = did + 1
+		data.door_low_pos[did] = Vector3(-8, 86, 27.5)
+		data.door_high_pos[did] = Vector3(-8, 87, 27.5)
+		data.door_low_rooms[did] = 826
+		data.door_high_rooms[did] = rid
 
 		itr_original_navigationmanager_setloaddata(self, data)
 	end

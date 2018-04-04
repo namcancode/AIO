@@ -1,3 +1,6 @@
+Revision 28:
+- changed raycast option to go through cops
+
 Revision 27:
 - added drill used on Brooklyn 10/10 to the objects of interest list
 

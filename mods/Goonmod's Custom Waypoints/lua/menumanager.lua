@@ -230,7 +230,7 @@ function CustomWaypoints:GetMyAimPos()
 	mvec3_mul(from, 20)
 	mvec3_add(from, viewport:get_current_camera_position())
 
-	local ray = Utils:GetCrosshairRay(from)
+	local ray = Utils:GetCrosshairRay(from, nil, 'player_ground_check')
 	if not ray then
 		return false
 	end

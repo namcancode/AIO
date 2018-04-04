@@ -60,6 +60,14 @@
 		},
 		{
 			"type" : "toggle",
+			"id" : "map_change_firestarter_3",
+			"title" : "itr_options_map_change_firestarter_3_title",
+			"description" : "itr_options_map_change_firestarter_3_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "map_change_firestarter_3"
+		},
+		{
+			"type" : "toggle",
 			"id" : "map_change_peta",
 			"title" : "itr_options_map_change_peta_title",
 			"description" : "itr_options_map_change_peta_desc",
@@ -273,6 +281,14 @@
 			"description" : "itr_options_map_change_branchbank_desc",
 			"callback" : "IterMenuCheckboxClbk",
 			"value" : "map_change_branchbank"
+		},
+		{
+			"type" : "toggle",
+			"id" : "map_change_jewelry_store",
+			"title" : "itr_options_map_change_jewelry_store_title",
+			"description" : "itr_options_map_change_jewelry_store_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "map_change_jewelry_store"
 		},
 		{
 			"type" : "toggle",

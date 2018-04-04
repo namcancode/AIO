@@ -23,11 +23,13 @@ Iter.settings = {
 	map_change_escape_garage = true,
 	map_change_family = true,
 	map_change_firestarter_1 = true,
+	map_change_firestarter_3 = true,
 	map_change_flat = true,
 	map_change_framing_frame_1 = true,
 	map_change_friend = true,
 	map_change_gallery = true,
 	map_change_glace = true,
+	map_change_jewelry_store = true,
 	map_change_jolly = true,
 	map_change_kenaz = true,
 	map_change_kosugi = true,
@@ -313,58 +315,63 @@ elseif level_id == 'rat' or level_id == 'alex_1' then
 elseif level_id == 'jolly' then
 
 	function MissionManager:_add_script(data)
-		table.insert(itr_custom_elements, 101785)
-		table.insert(itr_custom_elements, 101786)
-		table.insert(itr_custom_elements, 101787)
-		table.insert(itr_custom_elements, 101788)
+		local base_element_id = 101785
+		table.insert(itr_custom_elements, base_element_id)
+		table.insert(itr_custom_elements, base_element_id + 1)
+		table.insert(itr_custom_elements, base_element_id + 2)
+		table.insert(itr_custom_elements, base_element_id + 3)
 
 		for _, element in pairs(data.elements) do
 			if element.id == 100406 then
 				table.remove(element.values.on_executed, 308)
-				table.insert(element.values.on_executed, { delay = 0, id = 101785 })
-				table.insert(element.values.on_executed, { delay = 0, id = 101786 })
-				table.insert(element.values.on_executed, { delay = 0, id = 101787 })
-				table.insert(element.values.on_executed, { delay = 0, id = 101788 })
+				table.insert(element.values.on_executed, { delay = 0, id = base_element_id })
+				table.insert(element.values.on_executed, { delay = 0, id = base_element_id + 1 })
+				table.insert(element.values.on_executed, { delay = 0, id = base_element_id + 2 })
+				table.insert(element.values.on_executed, { delay = 0, id = base_element_id + 3 })
+
 			elseif element.id == 101124 then
 				element.values.repeatable = true
 				element.values.so_action = 'e_nl_down_1m'
 				element.values.align_position = false
-				element.values.rotation = Rotation(103, 0, -0)
-				element.values.position = Vector3(4686.31, 2489.63, 92.0396)
-				element.values.search_position = Vector3(4553.26, 2456.52, -0.951866)
+				element.values.rotation = Rotation(103, 0, 0)
+				element.values.position = Vector3(4686, 2490, 92)
+				element.values.search_position = Vector3(4553, 2456, -1)
 			elseif element.id == 100544 then
 				local ladder1 = CoreTable.deep_clone(element)
-				ladder1.editor_name = 'SO_teammate_ladder1'
-				ladder1.id = 101785
+				ladder1.editor_name = 'SO_AI_ladder1'
+				ladder1.id = base_element_id
 				ladder1.values.align_position = true
 				ladder1.values.attitude = 'avoid'
 				ladder1.values.interval = 1.5
 				ladder1.values.repeatable = true
 				ladder1.values.so_action = 'e_nl_up_6m_var3'
 				ladder1.values.path_style = 'destination'
-				ladder1.values.rotation = Rotation(-150, -0, -0)
+				ladder1.values.rotation = Rotation(-150, 0, 0)
 				ladder1.values.position = Vector3(-1533, 6530, 607)
 				ladder1.values.search_position = Vector3(-1547, 6260, 1212)
 				table.insert(data.elements, ladder1)
+
 				local ladder2 = CoreTable.deep_clone(ladder1)
-				ladder2.editor_name = 'SO_teammate_ladder2'
-				ladder2.id = 101786
-				ladder2.values.rotation = Rotation(0, -0, -0)
+				ladder2.editor_name = 'SO_AI_ladder2'
+				ladder2.id = base_element_id + 1
+				ladder2.values.rotation = Rotation(0, 0, 0)
 				ladder2.values.position = Vector3(-1583, -325, 607)
 				ladder2.values.search_position = Vector3(-1538, -80, 1212)
 				table.insert(data.elements, ladder2)
+
 				local ladder3 = CoreTable.deep_clone(ladder1)
-				ladder3.editor_name = 'SO_teammate_ladder3'
-				ladder3.id = 101787
+				ladder3.editor_name = 'SO_AI_ladder3'
+				ladder3.id = base_element_id + 2
 				ladder3.values.so_action = 'e_nl_cs_up_8m_ladder'
-				ladder3.values.rotation = Rotation(180, -0, -0)
+				ladder3.values.rotation = Rotation(180, 0, 0)
 				ladder3.values.position = Vector3(2353, 6485, 300)
 				ladder3.values.search_position = Vector3(2352, 6262, 1213)
 				table.insert(data.elements, ladder3)
+
 				local ladder4 = CoreTable.deep_clone(ladder3)
-				ladder4.editor_name = 'SO_teammate_ladder4'
-				ladder4.id = 101788
-				ladder4.values.rotation = Rotation(0, -0, -0)
+				ladder4.editor_name = 'SO_AI_ladder4'
+				ladder4.id = base_element_id + 3
+				ladder4.values.rotation = Rotation(0, 0, 0)
 				ladder4.values.position = Vector3(2364, -315, 300)
 				ladder4.values.search_position = Vector3(2360, -118, 1217)
 				table.insert(data.elements, ladder4)
@@ -1037,7 +1044,7 @@ elseif level_id == 'brb' then
 		itr_original_missionmanager_addscript(self, data)
 	end
 
-elseif level_id == 'branchbank' then
+elseif level_id == 'branchbank' or level_id == 'firestarter_3' then
 
 	function MissionManager:_add_script(data)
 		table.insert(itr_custom_elements, 106000)
