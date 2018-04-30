@@ -1,3 +1,6 @@
+local key = ModPath .. '	' .. RequiredScript
+if _G[key] then return else _G[key] = true end
+
 local lpi_original_hudstatsscreen_recreateright = HUDStatsScreen.recreate_right
 function HUDStatsScreen:recreate_right()
 	lpi_original_hudstatsscreen_recreateright(self)

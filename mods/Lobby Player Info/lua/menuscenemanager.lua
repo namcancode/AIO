@@ -1,3 +1,6 @@
+local key = ModPath .. '	' .. RequiredScript
+if _G[key] then return else _G[key] = true end
+
 local lpi_original_menuscenemanager_characterscreenposition = MenuSceneManager.character_screen_position
 function MenuSceneManager:character_screen_position(peer_id)
 	if LobbyPlayerInfo.settings.keep_pre68_character_name_position then

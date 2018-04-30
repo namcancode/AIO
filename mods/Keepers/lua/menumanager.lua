@@ -41,7 +41,7 @@ Keepers.settings = {
 	show_my_joker_name = true,
 	send_my_joker_name = true,
 	show_other_jokers_names = true,
-	my_joker_name = 'Cave',
+	my_joker_name = 'My Joker',
 	jokers_run_like_teamais = true,
 	icon_revive = 'wp_revive'
 }
@@ -107,7 +107,7 @@ function Keepers:GetJokerNameByPeer(peer_id)
 		return name
 	elseif not self.settings.show_other_jokers_names then
 		return ''
-	elseif name == 'Cave' or name == '' then
+	elseif name == 'My Joker' or name == '' then
 		local peer = managers.network:session():peer(peer_id)
 		if peer then
 			name = "X"
@@ -612,6 +612,10 @@ Hooks:Add('LocalizationManagerPostInit', 'LocalizationManagerPostInit_KPR', func
 end)
 
 Hooks:Add('MenuManagerInitialize', 'MenuManagerInitialize_KPR', function(menu_manager)
+	MenuCallbackHandler.KeepersMenuCheckboxClbk = function(this, item)
+		Keepers.settings[item:name()] = item:value() == 'on'
+	end
+
 	MenuCallbackHandler.KeepersModePrimary = function(this, item)
 		Keepers.settings.primary_mode = tonumber(item:value())
 	end
@@ -629,28 +633,8 @@ Hooks:Add('MenuManagerInitialize', 'MenuManagerInitialize_KPR', function(menu_ma
 		Keepers:ApplyFilterMode()
 	end
 
-	MenuCallbackHandler.KeepersShowJokerHealth = function(this, item)
-		Keepers.settings.show_joker_health = item:value() == 'on'
-	end
-
-	MenuCallbackHandler.KeepersShowMyJokerName = function(this, item)
-		Keepers.settings.show_my_joker_name = item:value() == 'on'
-	end
-
 	MenuCallbackHandler.KeepersSetJokerName = function(this, item)
 		Keepers.settings.my_joker_name = item:value()
-	end
-
-	MenuCallbackHandler.KeepersSendMyJokerName = function(this, item)
-		Keepers.settings.send_my_joker_name = item:value() == 'on'
-	end
-
-	MenuCallbackHandler.KeepersShowOtherJokersNames = function(this, item)
-		Keepers.settings.show_other_jokers_names = item:value() == 'on'
-	end
-
-	MenuCallbackHandler.KeepersSetJokerSpeed = function(this, item)
-		Keepers.settings.jokers_run_like_teamais = item:value() == 'on'
 	end
 
 	MenuCallbackHandler.KeepersSave = function(this, item)

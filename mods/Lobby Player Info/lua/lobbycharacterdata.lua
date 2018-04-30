@@ -1,3 +1,6 @@
+local key = ModPath .. '	' .. RequiredScript
+if _G[key] then return else _G[key] = true end
+
 local lpi_original_lobbycharacterdata_init = LobbyCharacterData.init
 function LobbyCharacterData:init(...)
 	lpi_original_lobbycharacterdata_init(self, ...)

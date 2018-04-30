@@ -78,7 +78,8 @@ function LPITeamBox:Update()
 	local container, y, w
 	if self.contractboxgui._contract_panel then
 		container = self.contractboxgui._panel
-		y = self.contractboxgui._contract_panel:top() - 30
+		local obj = self.contractboxgui._contract_text_header or self.contractboxgui._contract_panel
+		y = obj:top() - 5
 		w = self.contractboxgui._contract_panel:w() * (crowd > 8 and 0.7 or 0.5)
 	else
 		container = self.contractboxgui._parent

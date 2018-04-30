@@ -7,12 +7,13 @@ local itr_original_coplogictravel_enter = CopLogicTravel.enter
 function CopLogicTravel.enter(data, ...)
 	itr_original_coplogictravel_enter(data, ...)
 
-	if data.is_converted or fs_settings.iter_chase then
+	if data.is_converted or fs_settings.iter_chase or fs_settings.real_elastic then
 		data.internal_data.path_ahead = true
 	end
 end
 
 if Iter.settings.streamline_path then
+
 	function CopLogicTravel.itr_insert_wait_step(data, my_data, navlink)
 		local coarse_path = my_data.coarse_path
 		local next_step_index = my_data.coarse_path_index + 1
@@ -239,6 +240,7 @@ if Iter.settings.streamline_path then
 
 		data.itr_follow_unit_nav_seg = follow_unit_nav_seg
 	end
+
 end
 
 local itr_original_coplogictravel_actioncompleteclbk = CopLogicTravel.action_complete_clbk

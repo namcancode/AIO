@@ -1,3 +1,6 @@
+local key = ModPath .. '	' .. RequiredScript
+if _G[key] then return else _G[key] = true end
+
 _G.LobbyPlayerInfo = _G.LobbyPlayerInfo or {}
 LobbyPlayerInfo._path = ModPath
 LobbyPlayerInfo._data_path = SavePath .. 'lobby_player_info.txt'
@@ -39,7 +42,8 @@ function LobbyPlayerInfo:ResetToDefaultValues()
 		play_time_font_size = 1,
 		team_skills_mode = 4,
 		keep_pre68_character_name_position = false,
-		show_skills_in_stats_screen = true
+		show_skills_in_stats_screen = true,
+		steam_apikey = 'get one at https://steamcommunity.com/dev/apikey', -- and write it in mods/saves/lobby_player_info.txt
 	}
 end
 
@@ -249,19 +253,26 @@ Hooks:Add('MenuManagerBuildCustomMenus', 'MenuManagerBuildCustomMenus_LobbyPlaye
 	if LobbyPlayerInfo.settings.team_skills_mode == 1 then
 		-- Nothing
 	elseif nodes.lobby then
-		local fbi_node, mutators
+		local fbi_node, mutators, story_line
 
 		for _, v in pairs(nodes.lobby._items) do
-			if v._parameters.name == "fbi_files" then
+			if v._parameters.name == 'fbi_files' then
 				fbi_node = v
-			elseif v._parameters.name == "mutators" then
+			elseif v._parameters.name == 'mutators' then
 				mutators = v
+			elseif v._parameters.name == 'story_missions' then
+				story_line = v
 			end
 		end
 
 		-- remove "fbi file" (can be accessed by clicking on a teammate's name)
 		if fbi_node then
 			table.delete(nodes.lobby._items, fbi_node)
+		end
+
+		-- remove "story line" (can be accessed via crimenet)
+		if story_line then
+			table.delete(nodes.lobby._items, story_line)
 		end
 
 		-- move "mutators" in "edit game settings"

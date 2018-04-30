@@ -17,6 +17,10 @@ function CopBrain:set_objective(new_objective, params)
 		local icon, ext_data
 		local old_objective = self._logic_data.objective
 
+		if new_objective and new_objective.follow_unit and not new_objective.follow_unit:alive() then
+			new_objective = nil
+		end
+
 		if new_objective and not new_objective.forced then
 			icon = new_objective.kpr_icon
 			local new_obj_type = new_objective.type

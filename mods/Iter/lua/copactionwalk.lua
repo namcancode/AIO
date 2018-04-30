@@ -80,25 +80,29 @@ if Network:is_server() then
 
 end
 
-function CopActionWalk:itr_delete_path_ahead()
-	if not self.itr_step_pos then
-		return
-	end
+if Iter.settings.streamline_path then
 
-	local s_path = self._simplified_path
-	if s_path[1] == self.itr_step_pos then
-		self._expired = true
-		return
-	end
+	function CopActionWalk:itr_delete_path_ahead()
+		if not self.itr_step_pos then
+			return
+		end
 
-	for i = 2, #s_path do
-		pos = s_path[i]
-		if pos == self.itr_step_pos then
-			i = i + 1
-			while s_path[i] do
-				table.remove(s_path, i)
+		local s_path = self._simplified_path
+		if s_path[1] == self.itr_step_pos then
+			self._expired = true
+			return
+		end
+
+		for i = 2, #s_path do
+			pos = s_path[i]
+			if pos == self.itr_step_pos then
+				i = i + 1
+				while s_path[i] do
+					table.remove(s_path, i)
+				end
+				break
 			end
-			break
 		end
 	end
+
 end

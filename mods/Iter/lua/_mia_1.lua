@@ -76,7 +76,7 @@ function itr_set_load_data(data, seg2vg)
 
 	rid = rid + 1
 	data.room_borders_x_pos[rid] = 222
-	data.room_borders_x_neg[rid] = 214
+	data.room_borders_x_neg[rid] = 220
 	data.room_borders_y_pos[rid] = -173
 	data.room_borders_y_neg[rid] = -181
 	data.room_heights_xp_yp[rid] = 47.5
@@ -102,7 +102,7 @@ function itr_set_load_data(data, seg2vg)
 	rid = rid + 1
 	data.room_borders_x_pos[rid] = 168
 	data.room_borders_x_neg[rid] = 160
-	data.room_borders_y_pos[rid] = -167
+	data.room_borders_y_pos[rid] = -174
 	data.room_borders_y_neg[rid] = -176
 	data.room_heights_xp_yp[rid] = 47.5
 	data.room_heights_xp_yn[rid] = 47.5
@@ -139,7 +139,7 @@ function itr_set_load_data(data, seg2vg)
 	rid = rid + 1
 	data.room_borders_x_pos[rid] = 105
 	data.room_borders_x_neg[rid] = 98
-	data.room_borders_y_pos[rid] = -170
+	data.room_borders_y_pos[rid] = -174
 	data.room_borders_y_neg[rid] = -176
 	data.room_heights_xp_yp[rid] = 47.5
 	data.room_heights_xp_yn[rid] = 47.5
@@ -164,7 +164,7 @@ function itr_set_load_data(data, seg2vg)
 	rid = rid + 1
 	data.room_borders_x_pos[rid] = 70
 	data.room_borders_x_neg[rid] = 63
-	data.room_borders_y_pos[rid] = -170
+	data.room_borders_y_pos[rid] = -174
 	data.room_borders_y_neg[rid] = -176
 	data.room_heights_xp_yp[rid] = 47.5
 	data.room_heights_xp_yn[rid] = 47.5
@@ -189,7 +189,7 @@ function itr_set_load_data(data, seg2vg)
 	rid = rid + 1
 	data.room_borders_x_pos[rid] = 7
 	data.room_borders_x_neg[rid] = 0
-	data.room_borders_y_pos[rid] = -170
+	data.room_borders_y_pos[rid] = -174
 	data.room_borders_y_neg[rid] = -176
 	data.room_heights_xp_yp[rid] = 47.5
 	data.room_heights_xp_yn[rid] = 47.5

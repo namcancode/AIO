@@ -11,6 +11,7 @@ local mvec3_lerp = mvector3.lerp
 local mvec3_set = mvector3.set
 local mvec3_z = mvector3.z
 local math_abs = math.abs
+local math_max = math.max
 local table_insert = table.insert
 local table_remove = table.remove
 
@@ -61,19 +62,30 @@ if Iter.settings.streamline_path then
 			end
 		end
 
-		local result = {}
+		local all_seg_doors = {}
+		local room_neighbours = {}
 		for door_id, door in pairs(self._room_doors) do
-			if room_mask[door.rooms[1]] or room_mask[door.rooms[2]] then
-				result[door_id] = door
+			local door_rooms = door.rooms
+			local r1 = door_rooms[1]
+			local r2 = door_rooms[2]
+			local rm1 = room_mask[r1]
+			local rm2 = room_mask[r2]
+			if rm1 or rm2 then
+				all_seg_doors[door_id] = door
+			end
+			if not rm1 then
+				room_neighbours[r1] = true
+			elseif not rm2 then
+				room_neighbours[r2] = true
 			end
 		end
-		return result
+		return all_seg_doors, room_neighbours
 	end
 
 	function NavigationManager:itr_get_room_to_doors(segment_id, all_seg_doors)
 		local result = {}
 		for door_id, door in pairs(all_seg_doors) do
-			for _, room_id in pairs(door.rooms) do
+			for _, room_id in ipairs(door.rooms) do
 				if segment_id == self:get_nav_seg_from_i_room(room_id) then
 					local ri = result[room_id]
 					if not ri then
@@ -94,7 +106,7 @@ if Iter.settings.streamline_path then
 		for door_id, door_level in pairs(door_flood_levels) do
 			if door_level == level then
 				level_doors[door_id] = true
-				for _, room_id in pairs(all_doors[door_id].rooms) do
+				for _, room_id in ipairs(all_doors[door_id].rooms) do
 					if room_to_doors[room_id] then
 						room_pool[room_id] = true
 					end
@@ -115,7 +127,7 @@ if Iter.settings.streamline_path then
 			for base_room_id, _ in pairs(old_to_process) do
 				room_pool[base_room_id] = nil
 				for _, door_id in pairs(room_to_doors[base_room_id]) do
-					for _, room_id in pairs(all_doors[door_id].rooms) do
+					for _, room_id in ipairs(all_doors[door_id].rooms) do
 						if room_pool[room_id] then
 							to_process[room_id] = true
 							stop = false
@@ -149,11 +161,12 @@ if Iter.settings.streamline_path then
 			level = level + 1
 			local old_to_process = to_process
 			to_process = {}
-			for base_door_id, _ in pairs(old_to_process) do
-				for _, room_id in pairs(all_doors[base_door_id].rooms) do
-					for _, door_id in pairs(room_to_doors[room_id] or {}) do
-						if not door_flood_levels[door_id] then
-							if not to_process[door_id] then
+			for base_door_id in pairs(old_to_process) do
+				for _, room_id in ipairs(all_doors[base_door_id].rooms) do
+					local next_doors = room_to_doors[room_id]
+					if next_doors then
+						for _, door_id in ipairs(next_doors) do
+							if not door_flood_levels[door_id] and not to_process[door_id] then
 								to_process[door_id] = true
 								door_flood_levels[door_id] = level
 								local cnt = door_level_counts[level]
@@ -168,7 +181,7 @@ if Iter.settings.streamline_path then
 
 		local room_flood_levels = {}
 		for door_id, level in pairs(door_flood_levels) do
-			for _, room_id in pairs(all_doors[door_id].rooms) do
+			for _, room_id in ipairs(all_doors[door_id].rooms) do
 				if room_to_doors[room_id] then -- to filter rooms of this segment
 					local room_level = room_flood_levels[room_id]
 					room_flood_levels[room_id] = room_level and math.min(room_level, level) or level
@@ -176,34 +189,27 @@ if Iter.settings.streamline_path then
 			end
 		end
 
-		local room_level_counts = {}
-		for room_id, level in pairs(room_flood_levels) do
-			room_level_counts[level] = room_level_counts[level] and room_level_counts[level] + 1 or 1
-		end
-
-		return room_flood_levels, room_level_counts, door_flood_levels, door_level_counts
+		return room_flood_levels, door_flood_levels, door_level_counts
 	end
 
-	function NavigationManager:itr_find_choke_point(room_flood_levels, room_level_counts, room_to_doors)
+	function NavigationManager:itr_find_choke_point(room_flood_levels, room_level_counts, room_to_doors, door_flood_levels, important_rooms)
+		local lower_levels_contiguity = true
 		local level_max = #room_level_counts
 		local threshold = math.max(4, level_max / 2)
 		for level, count in pairs(room_level_counts) do
 			if level > threshold or level == level_max then
 				break
 			end
+			if lower_levels_contiguity then
+				lower_levels_contiguity = self:itr_is_contiguous(level, door_flood_levels, room_to_doors)
+			end
 			if count == 1 then -- choke point exists
 				for room_id, room_level in pairs(room_flood_levels) do
-					if room_level == level then
-						-- find the door leading to the room of previous level
-						local all_doors = self._room_doors
-						for _, door_id in pairs(room_to_doors[room_id]) do
-							local rooms = all_doors[door_id].rooms
-							local other_room_id = rooms[1] == room_id and rooms[2] or rooms[1]
-							if room_flood_levels[other_room_id] and room_flood_levels[other_room_id] < level then
-								-- found
-								return door_id
-							end
-						end
+					if room_level == level and important_rooms[room_id] then
+						local room_data = self._rooms[room_id]
+						local r_borders = room_data.borders
+						local r_height = room_data.height
+						return Vector3((r_borders.x_pos + r_borders.x_neg) / 2, (r_borders.y_pos + r_borders.y_neg) / 2, (r_height.xp_yp + r_height.xn_yn) / 2), lower_levels_contiguity
 					end
 				end
 				break
@@ -223,18 +229,17 @@ if Iter.settings.streamline_path then
 		end
 	end
 
-	local function itr_get_rooms_having_access_to_next_level(start_level, all_doors, room_to_doors, room_flood_levels)
+	local function itr_get_rooms_having_access_to_next_level(all_doors, room_to_doors, room_flood_levels, room_neighbours)
 		local result = {}
 		for room_id, room_level in pairs(room_flood_levels) do
-			if room_level == start_level then
-				for _, door_id in pairs(room_to_doors[room_id]) do
-					local rooms = all_doors[door_id].rooms
-					local other_room_id = rooms[1] == room_id and rooms[2] or rooms[1]
-					local other_room_level = room_flood_levels[other_room_id]
-					if other_room_level and other_room_level > start_level then
-						result[room_id] = room_id
-						break
-					end
+			for _, door_id in ipairs(room_to_doors[room_id]) do
+				local rooms = all_doors[door_id].rooms
+				local other_room_id = rooms[1] == room_id and rooms[2] or rooms[1]
+				local other_room_level = room_flood_levels[other_room_id]
+				-- next level OR other navseg
+				if other_room_level and other_room_level > room_level or not other_room_level and room_level ~= 1 and room_neighbours[other_room_id] then
+					result[room_id] = room_level
+					break
 				end
 			end
 		end
@@ -248,21 +253,25 @@ if Iter.settings.streamline_path then
 		local all_doors = self._room_doors
 		local all_nav_segments = self._nav_segments
 		local segment = all_nav_segments[segment_id]
-		local all_seg_doors = self:itr_get_all_doors_of_segment(segment_id)
+		local all_seg_doors, room_neighbours = self:itr_get_all_doors_of_segment(segment_id)
 		local room_to_doors = self:itr_get_room_to_doors(segment_id, all_seg_doors)
 
 		for neighbour_seg_id, door_list in pairs(segment.neighbours) do
 			local best_level
 			local min_count = 1000
 			local level1_contiguous
-			local room_flood_levels, room_level_counts, door_flood_levels, door_level_counts = self:itr_flood(door_list, room_to_doors)
+			local room_flood_levels, door_flood_levels, door_level_counts = self:itr_flood(door_list, room_to_doors)
 
-			local important_rooms = itr_get_rooms_having_access_to_next_level(1, all_doors, room_to_doors, room_flood_levels)
+			local important_rooms = itr_get_rooms_having_access_to_next_level(all_doors, room_to_doors, room_flood_levels, room_neighbours)
 			local important_doors = {}
-			for room_id in pairs(important_rooms) do
-				for _, door_id in pairs(room_to_doors[room_id]) do
-					if door_flood_levels[door_id] == 1 then
-						important_doors[door_id] = door_id
+			local room_level_counts = {}
+			for room_id, level in pairs(important_rooms) do
+				room_level_counts[level] = room_level_counts[level] and room_level_counts[level] + 1 or 1
+				if level == 1 then
+					for _, door_id in ipairs(room_to_doors[room_id]) do
+						if door_flood_levels[door_id] == 1 then
+							important_doors[door_id] = door_id
+						end
 					end
 				end
 			end
@@ -308,7 +317,7 @@ if Iter.settings.streamline_path then
 					itr_add_door_pos_to(frontier_center, all_doors, door_id)
 					cnt = cnt + 1
 				end
-				if cnt > 0 then
+				if cnt > 2 then
 					mvec3_div(frontier_center, cnt)
 					local metawidth = 0
 					for door_id in pairs(important_doors) do
@@ -328,25 +337,28 @@ if Iter.settings.streamline_path then
 				end
 			end
 
-			local choke_point = self:itr_find_choke_point(room_flood_levels, room_level_counts, room_to_doors)
-			if choke_point then
-				local choke_door = all_doors[choke_point]
-				local choke_pos = (choke_door.pos + choke_door.pos1) / 2
-				choke_points[neighbour_seg_id] = choke_pos
+			if #door_list > 1 then
+				local choke_point_pos, lower_levels_contiguity = self:itr_find_choke_point(room_flood_levels, room_level_counts, room_to_doors, door_flood_levels, important_rooms)
+				if choke_point_pos then
+					local choke_pos = choke_point
+					choke_points[neighbour_seg_id] = choke_point_pos
 
-				-- pick the closest important door
-				local best_pos = Vector3()
-				local min_dis = 1000000000
-				for door_id in pairs(important_doors) do
-					local door = all_doors[door_id]
-					mvec3_lerp(tmp_vec, door.pos, door.pos1, 0.5)
-					local dis = mvec3_dis_sq(tmp_vec, choke_pos)
-					if dis < min_dis then
-						min_dis = dis
-						mvec3_set(best_pos, tmp_vec)
+					if lower_levels_contiguity then
+						-- pick the closest important door
+						local best_pos = Vector3()
+						local min_dis = 1000000000
+						for door_id in pairs(important_doors) do
+							local door = all_doors[door_id]
+							mvec3_lerp(tmp_vec, door.pos, door.pos1, 0.5)
+							local dis = mvec3_dis_sq(tmp_vec, choke_point_pos)
+							if dis < min_dis then
+								min_dis = dis
+								mvec3_set(best_pos, tmp_vec)
+							end
+						end
+						choke_point_proxies[neighbour_seg_id] = best_pos
 					end
 				end
-				choke_point_proxies[neighbour_seg_id] = best_pos
 			end
 		end
 
@@ -516,7 +528,7 @@ if Iter.settings.streamline_path then
 					if not best_pos then
 						return false
 					end
-				end 
+				end
 
 				step2[2] = best_pos
 				step2[3] = navlink
@@ -539,7 +551,8 @@ if Iter.settings.streamline_path then
 				return 0
 			elseif alive(i_door) and not i_door:is_obstructed() and i_door:check_access(access_pos, access_neg) then
 				t = t or TimerManager:game():time()
-				local congestion_risk = ((t > i_door:delay_time() and 0 or 1) + itr_get_navlink_usage(i_door, t)) * i_door:script_data().element:nav_link_delay()
+				local nav_link_delay = math_max(0, i_door:script_data().element:nav_link_delay()) -- yes, negative values happen, don't even ask...
+				local congestion_risk = ((t > i_door:delay_time() and 0 or 1) + itr_get_navlink_usage(i_door, t)) * nav_link_delay
 				if congestion_risk == 0 then
 					return 0.1
 				elseif not min_congestion_risk or congestion_risk < min_congestion_risk then
@@ -595,43 +608,48 @@ if Iter.settings.streamline_path then
 			if neighbours then
 				local from = discovered_seg[next_seg_id]
 				if neighbours[end_i_seg] then
-					local access_cost = itr_get_accessibility(neighbours[end_i_seg], access_pos, access_neg)
-					if access_cost then
-						local tmp = clone(from)
-						tmp.delay = tmp.delay + access_cost
-						table_insert(potential_paths, tmp)
-						if not stopping and tmp.delay < 0.2 then
-							stopping = #seg_to_search
+					local forbidden = access_pos and self._quad_field:is_nav_segment_blocked(end_i_seg, access_pos)
+					if not forbidden then
+						local access_cost = itr_get_accessibility(neighbours[end_i_seg], access_pos, access_neg)
+						if access_cost then
+							local tmp = clone(from)
+							tmp.delay = tmp.delay + access_cost
+							table_insert(potential_paths, tmp)
+							if not stopping and tmp.delay < 0.2 then
+								stopping = #seg_to_search
+							end
 						end
 					end
 				end
 
 				for neighbour_seg_id, door_list in pairs(neighbours) do
 					local neighbour = all_nav_segments[neighbour_seg_id]
-					if not neighbour.disabled then
-						if not verify_clbk or verify_clbk(neighbour_seg_id) then
-							local access_cost = itr_get_accessibility(door_list, access_pos, access_neg)
-							if access_cost then
-								local discovered = discovered_seg[neighbour_seg_id]
-								if not discovered then
+					if neighbour.disabled then
+						-- qued
+					elseif access_pos and self._quad_field:is_nav_segment_blocked(neighbour_seg_id, access_pos) then
+						-- qued
+					elseif not verify_clbk or verify_clbk(neighbour_seg_id) then
+						local access_cost = itr_get_accessibility(door_list, access_pos, access_neg)
+						if access_cost then
+							local discovered = discovered_seg[neighbour_seg_id]
+							if not discovered then
+								table_insert(seg_to_search, neighbour_seg_id)
+								discovered_seg[neighbour_seg_id] = {
+									path = from.path .. ';' .. neighbour_seg_id,
+									delay = from.delay + access_cost,
+									steps_nr = from.steps_nr + 1,
+									coarse_dis = from.coarse_dis + mvec3_dis(neighbour.pos, from.pos),
+									pos = neighbour.pos
+								}
+							else
+								local new_delay = from.delay + access_cost
+								local new_coarse_dis = from.coarse_dis + mvec3_dis(neighbour.pos, from.pos)
+								if new_coarse_dis + new_delay * navlink_coef < discovered.coarse_dis + discovered.delay * navlink_coef then
 									table_insert(seg_to_search, neighbour_seg_id)
-									discovered_seg[neighbour_seg_id] = {
-										path = from.path .. ';' .. neighbour_seg_id,
-										delay = from.delay + access_cost,
-										steps_nr = from.steps_nr + 1,
-										coarse_dis = from.coarse_dis + mvec3_dis(neighbour.pos, from.pos),
-										pos = neighbour.pos
-									}
-								else
-									local new_delay = from.delay + access_cost
-									local new_coarse_dis = from.coarse_dis + mvec3_dis(neighbour.pos, from.pos)
-									if new_coarse_dis + new_delay * navlink_coef < discovered.coarse_dis + discovered.delay * navlink_coef then
-										table_insert(seg_to_search, neighbour_seg_id)
-										discovered.path = from.path .. ';' .. neighbour_seg_id
-										discovered.delay = new_delay
-										discovered.steps_nr = from.steps_nr + 1
-										discovered.coarse_dis = new_coarse_dis
-									end
+									discovered.path = from.path .. ';' .. neighbour_seg_id
+									discovered.delay = new_delay
+									discovered.steps_nr = from.steps_nr + 1
+									discovered.coarse_dis = new_coarse_dis
 								end
 							end
 						end

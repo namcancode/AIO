@@ -1,4 +1,9 @@
-﻿Revision 64:
+﻿Revision 65:
+- changed placement of teambox when no contract data is available
+- removed menu entry "story line" from lobby (accessible via crimenet)
+- added Steam API support (set your key in mods/saves/lobby_player_info.txt)
+
+Revision 64:
 - added thai translation by NewPJzuza
 
 Revision 63:

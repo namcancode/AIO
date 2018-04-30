@@ -20,6 +20,9 @@
 	"itr_options_map_change_pbr_title" : "Beneath The Mountain",
 	"itr_options_map_change_pbr_desc" : "fixed AI access to 2 entrance control rooms",
 
+	"itr_options_map_change_big_title" : "Big Bank",
+	"itr_options_map_change_big_desc" : "fixed guards stuck in inner area",
+
 	"itr_options_map_change_welcome_to_the_jungle_2_title" : "Big Oil D2",
 	"itr_options_map_change_welcome_to_the_jungle_2_desc" : "fixed AI access to computer room of 1st floor if opened with a drill or a keycard",
 

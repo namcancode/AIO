@@ -1,3 +1,6 @@
+local key = ModPath .. '	' .. RequiredScript
+if _G[key] then return else _G[key] = true end
+
 dofile(ModPath .. 'lua/contractboxgui_teambox.lua')
 
 local lpi_original_contractboxgui_init = ContractBoxGui.init
@@ -135,8 +138,14 @@ function LobbyPlayerInfo:GetPeerData(peer_id, peer)
 					self.play_times[steamid] = ''
 				else
 					self.play_times[steamid] = '...'
-					local url = 'http://steamcommunity.com/profiles/' .. steamid .. '/games/?tab=all'
-					dohttpreq(url, callback(LobbyPlayerInfo, LobbyPlayerInfo, 'GetPlayTimeCallback', steamid))
+					local apikey = self.settings.steam_apikey
+					if type(apikey) == 'string' and apikey:len() == 32 then
+						local url = 'http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=' .. apikey .. '&steamid=' .. steamid .. '&format=json'
+						dohttpreq(url, callback(LobbyPlayerInfo, LobbyPlayerInfo, 'GetApiPlayTimeCallback', steamid))
+					else
+						local url = 'http://steamcommunity.com/profiles/' .. steamid .. '/games/?tab=all'
+						dohttpreq(url, callback(LobbyPlayerInfo, LobbyPlayerInfo, 'GetPlayTimeCallback', steamid))
+					end
 				end
 			end
 		end
@@ -204,8 +213,25 @@ function LobbyPlayerInfo:GetPeerData(peer_id, peer)
 	return skills_text, perk_text, perk_prog, sp_anomaly, show_progbar, is_local_peer, skills_string
 end
 
+function LobbyPlayerInfo:GetApiPlayTimeCallback(steamid, page)
+	local play_time = ''
+	if type(page) == 'string' then
+		local data = json.decode(page)
+		local game_list = data and data.response and data.response.games
+		if type(game_list) == 'table' then
+			for _, game in pairs(game_list) do
+				if game.appid == 218620 then
+					play_time = (math.floor(game.playtime_forever / 60)) .. managers.localization:text('lpi_hours')
+					break
+				end
+			end
+		end
+	end
+	self.play_times[steamid] = play_time
+end
+
 function LobbyPlayerInfo:GetPlayTimeCallback(steamid, page)
-	local player_time = ''
+	local play_time = ''
 	if type(page) == 'string' then
 		local mark_start = 'var rgGames =.'
 		local mark_end = '.var rgChangingGames'
@@ -214,11 +240,11 @@ function LobbyPlayerInfo:GetPlayTimeCallback(steamid, page)
 			local pos_end = page:find(mark_end, pos_start)
 			if pos_end and pos_end - pos_start > 7 then
 				local data = json.decode(page:sub(pos_start, pos_end))
-				player_time = '[game not found]'
+				play_time = '[game not found]'
 				if data then
 					for i = 1, #data do
 						if data[i].appid == 218620 then
-							player_time = data[i].hours_forever .. managers.localization:text('lpi_hours')
+							play_time = data[i].hours_forever .. managers.localization:text('lpi_hours')
 							break
 						end
 					end
@@ -227,10 +253,10 @@ function LobbyPlayerInfo:GetPlayTimeCallback(steamid, page)
 		end
 
 		if page:find('class="profile_ban"') then
-			player_time = player_time == '' and 'VAC' or (player_time .. ' and VAC')
+			play_time = play_time == '' and 'VAC' or (play_time .. ' and VAC')
 		end
 	end
-	self.play_times[steamid] = player_time
+	self.play_times[steamid] = play_time
 end
 
 function LobbyPlayerInfo.CreatePeerSpecialization(panel, peer_id)
@@ -311,11 +337,11 @@ function LobbyPlayerInfo:CreatePeerSkills(panel)
 			w = 15 * width + 14 * spacing1 + 4 * spacing2,
 			h = sl3_height
 		})
-		local c1 = Color(255, 0, 91, 255) / 255
-		local c2 = Color(255, 255, 30, 0) / 255
-		local c3 = Color(255, 216, 255, 0) / 255
-		local c4 = Color(255, 0, 255, 95) / 255
-		local c5 = Color(255, 162, 0, 255) / 255
+		local c1 = Color(255,   0,  91, 255) / 255
+		local c2 = Color(255, 255,  30,   0) / 255
+		local c3 = Color(255, 216, 255,   0) / 255
+		local c4 = Color(255,   0, 255,  95) / 255
+		local c5 = Color(255, 162,   0, 255) / 255
 		local colors = {
 			c1, c1, c1,
 			c2, c2, c2,

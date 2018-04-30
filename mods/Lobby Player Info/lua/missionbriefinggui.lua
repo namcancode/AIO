@@ -1,3 +1,6 @@
+local key = ModPath .. '	' .. RequiredScript
+if _G[key] then return else _G[key] = true end
+
 local function _get_skills_perk_text(peer)
 	local skills, perk = 'Invalid data', '?'
 

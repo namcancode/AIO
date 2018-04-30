@@ -67,7 +67,7 @@ function CopLogicAttack.aim_allow_fire(shoot, aim, data, my_data)
 			my_data.firing = true
 			-- if bots' masks take too long to load, they enter combat while still being in slot 24, leading to a crash
 			if not data.unit:in_slot(16, 24) and data.char_tweak.chatter.aggressive then
-				managers.groupai:state():chk_say_enemy_chatter(data.unit, data.m_pos, "aggressive")
+				managers.groupai:state():chk_say_enemy_chatter(data.unit, data.m_pos, 'aggressive')
 			end
 		end
 	elseif my_data.firing then

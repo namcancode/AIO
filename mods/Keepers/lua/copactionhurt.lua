@@ -19,12 +19,12 @@ function CopActionHurt:on_exit()
 			if self._unit:base().kpr_mode == 2 and Keepers:CanChangeState(self._unit) then
 				if mvector3.distance(self._unit:movement():nav_tracker():field_position(), keep_position) > 1 then
 					local action_desc = {
-						type = "walk",
-						variant = "walk",
+						type = 'walk',
+						variant = 'walk',
 						body_part = 2,
 						nav_path = { mvector3.copy(keep_position) },
 						path_simplified = true,
-						end_pose = "stand",
+						end_pose = 'stand',
 						blocks = {
 							walk = -1,
 							turn = -1,

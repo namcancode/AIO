@@ -1,3 +1,6 @@
+Revision 130:
+- fixed a crash when TeamAI's followed player quits or go into custody while bot is sent on another objective
+
 Revision 129:
 - added thai translation by NewPJzuza
 

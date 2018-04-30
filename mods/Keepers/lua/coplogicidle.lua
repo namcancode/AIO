@@ -9,13 +9,13 @@ function CopLogicIdle.queued_update(data)
 		return
 	end
 
-	local is_criminal = data.team.id == "criminal1" or data.is_converted
+	local is_criminal = data.team.id == 'criminal1' or data.is_converted
 	if is_criminal and data.objective then
 		local u_base = data.unit:base()
 		if u_base.kpr_keep_position and Keepers:CanChangeState(data.unit) then
 			if u_base.kpr_mode == 3 and mvector3.distance(u_base.kpr_keep_position, data.unit:movement():m_pos()) > 50 then
 				data.objective.in_place = nil
-				CopLogicBase._exit(data.unit, "travel")
+				CopLogicBase._exit(data.unit, 'travel')
 				return
 			elseif u_base.kpr_mode == 4 then
 				if not my_data.kpr_wait_cover_t then
@@ -26,7 +26,7 @@ function CopLogicIdle.queued_update(data)
 					if cover then
 						data.objective.in_place = nil
 						u_base.kpr_keep_position = mvector3.copy(cover[1])
-						CopLogicBase._exit(data.unit, "travel")
+						CopLogicBase._exit(data.unit, 'travel')
 					end
 					return
 				end
@@ -40,7 +40,7 @@ function CopLogicIdle.queued_update(data)
 		return
 	end
 
-	if is_criminal and (not data.objective or data.objective.type == "free") and (not data.path_fail_t or data.t - data.path_fail_t > 1) then
+	if is_criminal and (not data.objective or data.objective.type == 'free') and (not data.path_fail_t or data.t - data.path_fail_t > 1) then
 		managers.groupai:state():on_criminal_jobless(data.unit)
 		if my_data ~= data.internal_data then
 			return
@@ -72,4 +72,23 @@ function CopLogicIdle.queued_update(data)
 		delay = delay or 0.3
 	end
 	CopLogicBase.queue_task(my_data, my_data.detection_task_key, CopLogicIdle.queued_update, data, data.t + delay, data.important and true)
+end
+
+function CopLogicIdle.clbk_action_timeout(ignore_this, data)
+	local my_data = data.internal_data
+	CopLogicBase.on_delayed_clbk(my_data, my_data.action_timeout_clbk_id)
+	my_data.action_timeout_clbk_id = nil
+
+	local old_objective = data.objective
+	if not old_objective then
+		return
+	end
+
+	my_data.action_expired = true
+	local anim_data = data.unit:anim_data()
+	if anim_data.act and anim_data.needs_idle then
+		CopLogicIdle._start_idle_action_from_act(data)
+	end
+
+	data.objective_complete_clbk(data.unit, old_objective)
 end

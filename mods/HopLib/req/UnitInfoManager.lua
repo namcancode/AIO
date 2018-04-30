@@ -5,7 +5,6 @@ function UnitInfo:init(unit, u_key, manager)
   self._unit_key = u_key
   self._unit_id = unit:id()
   self._type = "unknown"
-  self._name = u_key
   self._damage = 0
   self._kills = 0
   
@@ -33,15 +32,15 @@ function UnitInfo:init(unit, u_key, manager)
       self._name = u_base:nick_name()
     elseif self._owner or gstate._police[u_key] and gstate._police[u_key].is_converted or gstate:is_enemy_converted_to_criminal(unit) then
       self._sub_type = "joker"
-      self._name = HopLib:name_provider():name_by_id(u_base._stats_name or u_base._tweak_table)
+      self._name = HopLib:name_provider():name_by_unit(unit) or HopLib:name_provider():name_by_id(u_base._tweak_table)
       self._nickname = u_base.kpr_minion_owner_peer_id and Keepers:GetJokerNameByPeer(u_base.kpr_minion_owner_peer_id)
       if not self._nickname or self._nickname == "" then
         self._nickname = self._owner and self._owner:nickname() .. "'s " .. self._name
       end
     elseif u_base.char_tweak then
-      self._sub_type = HopLib:is_object_of_class(u_base, CivilianBase) and "civilian"
-      self._name = HopLib:name_provider():name_by_id(u_base._stats_name or u_base._tweak_table)
-      self._is_special = u_base:char_tweak().priority_shout and true
+      self._name = HopLib:name_provider():name_by_unit(unit) or HopLib:name_provider():name_by_id(u_base._tweak_table)
+      self._is_civilian = HopLib:is_object_of_class(u_base, CivilianBase)
+      self._is_special = u_base:char_tweak() and u_base:char_tweak().priority_shout and true
       self._is_boss = u_base._tweak_table:find("boss") and true
     end
   elseif u_base.thrower_unit then
@@ -128,6 +127,10 @@ function UnitInfo:color_id()
   return self._color_id
 end
 
+function UnitInfo:is_civilian()
+  return self._is_civilian
+end
+
 function UnitInfo:is_special()
   return self._is_special
 end
@@ -160,16 +163,16 @@ function UnitInfoManager:_create_info(unit, u_key)
   return entry
 end
 
-function UnitInfoManager:get_info(unit)
-  local u_key = alive(unit) and unit:key()
+function UnitInfoManager:get_info(unit, u_key)
+  u_key = u_key or alive(unit) and unit:key()
   if not u_key then
     return
   end
   return self._infos[u_key] or self:_create_info(unit, u_key)
 end
 
-function UnitInfoManager:get_user_info(unit)
-  local u_key = alive(unit) and unit:key()
+function UnitInfoManager:get_user_info(unit, u_key)
+  u_key = u_key or alive(unit) and unit:key()
   if not u_key then
     return
   end

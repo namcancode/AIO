@@ -45,7 +45,7 @@ function GroupAIStateBase:_determine_objective_for_criminal_AI(unit)
 		local peer_unit = managers.network:session():peer(owner_id):unit()
 		if peer_unit then
 			return {
-				type = "follow",
+				type = 'follow',
 				follow_unit = peer_unit,
 				scan = true,
 				nav_seg = peer_unit:movement():nav_tracker():nav_segment(),
@@ -74,14 +74,14 @@ function GroupAIStateBase:on_criminal_neutralized(unit)
 	if Network:is_server() then
 		local must_awake_bots = true
 		for _, record in pairs(self._criminals) do
-			if not record.ai and record.status ~= "dead" then
+			if not record.ai and record.status ~= 'dead' then
 				must_awake_bots = false
 			end
 		end
 
 		if must_awake_bots then
 			for _, record in pairs(self._ai_criminals) do
-				if record.status ~= "dead" and alive(record.unit) and record.unit:base().kpr_is_keeper then
+				if record.status ~= 'dead' and alive(record.unit) and record.unit:base().kpr_is_keeper then
 					Keepers:SendState(record.unit, Keepers:GetLuaNetworkingText(record.unit:base().kpr_following_peer_id or 1, record.unit, 1), false)
 				end
 			end

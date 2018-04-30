@@ -300,6 +300,14 @@
 		},
 		{
 			"type" : "toggle",
+			"id" : "map_change_big",
+			"title" : "itr_options_map_change_big_title",
+			"description" : "itr_options_map_change_big_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "map_change_big"
+		},
+		{
+			"type" : "toggle",
 			"id" : "map_change_watchdogs_1",
 			"title" : "itr_options_map_change_watchdogs_1_title",
 			"description" : "itr_options_map_change_watchdogs_1_desc",

@@ -1,3 +1,25 @@
+Revision 98:
+- updated to U176
+
+Revision 97:
+- improved detection of choke points
+
+Revision 96:
+- [The Biker Heist D2] fixed another blocked path, again
+
+Revision 95:
+- [Big Bank] fixed guards stuck in inner area
+
+Revision 94:
+- added compatibility stuff for FSS
+
+Revision 93:
+- finetuned proxy finding threshold
+
+Revision 92:
+- [Aftershock] let civilians reach flee points
+- fixed a rare crash involving navlinks having negative delays (can be found at least on Aftershock)
+
 Revision 91:
 - [Firestarter D3] made sure that AI can always enter the vault
 - [Jewelry Store] added navigation between a cop car and a parked car
