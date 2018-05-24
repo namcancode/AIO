@@ -1,15 +1,15 @@
 {
 	"blt_version" : 2,
-	"name" : "More Weapon Stats",
+	"name" : "",
 	"description" : "",
-	"author" : "TdlQ, KarateF22 for all the code taken from Better Weapon Stats GUI\n    chinese translation by 王君翔（冷丶K）",
+	"author" : "TdlQ, KarateF22 for all the code taken from Better Weapon Stats GUI",
 	"image" : "tdlq.png",
 	"color" : "0.52 1 0",
 	"contact" : "",
-	"version" : "31",
+	"version" : "28",
 	"updates" : [
 		{
-			"identifier" : "MWS"
+			"identifier" : "MWSs"
 		}
 	],
 	"pre_hooks" : [

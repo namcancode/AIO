@@ -1,3 +1,12 @@
+Revision 31:
+- added swedish translation by TheBreakingBenny
+
+Revision 30:
+- compatibility with VR
+
+Revision 29:
+- added 2 helper functions
+
 Revision 28:
 - changed raycast option to go through cops
 

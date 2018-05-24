@@ -1190,7 +1190,7 @@ function BlackMarketGui:mws_update_breakpoints()
 		local berserker = bonuses.wolverine.checked and (weapon_in_category(data.categories, 'saw') and 'melee_damage_health_ratio_multiplier' or 'damage_health_ratio_multiplier')
 		local body_expertise = bonuses.body_expertise.checked and ((data.tweak.FIRE_MODE == 'auto' or data.tweak.CAN_TOGGLE_FIREMODE) and weapon_in_category(data.categories, 'smg', 'lmg', 'assault_rifle', 'minigun') or weapon_in_category(data.categories, 'bow', 'saw'))
 		local crits = bonuses.backstab.checked and not weapon_in_category(data.categories, 'grenade_launcher')
-		local overkill = bonuses.overkill.checked and (bonuses.overkill.level == 2 or weapon_in_category(data.categories, 'shotgun'))
+		local overkill = bonuses.overkill.checked and weapon_in_category(data.categories, 'shotgun')
 		local trigger_happy = bonuses.trigger_happy.checked and weapon_in_category(data.categories, 'pistol')
 
 		local params = {

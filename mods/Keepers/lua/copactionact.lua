@@ -1,8 +1,7 @@
 local key = ModPath .. '	' .. RequiredScript
 if _G[key] then return else _G[key] = true end
 
-local idle_index = table.get_vector_index(CopActionAct._act_redirects.script, 'idle')
-local redirects_nr = #CopActionAct._act_redirects.SO
+local redirects_nr = CopActionAct:_get_act_index(CopActionAct._act_redirects.SO[#CopActionAct._act_redirects.SO])
 
 for _, entry in ipairs({'interact_enter', 'interact_exit'}) do
 	if not table.contains(CopActionAct._act_redirects.SO, entry) then

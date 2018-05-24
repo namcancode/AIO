@@ -1,11 +1,12 @@
 local key = ModPath .. '	' .. RequiredScript
 if _G[key] then return else _G[key] = true end
 
-local level_id = Global.game_settings and Global.game_settings.level_id or ''
-level_id = level_id:gsub('_night$', ''):gsub('_day$', '')
+local level_id = Iter:GetLevelId()
+
 local itr_original_missionscriptelement_onexecuted = MissionScriptElement.on_executed
 
 if not Iter.settings['map_change_' .. level_id] then
+	-- qued
 
 elseif level_id == 'mad' then
 

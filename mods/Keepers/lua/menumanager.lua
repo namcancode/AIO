@@ -160,13 +160,11 @@ function Keepers:IsModdedClient(peer_id)
 end
 
 function Keepers:GetGoonModWaypointPosition(peer_id)
-	local peer_name = peer_id == managers.network:session():local_peer():id() and 'localplayer' or peer_id
-	local wp = managers.hud and managers.hud._hud.waypoints['CustomWaypoint_' .. peer_name]
-	if not wp then
+	local pos = managers.hud and managers.hud:gcw_get_custom_waypoint_by_peer(peer_id)
+	if not pos then
 		return nil
 	end
 
-	local pos = wp.position
 	local tracker = managers.navigation:create_nav_tracker(pos, false)
 	local tracker_pos = tracker:field_position()
 	managers.navigation:destroy_nav_tracker(tracker)
@@ -412,6 +410,7 @@ function Keepers:SetState(unit_text_ref, is_keeper)
 	if Network:is_server() then
 		local previous_kpr_is_keeper = u_base.kpr_is_keeper
 		local previous_kpr_mode = u_base.kpr_mode
+		local u_brain = unit:brain()
 		if is_keeper then
 			local so = self:GetWaypointSO(unit, peer_id)
 			if so then
@@ -424,17 +423,34 @@ function Keepers:SetState(unit_text_ref, is_keeper)
 					u_base.kpr_mode = 1
 					u_base.kpr_keep_position = nil
 				end
-				if so ~= unit:brain():objective() then
-					unit:brain():set_objective(so)
+				if so ~= u_brain:objective() then
+					u_brain:set_objective(so)
 				end
 			else
 				local wp_pos = self:GetGoonModWaypointPosition(peer_id)
 				local wp_is_ok = self:IsPositionOK(wp_pos)
 				local dest_pos = wp_is_ok and wp_pos or unit:movement():nav_tracker():field_position()
+
+				u_base.kpr_keep_position = nil
+				if managers.groupai:state():kpr_count_teammates_near_pos(dest_pos) > 0 then
+					local cover = managers.navigation:find_cover_near_pos_1(dest_pos, nil, 400, 0, true)
+					if cover then
+						dest_pos = cover[1]
+						local my_data = u_brain._logic_data.internal_data
+						if my_data.nearest_cover then
+							managers.navigation:release_cover(my_data.nearest_cover[1])
+						end
+						managers.navigation:reserve_cover(cover, unit:movement():pos_rsrv_id())
+						my_data.nearest_cover = {cover}
+					else
+						dest_pos = CopLogicTravel._get_pos_on_wall(dest_pos, 400)
+					end
+				end
+
 				u_base.kpr_is_keeper = true
 				u_base.kpr_mode = tonumber(data.mode)
 				u_base.kpr_keep_position = mvec3_cpy(dest_pos)
-				unit:brain():set_objective(self:GetStayObjective(unit, wp_is_ok))
+				u_brain:set_objective(self:GetStayObjective(unit, wp_is_ok))
 			end
 		else
 			u_base.kpr_is_keeper = false
@@ -451,7 +467,7 @@ function Keepers:SetState(unit_text_ref, is_keeper)
 				called = true,
 				pos = peer_unit:movement():nav_tracker():field_position(),
 			}
-			unit:brain():set_objective(obj)
+			u_brain:set_objective(obj)
 		end
 
 		local change = previous_kpr_is_keeper ~= u_base.kpr_is_keeper or previous_kpr_mode ~= u_base.kpr_mode
@@ -907,12 +923,12 @@ function Keepers:GetWaypointSO(bot_unit, peer_id)
 
 	local unit, unit_id, icon
 
-	local wp = managers.hud._hud.waypoints[CustomWaypoints.prefix .. (peer_id == 1 and 'localplayer' or tostring(peer_id))]
-	if not wp or not wp.position then
+	local wp_position = managers.hud and managers.hud:gcw_get_custom_waypoint_by_peer(peer_id)
+	if not wp_position then
 		return
 	end
 
-	local obj_wp_id = CustomWaypoints:GetAssociatedObjectiveWaypoint(wp.position)
+	local obj_wp_id = CustomWaypoints:GetAssociatedObjectiveWaypoint(wp_position)
 	if type(obj_wp_id) == 'number' then
 		local wp_element = managers.mission:get_element_by_id(obj_wp_id)
 		if not wp_element then
@@ -937,13 +953,16 @@ function Keepers:GetWaypointSO(bot_unit, peer_id)
 	if not self:ValidInteraction(unit) then
 		local best_unit
 		local min_dis = 100000
+		local carrying_bag = bot_unit:movement():carrying_bag()
 		for _, int_unit in ipairs(managers.interaction._interactive_units) do
 			if self:ValidInteraction(int_unit) then
 				local interaction = int_unit:interaction()
 				local ipos = interaction:interact_position()
-				local dis = mvec3_dis(wp.position, ipos)
+				local dis = mvec3_dis(wp_position, ipos)
 				if dis < min_dis and dis < interaction:interact_distance() then
-					if dis < 50 or interaction.tweak_data ~= 'carry_drop' then
+					if interaction.tweak_data:match('carry_drop$') and (carrying_bag or dis >= 50) then
+						-- qued
+					else
 						best_unit = int_unit
 						min_dis = dis
 					end
@@ -1012,7 +1031,7 @@ function Keepers:GetWaypointSO(bot_unit, peer_id)
 				mvec3_set_z(pos, mvec3_z(pos) - 25)
 			end
 		else
-			pos = self:GetInteractionPosition(unit, wp.position)
+			pos = self:GetInteractionPosition(unit, wp_position)
 		end
 
 		local height = mvec3_z(interaction:interact_position()) - mvec3_z(pos)

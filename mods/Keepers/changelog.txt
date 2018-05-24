@@ -1,3 +1,20 @@
+Revision 135:
+- added support for Iter's direct-to-pos functionality
+
+Revision 134:
+- updated for compatibility with Moveable Intimidated Cop and Please Go There use of "Stop AI" control
+
+Revision 133:
+- fixed r132's check that didn't consider special carry types like paintings
+
+Revision 132:
+- made sure that a bot already carrying a bag won't try to take another one if sent to a waypoint near a bag
+
+Revision 131:
+- improved placement when multiple AI are sent to the same waypoint, see https://youtu.be/cldprcNuJx0
+- fixed animation sync with vanilla clients
+- added "No Duplicated Bullets" as a dependency, a client-side mod only that prevents clients from doing the host's job
+
 Revision 130:
 - fixed a crash when TeamAI's followed player quits or go into custody while bot is sent on another objective
 

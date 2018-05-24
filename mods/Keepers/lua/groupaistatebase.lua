@@ -1,6 +1,8 @@
 local key = ModPath .. '	' .. RequiredScript
 if _G[key] then return else _G[key] = true end
 
+local mvec3_dis_sq = mvector3.distance_sq
+
 local kpr_original_groupaistatebase_clbkminiondies = GroupAIStateBase.clbk_minion_dies
 function GroupAIStateBase:clbk_minion_dies(player_key, minion_unit, damage_info)
 	if minion_unit:unit_data().name_label_id then
@@ -157,4 +159,27 @@ function GroupAIStateBase:remove_minion(minion_key, player_key)
 	if player_key then
 		kpr_original_groupaistatebase_removeminion(self, minion_key, player_key)
 	end
+end
+
+function GroupAIStateBase:kpr_count_teammates_near_pos(pos)
+	local result = 0
+
+	local function is_close(unit)
+		local kpr_pos = unit:base().kpr_keep_position
+		return kpr_pos and mvec3_dis_sq(pos, kpr_pos) < 1600
+	end
+
+	for _, record in pairs(self._ai_criminals) do
+		if is_close(record.unit) then
+			result = result + 1
+		end
+	end
+
+	for _, unit in pairs(self._converted_police) do
+		if is_close(unit) then
+			result = result + 1
+		end
+	end
+
+	return result
 end

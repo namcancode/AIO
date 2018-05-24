@@ -513,7 +513,6 @@ if Iter.settings.streamline_path then
 				local segment3 = step3 and all_segs[step3[1]]
 				local door_list_nr = #door_list
 
-				-- TOTHINK: if segments share a lot of doors, it's better to use the choke_point as an out_proxy
 				local best_pos = segment1.choke_point_proxies[step2[1]]
 
 				if not best_pos then
@@ -628,7 +627,9 @@ if Iter.settings.streamline_path then
 						-- qued
 					elseif access_pos and self._quad_field:is_nav_segment_blocked(neighbour_seg_id, access_pos) then
 						-- qued
-					elseif not verify_clbk or verify_clbk(neighbour_seg_id) then
+					elseif verify_clbk and not verify_clbk(neighbour_seg_id) then
+						-- qued
+					else
 						local access_cost = itr_get_accessibility(door_list, access_pos, access_neg)
 						if access_cost then
 							local discovered = discovered_seg[neighbour_seg_id]
@@ -660,9 +661,6 @@ if Iter.settings.streamline_path then
 			next_seg_id = table_remove(seg_to_search, 1)
 		until not next_seg_id
 
-		discovered_seg = nil
-		seg_to_search = nil
-
 		local best_score = 100000000
 		local best_path
 		for _, ppath in ipairs(potential_paths) do
@@ -673,7 +671,6 @@ if Iter.settings.streamline_path then
 				best_path = ppath
 			end
 		end
-		potential_paths = nil
 
 		if best_path then
 			local path = {}
@@ -708,8 +705,8 @@ local function _segment_to_vis_groups(data)
 	return result
 end
 
-local level_id = Global.game_settings.level_id
-level_id = level_id:gsub('_night$', ''):gsub('_day$', '')
+local level_id = Iter:GetLevelId()
+
 local itr_original_navigationmanager_setloaddata = NavigationManager.set_load_data
 
 if not Iter.settings['map_change_' .. level_id] then
@@ -721,7 +718,6 @@ elseif level_id == 'alex_2'
 	or level_id == 'chew'
 	or level_id == 'mia_1'
 	or level_id == 'roberts'
-	or level_id == 'wwh'
 then
 
 	_load_custom_data(level_id)
@@ -783,18 +779,38 @@ elseif level_id == 'moon' then
 elseif level_id == 'arm_for' then
 
 	function NavigationManager:set_load_data(data)
-		local r59 = data.vis_groups[59].rooms
-		r59[2703] = nil
-		r59[2704] = nil
-		r59[2712] = nil
-		r59[2713] = true
-		local r60 = data.vis_groups[60].rooms
-		r60[2703] = true
-		r60[2704] = true
-		r60[2712] = true
-		r60[2713] = nil
-		data.vis_groups[59].rooms = r60
-		data.vis_groups[60].rooms = r59
+		local seg2vg = _segment_to_vis_groups(data)
+		local function move_room(id, from, to)
+			data.vis_groups[seg2vg[from]].rooms[id] = nil
+			data.vis_groups[seg2vg[to]].rooms[id] = true
+			data.room_vis_groups[id] = to
+		end
+
+		-- 2701 and 2703 are clones, that's a new level of fucked up
+		-- 2705 and 2713 are clones, won't bother to delete that and their doors
+
+		move_room(2689, 57, 56)
+
+		move_room(2701, 58, 59)
+
+		move_room(2704, 59, 60)
+		move_room(2705, 59, 60)
+		move_room(2706, 59, 60)
+		move_room(2707, 59, 60)
+		move_room(2708, 59, 60)
+		move_room(2709, 59, 60)
+		move_room(2710, 59, 60)
+		move_room(2711, 59, 60)
+		move_room(2712, 59, 60)
+
+		data.nav_segments[56].neighbours[57] = {5188}
+		data.nav_segments[57].neighbours[56] = {5188}
+
+		data.nav_segments[59].neighbours[60] = {5210}
+		data.nav_segments[60].neighbours[59] = {5210}
+
+		data.nav_segments[59].neighbours[58] = {5195}
+		data.nav_segments[58].neighbours[59] = {5195}
 
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
@@ -839,18 +855,18 @@ elseif level_id == 'kosugi' then
 
 	function NavigationManager:set_load_data(data)
 		local rooms_to_transfer = {
-			1779,
-			1782,
-			1786,
-			1787,
-			1788,
-			1790,
-			1791,
-			1793,
-			1794,
-			1801,
-			1802,
-			1807
+			1746,
+			1749,
+			1753,
+			1754,
+			1755,
+			1757,
+			1758,
+			1760,
+			1761,
+			1768,
+			1769,
+			1774
 		}
 		for _, room_id in ipairs(rooms_to_transfer) do
 			data.vis_groups[2].rooms[room_id] = nil
@@ -863,8 +879,8 @@ elseif level_id == 'kosugi' then
 		end
 		data.nav_segments[2].neighbours[123] = nil
 		data.nav_segments[123].neighbours[2] = nil
-		data.nav_segments[2].neighbours[3] = { 3100 }
-		data.nav_segments[3].neighbours[2] = { 3100 }
+		data.nav_segments[2].neighbours[3] = { 3032 }
+		data.nav_segments[3].neighbours[2] = { 3032 }
 
 		itr_original_navigationmanager_setloaddata(self, data)
 	end

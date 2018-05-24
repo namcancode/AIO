@@ -1,3 +1,34 @@
+Revision 106:
+- [Transport Train] fixed half-baked fix
+- reworked fix for _optimize_path()
+- reworked _chk_shortcut_pos_to_pos()
+- added a tool to compute long paths in one shot (and give a chance to streamline the whole thing, used by Keepers & co)
+
+Revision 105:
+- [Transport Train] updated r1's navigation patches
+- [Transport Train] fixed access to vaults opened during stealth
+- added swedish translation by TheBreakingBenny
+
+Revision 104:
+- [Alaskan Deal] removed r63's fix for boat access
+- added an extended _chk_shortcut_pos_to_pos(), see https://youtu.be/gD9MXBdA29g
+
+Revision 103:
+- [Car Shop] removed r89's fix for ECM
+
+Revision 102:
+- [Shadow Raid] removed r15's fix for collision with a ladder (fixed in U180)
+- [Shadow Raid] updated navigation patches to U180
+
+Revision 101:
+- fixed CivilianLogicTravel._optimize_path() so hostages don't walk through floors (prevent some cases of flying too), see https://youtu.be/FMhbwqYkUDE
+
+Revision 100:
+- changed priority for a compatibility issue with Please Go There
+
+Revision 99:
+- fixed some cases of stuck guards
+
 Revision 98:
 - updated to U176
 

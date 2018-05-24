@@ -3,10 +3,10 @@ if _G[key] then return else _G[key] = true end
 
 core:module('CorePortalManager')
 
-local level_id = Global.game_settings and Global.game_settings.level_id or ''
-level_id = level_id:gsub('_night$', ''):gsub('_day$', '')
+local level_id = _G.Iter:GetLevelId()
 
 if not _G.Iter.settings['map_change_' .. level_id] then
+	-- qued
 
 elseif level_id == 'dah' then
 

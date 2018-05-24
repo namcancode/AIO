@@ -14,7 +14,6 @@ Iter.settings = {
 	map_change_born = true,
 	map_change_branchbank = true,
 	map_change_brb = true,
-	map_change_cage = true,
 	map_change_cane = true,
 	map_change_chew = true,
 	map_change_chill_combat = true,
@@ -45,8 +44,7 @@ Iter.settings = {
 	map_change_roberts = true,
 	map_change_rvd1 = true,
 	map_change_watchdogs_1 = true,
-	map_change_welcome_to_the_jungle_2 = true,
-	map_change_wwh = true
+	map_change_welcome_to_the_jungle_2 = true
 }
 
 function Iter:Load()
@@ -65,6 +63,12 @@ function Iter:Save()
 		file:write(json.encode(self.settings))
 		file:close()
 	end
+end
+
+function Iter:GetLevelId()
+	local level_id = Global.game_settings and Global.game_settings.level_id or ''
+	level_id = level_id:gsub('_night$', ''):gsub('_day$', '')
+	return level_id
 end
 
 Iter:Load()
@@ -182,12 +186,12 @@ else
 	end
 end
 
-local level_id = Global.game_settings and Global.game_settings.level_id or ''
-level_id = level_id:gsub('_night$', ''):gsub('_day$', '')
+local level_id = _G.Iter:GetLevelId()
 local itr_original_missionmanager_addscript = MissionManager._add_script
 local itr_original_missionscript_createelements = MissionScript._create_elements
 
 if not _G.Iter.settings['map_change_' .. level_id] then
+	-- qued
 
 elseif level_id == 'kosugi' then
 
@@ -221,8 +225,6 @@ elseif level_id == 'kosugi' then
 				table.insert(elements, element105000)
 			elseif element.id == 103543 or element.id == 103545 then
 				element.values.enabled = false
-			elseif element.id == 103675 then
-				table.insert(element.values.unit_ids, 100381)
 			end
 		end
 		return itr_original_missionscript_createelements(self, elements)
@@ -974,6 +976,18 @@ elseif level_id == 'arm_for' then
 		for _, element in pairs(data.elements) do
 			if element.values.is_navigation_link and element.values.interval == 6 then
 				element.values.interval = 1
+			elseif element.id == 102457 then
+				table.insert(element.values.on_executed, { delay = 5, id = 100004 })
+			elseif element.id == 102456 then
+				table.insert(element.values.on_executed, { delay = 5, id = 100005 })
+			elseif element.id == 102455 then
+				table.insert(element.values.on_executed, { delay = 5, id = 100009 })
+			elseif element.id == 102454 then
+				table.insert(element.values.on_executed, { delay = 5, id = 100205 })
+			elseif element.id == 102450 then
+				table.insert(element.values.on_executed, { delay = 5, id = 100206 })
+			elseif element.id == 102444 then
+				table.insert(element.values.on_executed, { delay = 5, id = 100252 })
 			elseif element.id == 105584 or element.id == 105587 then
 				local new_seq = CoreTable.deep_clone(element.values.sequence_list[1])
 				new_seq.sequence = 'int_seq_saw_in'
@@ -1144,43 +1158,6 @@ elseif level_id == 'rvd1' then
 		end
 
 		itr_original_missionmanager_addscript(self, data)
-	end
-
-elseif level_id == 'cage' then
-
-	function MissionScript:_create_elements(elements)
-		local toggle_outlines_off = {}
-		local un_jam = {
-			[130022] = 130040,
-			[130322] = 130340,
-			[130622] = 130640,
-			[130922] = 130940,
-			[131222] = 131240,
-			[131522] = 131540,
-			[131822] = 131840,
-			[132122] = 132140,
-			[132422] = 132440,
-			[132722] = 132740,
-			[133022] = 133040,
-			[133322] = 133340,
-			[133622] = 133640,
-			[133922] = 133940,
-			[134222] = 134240,
-			[134522] = 134540,
-			[134822] = 134840
-		}
-		for k, v in pairs(un_jam) do
-			toggle_outlines_off[v] = true
-		end
-		for _, element in pairs(elements) do
-			if toggle_outlines_off[element.id] then
-				element.values.toggle = nil
-			elseif un_jam[element.id] then
-				table.insert(element.values.on_executed, { delay = 0, id = un_jam[element.id] } )
-			end
-		end
-
-		return itr_original_missionscript_createelements(self, elements)
 	end
 
 elseif level_id == 'big' then

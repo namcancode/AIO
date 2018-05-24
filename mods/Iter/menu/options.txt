@@ -196,14 +196,6 @@
 		},
 		{
 			"type" : "toggle",
-			"id" : "map_change_wwh",
-			"title" : "itr_options_map_change_wwh_title",
-			"description" : "itr_options_map_change_wwh_desc",
-			"callback" : "IterMenuCheckboxClbk",
-			"value" : "map_change_wwh"
-		},
-		{
-			"type" : "toggle",
 			"id" : "map_change_dah",
 			"title" : "itr_options_map_change_dah_title",
 			"description" : "itr_options_map_change_dah_desc",
@@ -289,14 +281,6 @@
 			"description" : "itr_options_map_change_jewelry_store_desc",
 			"callback" : "IterMenuCheckboxClbk",
 			"value" : "map_change_jewelry_store"
-		},
-		{
-			"type" : "toggle",
-			"id" : "map_change_cage",
-			"title" : "itr_options_map_change_cage_title",
-			"description" : "itr_options_map_change_cage_desc",
-			"callback" : "IterMenuCheckboxClbk",
-			"value" : "map_change_cage"
 		},
 		{
 			"type" : "toggle",

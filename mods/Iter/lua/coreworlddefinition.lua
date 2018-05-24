@@ -3,12 +3,31 @@ if _G[key] then return else _G[key] = true end
 
 core:module('CoreWorldDefinition')
 
-local level_id = Global.game_settings and Global.game_settings.level_id or ''
-level_id = level_id:gsub('_night$', ''):gsub('_day$', '')
+local level_id = _G.Iter:GetLevelId()
 
 local itr_original_worlddefinition_createstaticsunit = WorldDefinition._create_statics_unit
 
 if not _G.Iter.settings['map_change_' .. level_id] then
+	-- qued
+
+elseif level_id == 'firestarter_1' then
+
+	function WorldDefinition:_create_statics_unit(data, offset)
+		if data.unit_data.unit_id == 102765 then
+			return -- no spot => no glow
+		end
+
+		local unit = itr_original_worlddefinition_createstaticsunit(self, data, offset)
+
+		if data.unit_data.unit_id == 103986 then
+			unit:set_position(Vector3(-5650.42, 5586.73, 2088.54))
+			unit:material(Idstring('light_cone')):set_variable(Idstring('intensity'), 0.1)
+		elseif data.unit_data.unit_id == 103980 then
+			unit:set_position(Vector3(1449, 5790, 789))
+		end
+
+		return unit
+	end
 
 elseif level_id == 'dah' then
 

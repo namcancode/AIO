@@ -37,8 +37,6 @@ function PlayerStandard:_get_intimidation_action(prime_target, char_table, amoun
 		local u_mov = prime_target.unit:movement()
 		if u_mov and u_mov.cool and not u_mov:cool() then
 			local kpr_mode = Keepers.settings[secondary and 'secondary_mode' or 'primary_mode']
-			local lsecondary = secondary
-			secondary = false
 			local is_teammate_ai, needs_revive, is_arrested
 			if prime_target.unit_type == unit_type_teammate then
 				local record = managers.groupai:state():all_criminals()[prime_target.unit:key()]
@@ -64,11 +62,11 @@ function PlayerStandard:_get_intimidation_action(prime_target, char_table, amoun
 
 				if is_teammate_ai or is_converted and is_owned_minion then
 					local player_need_revive = self._unit:character_damage():need_revive()
-					local wp = managers.hud and managers.hud._hud.waypoints['CustomWaypoint_localplayer']
+					local wp_position = managers.hud and managers.hud:gcw_get_my_custom_waypoint()
 					if player_need_revive or kpr_mode == 1
-						or (not lsecondary and Keepers.settings.filter_only_stop_calls and not Keepers:IsFiltering())
-						or (prime_target.unit:base().kpr_is_keeper and not wp)
-						or (is_teammate_ai and prime_target.unit:base().kpr_following_peer_id ~= peer_id and not wp)
+						or (not secondary and Keepers.settings.filter_only_stop_calls and not Keepers:IsFiltering())
+						or (prime_target.unit:base().kpr_is_keeper and not wp_position)
+						or (is_teammate_ai and prime_target.unit:base().kpr_following_peer_id ~= peer_id and not wp_position)
 					then
 						Keepers:SendState(prime_target.unit, Keepers:GetLuaNetworkingText(peer_id, prime_target.unit, 1), false)
 						if is_converted and not player_need_revive then
@@ -87,7 +85,7 @@ function PlayerStandard:_get_intimidation_action(prime_target, char_table, amoun
 						end
 						Keepers:SendState(prime_target.unit, Keepers:GetLuaNetworkingText(peer_id, prime_target.unit, kpr_mode), true)
 						Keepers:ShowCovers(prime_target.unit)
-						if wp then
+						if wp_position then
 							self:say_line('f40_any', managers.groupai:state():whisper_mode())
 							if not self:_is_using_bipod() then
 								self:_play_distance_interact_redirect(TimerManager:game():time(), 'cmd_gogo')
@@ -97,6 +95,7 @@ function PlayerStandard:_get_intimidation_action(prime_target, char_table, amoun
 							return 'ai_stay', false, prime_target
 						end
 					end
+					secondary = false
 				end
 			end
 		end

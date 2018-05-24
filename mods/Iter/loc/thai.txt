@@ -6,7 +6,6 @@
 	"itr_options_streamline_path_desc" : "ปรับปรุงเส้นทางให้ดียิ่งขึ้น, จัดลำดับสิ่งต่างๆ ให้ดียิ่งขึ้น เช่น บันได",
 
 	"itr_options_map_change_jolly_desc" : "เพิ่มการเข้าถึงบันไดทั้ง 4 ตัวที่นำไปสู่สะพาน",
-	"itr_options_map_change_wwh_desc" : "ปรับปรุงปัญญาประดิษฐ์ให้เข้าถึงเรือได้ (ตำแหน่งหัวเรือ)",
 	"itr_options_map_change_gallery_desc" : "เพิ่มการเข้าถึงห้องโถงใหญ่เมื่อประตูหน้าทุกบานถูกปิด",
 	"itr_options_map_change_branchbank_desc" : "ทำให้มั่นใจว่า AI สามารถเข้าไปในห้องนิรภัยได้",
 	"itr_options_map_change_pbr_desc" : "ปรับปรุงให้ปัญญาประดิษฐ์สามารถใช้ทางเข้า 2 ทางไปสู่ห้องควบคุม",
@@ -15,7 +14,6 @@
 	"itr_options_map_change_pbr2_desc" : "ปรับปรุงให้สามารถเข้าถึงหลังคาของสถานีบริการน้ำมัน",
 	"itr_options_map_change_mad_desc" : "ปรับปรุงปัญหากำแพงที่สามารถถูกทำลายโดยจรวดที่อยู่ทางฝั่งซ้าย",
 	"itr_options_map_change_brb_desc" : "ปรับปรุงการเข้าถึงทางเข้าท่อระบายน้ำ",
-	"itr_options_map_change_cage_desc" : "แก้ไขปัญหาคอมพิวเตอร์ไม่สามารถใช้งานได้จากการเปิดใช้ 'เครื่องตัดสัญญาณ' หรือ ECM",
 	"itr_options_map_change_rat_desc" : "เพิ่มการเข้าถึงหลังคาสำหรับบอท",
 	"itr_options_map_change_dah_desc" : "เพิ่มประสิทธิภาพ",
 	"itr_options_map_change_family_desc" : "ปรับปรุงประตูระหว่างห้องรักษาความปลอดภัยและร้านขายเพชรเมื่อประตูถูกเปิดโดยปัญญาประดิษฐ์",

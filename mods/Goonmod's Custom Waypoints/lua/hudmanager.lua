@@ -52,3 +52,20 @@ function HUDManager:_update_waypoints(t, dt)
 		end
 	end
 end
+
+function HUDManager:gcw_get_custom_waypoint_by_peer(peer_id)
+	local mine
+	if peer_id then
+		local local_peer_id = managers.network:session():local_peer():id()
+		mine = peer_id == local_peer_id
+	else
+		mine = true
+	end
+
+	local waypoint = self._hud and self._hud.waypoints[_prefix .. (mine and 'localplayer' or peer_id)]
+	return waypoint and waypoint.position or nil
+end
+
+function HUDManager:gcw_get_my_custom_waypoint()
+	return self:gcw_get_custom_waypoint_by_peer()
+end

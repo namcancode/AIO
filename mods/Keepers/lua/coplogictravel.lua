@@ -1,6 +1,15 @@
 local key = ModPath .. '	' .. RequiredScript
 if _G[key] then return else _G[key] = true end
 
+local kpr_original_coplogictravel_enter = CopLogicTravel.enter
+function CopLogicTravel.enter(data, new_logic_name, enter_params)
+	kpr_original_coplogictravel_enter(data, new_logic_name, enter_params)
+
+	if data.is_converted then
+		data.internal_data.itr_direct_to_pos = data.unit:base().kpr_keep_position
+	end
+end
+
 local kpr_original_coplogictravel_determinedestinationoccupation = CopLogicTravel._determine_destination_occupation
 function CopLogicTravel._determine_destination_occupation(data, objective)
 	local occupation
@@ -30,6 +39,7 @@ function CopLogicTravel._on_destination_reached(data)
 		if data.unit:movement().throw_bag then
 			data.unit:movement():throw_bag(data.unit)
 		end
+		data.objective.kpr_drop_carry = nil
 	end
 
 	kpr_original_coplogictravel_ondestinationreached(data)

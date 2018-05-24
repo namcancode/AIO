@@ -28,19 +28,14 @@ function MoreWeaponStats:Save()
 end
 
 Hooks:Add('LocalizationManagerPostInit', 'LocalizationManagerPostInit_MoreWeaponStats', function(loc)
-	if BLT.Localization._current == 'cht' or BLT.Localization._current == 'zh-cn' then
-		loc:load_localization_file(MoreWeaponStats._path .. 'loc/chinese.txt')
-
-	else
-		for _, filename in pairs(file.GetFiles(MoreWeaponStats._path .. 'loc/')) do
-			local str = filename:match('^(.*).txt$')
-			if str and Idstring(str) and Idstring(str):key() == SystemInfo:language():key() then
-				loc:load_localization_file(MoreWeaponStats._path .. 'loc/' .. filename)
-				break
-			end
+	for _, filename in pairs(file.GetFiles(MoreWeaponStats._path .. 'loc/')) do
+		local str = filename:match('^(.*).txt$')
+		if str and Idstring(str) and Idstring(str):key() == SystemInfo:language():key() then
+			loc:load_localization_file(MoreWeaponStats._path .. 'loc/' .. filename)
+			break
 		end
 	end
-
+	
 	loc:load_localization_file(MoreWeaponStats._path .. 'loc/english.txt', false)
 end)
 
@@ -53,7 +48,7 @@ Hooks:Add('MenuManagerInitialize', 'MenuManagerInitialize_MoreWeaponStats', func
 	MenuCallbackHandler.MoreWeaponStatsShowSpreadAndRecoil = function(this, item)
 		MoreWeaponStats.settings.show_spread_and_recoil = item:value() == 'on'
 	end
-
+	
 	MenuCallbackHandler.MoreWeaponStatsFillBreakpoints = function(this, item)
 		MoreWeaponStats.settings.fill_breakpoints = item:value() == 'on'
 	end

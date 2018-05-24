@@ -35,7 +35,7 @@ function CopLogicAttack._update_cover(data)
 				local near_pos = data.unit:base().kpr_keep_position
 				local best_cover = my_data.best_cover
 				if near_pos and (not best_cover or not CopLogicAttack._verify_follow_cover(best_cover[1], near_pos, threat_pos, 200, 1000)) and not my_data.processing_cover_path and not my_data.charge_path_search_id then
-					local found_cover = managers.navigation:find_cover_near_pos_1(near_pos, threat_pos, 400, 400, true)
+					local found_cover = managers.navigation:find_cover_near_pos_1(near_pos, threat_pos, 400, 0, true)
 					if found_cover then
 						local better_cover = {found_cover}
 						CopLogicAttack._set_best_cover(data, my_data, better_cover)
