@@ -527,7 +527,7 @@ if RequiredScript == "lib/managers/hudmanager" then
 				-- },
 				health_shield = {
 					type = "icon",
-					show = true,
+					show = false,
 					scale = 1.65,
 					-- texture = "guis/textures/pd2/hud_shield",
 					--texture_rect = {0, 0, 64, 64},
@@ -552,7 +552,7 @@ if RequiredScript == "lib/managers/hudmanager" then
 				},
 				name = {
 					type = "label",
-					show = true,
+					show = false,
 					-- text = WolfHUD:getCharacterName(unit_tweak, true)
 				},
 				kills = {
