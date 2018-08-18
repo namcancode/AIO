@@ -3,7 +3,7 @@ if _G[key] then return else _G[key] = true end
 
 Hooks:PostHook(HostNetworkSession, 'on_peer_sync_complete' , 'HostNetworkSessionOnPeerSyncComplete_KPR' , function(self, peer, peer_id)
 	if managers.groupai then
-		for ukey, unit in pairs(managers.groupai:state()._converted_police) do
+		for _, unit in pairs(managers.groupai:state()._converted_police) do
 			local owner_peer_id = unit:base().kpr_minion_owner_peer_id
 			if owner_peer_id then
 				local convert_enemies_health_multiplier_level = 0

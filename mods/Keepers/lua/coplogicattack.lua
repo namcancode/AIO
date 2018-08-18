@@ -3,11 +3,8 @@ if _G[key] then return else _G[key] = true end
 
 local kpr_original_coplogicattack_actiontaken = CopLogicAttack.action_taken
 function CopLogicAttack.action_taken(data, my_data)
-	if data.is_converted then
-		local u_base = data.unit:base()
-		if u_base.kpr_is_keeper and u_base.kpr_mode == 2 then
-			return true
-		end
+	if data.is_converted and data.kpr_is_keeper and data.kpr_mode == 2 then
+		return true
 	end
 
 	return kpr_original_coplogicattack_actiontaken(data, my_data)
@@ -15,7 +12,7 @@ end
 
 local kpr_original_coplogicattack_chkwantstotakecover = CopLogicAttack._chk_wants_to_take_cover
 function CopLogicAttack._chk_wants_to_take_cover(data, my_data)
-	if data.unit:base().kpr_is_keeper and not Keepers:CanSearchForCover(data.unit) then
+	if data.kpr_is_keeper and not Keepers:CanSearchForCover(data.unit) then
 		return false
 	end
 
@@ -24,7 +21,7 @@ end
 
 local kpr_original_coplogicattack_updatecover = CopLogicAttack._update_cover
 function CopLogicAttack._update_cover(data)
-	if data.unit:base().kpr_mode ~= 2 then
+	if data.kpr_mode ~= 2 then
 		local attention_obj = data.attention_obj
 		if attention_obj and attention_obj.nav_tracker and attention_obj.reaction >= AIAttentionObject.REACT_COMBAT then
 			local my_data = data.internal_data
@@ -32,7 +29,7 @@ function CopLogicAttack._update_cover(data)
 			if find_new then
 				local enemy_tracker = attention_obj.nav_tracker
 				local threat_pos = enemy_tracker:field_position()
-				local near_pos = data.unit:base().kpr_keep_position
+				local near_pos = data.kpr_keep_position
 				local best_cover = my_data.best_cover
 				if near_pos and (not best_cover or not CopLogicAttack._verify_follow_cover(best_cover[1], near_pos, threat_pos, 200, 1000)) and not my_data.processing_cover_path and not my_data.charge_path_search_id then
 					local found_cover = managers.navigation:find_cover_near_pos_1(near_pos, threat_pos, 400, 0, true)

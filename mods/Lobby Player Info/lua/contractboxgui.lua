@@ -1,6 +1,7 @@
 local key = ModPath .. '	' .. RequiredScript
 if _G[key] then return else _G[key] = true end
 
+dofile(ModPath .. 'lua/_lpi.lua')
 dofile(ModPath .. 'lua/contractboxgui_teambox.lua')
 
 local lpi_original_contractboxgui_init = ContractBoxGui.init

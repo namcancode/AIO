@@ -1,3 +1,7 @@
+Revision 136:
+- fixed wrong id for a few options (making it not possible to change from default value)
+- cleaned up store and access to Keepers' variables
+
 Revision 135:
 - added support for Iter's direct-to-pos functionality
 

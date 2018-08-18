@@ -53,7 +53,7 @@
 
 		{
 			"type" : "toggle",
-			"id" : "kpr_toggle_show_joker_health",
+			"id" : "show_joker_health",
 			"title" : "kpr_options_show_joker_health_title",
 			"description" : "kpr_options_show_joker_health_desc",
 			"callback" : "KeepersMenuCheckboxClbk",
@@ -61,7 +61,7 @@
 		},
 		{
 			"type" : "toggle",
-			"id" : "kpr_toggle_show_my_joker_name",
+			"id" : "show_my_joker_name",
 			"title" : "kpr_options_show_my_joker_name_title",
 			"description" : "kpr_options_show_my_joker_name_desc",
 			"callback" : "KeepersMenuCheckboxClbk",
@@ -77,7 +77,7 @@
 		},
 		{
 			"type" : "toggle",
-			"id" : "kpr_toggle_send_my_joker_name",
+			"id" : "send_my_joker_name",
 			"title" : "kpr_options_send_my_joker_name_title",
 			"description" : "kpr_options_send_my_joker_name_desc",
 			"callback" : "KeepersMenuCheckboxClbk",
@@ -85,7 +85,7 @@
 		},
 		{
 			"type" : "toggle",
-			"id" : "kpr_toggle_show_other_jokers_names",
+			"id" : "show_other_jokers_names",
 			"title" : "kpr_options_show_other_jokers_names_title",
 			"description" : "kpr_options_show_other_jokers_names_desc",
 			"callback" : "KeepersMenuCheckboxClbk",
@@ -93,7 +93,7 @@
 		},
 		{
 			"type" : "toggle",
-			"id" : "kpr_toggle_joker_speed",
+			"id" : "jokers_run_like_teamais",
 			"title" : "kpr_options_joker_speed_title",
 			"description" : "kpr_options_joker_speed_desc",
 			"callback" : "KeepersMenuCheckboxClbk",

@@ -6,7 +6,7 @@ function CopLogicTravel.enter(data, new_logic_name, enter_params)
 	kpr_original_coplogictravel_enter(data, new_logic_name, enter_params)
 
 	if data.is_converted then
-		data.internal_data.itr_direct_to_pos = data.unit:base().kpr_keep_position
+		data.internal_data.itr_direct_to_pos = data.kpr_keep_position
 	end
 end
 
@@ -14,7 +14,7 @@ local kpr_original_coplogictravel_determinedestinationoccupation = CopLogicTrave
 function CopLogicTravel._determine_destination_occupation(data, objective)
 	local occupation
 
-	local keep_position = data.unit:base().kpr_keep_position
+	local keep_position = data.kpr_keep_position
 	if keep_position then
 		occupation = {type = 'defend', cover = false, pos = keep_position}
 	else

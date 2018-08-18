@@ -8,6 +8,6 @@ function TeamAILogicTravel.enter(data, new_logic_name, enter_params)
 	if data.objective and data.objective.type ~= 'follow' and data.objective.pos then
 		data.internal_data.itr_direct_to_pos = data.objective.pos
 	else
-		data.internal_data.itr_direct_to_pos = data.unit:base().kpr_keep_position
+		data.internal_data.itr_direct_to_pos = data.kpr_keep_position
 	end
 end

@@ -210,7 +210,12 @@ if RequiredScript == "lib/managers/hudmanager" then
 				show = true,
 				text = text
 			},
-			component_order = { { "icon", "label" } },
+			debug_txt = {
+				type = "label",
+				show = HUDManager.CUSTOM_WAYPOINTS.DEBUGGING,
+				text = string.format("Editor ID: %s", (unit:editor_id() or "N/A")),
+			},
+			component_order = { { "icon", "label" }, { "debug_txt" } },
 		}
 		managers.waypoints:add_waypoint(id, "CustomWaypoint", params)
 	end
@@ -511,20 +516,20 @@ if RequiredScript == "lib/managers/hudmanager" then
 				offset = Vector3(0, 0, 30),
 				fade_angle = { start_angle = 10, end_angle = 1, final_scale = 0.4 },
 				scale = 1.25,
-				health_bar = {
-					type = "icon",
-					show = true,
-					scale = 1.65,
-					texture = "guis/textures/pd2/hud_health",
-					--texture_rect = {0, 0, 64, 64},
-					radial_image = true,
-					color = Color(data.health_ratio or 1, 1, 1),
-				},
+				-- health_bar = {
+				-- 	type = "icon",
+				-- 	show = true,
+				-- 	scale = 1.65,
+				-- 	texture = "guis/textures/pd2/hud_health",
+				-- 	--texture_rect = {0, 0, 64, 64},
+				-- 	radial_image = true,
+				-- 	color = Color(data.health_ratio or 1, 1, 1),
+				-- },
 				health_shield = {
 					type = "icon",
 					show = true,
 					scale = 1.65,
-					texture = "guis/textures/pd2/hud_shield",
+					-- texture = "guis/textures/pd2/hud_shield",
 					--texture_rect = {0, 0, 64, 64},
 					color = Color.white,
 					alpha = 0.2,
@@ -533,14 +538,14 @@ if RequiredScript == "lib/managers/hudmanager" then
 					type = "icon",
 					show = true,
 					scale = 1.65,
-					texture = "guis/textures/pd2/hud_radialbg",
+					-- texture = "guis/textures/pd2/hud_radialbg",
 					--texture_rect = {0, 0, 64, 64},
 				},
 				health_dmg = {
 					type = "icon",
-					show = true,
-					scale = 1.65,
-					texture = "guis/textures/pd2/hud_radial_rim",
+					show = false,
+					scale = 0,
+					-- texture = "guis/textures/pd2/hud_radial_rim",
 					--texture_rect = {0, 0, 64, 64},
 					color = Color.red,
 					alpha = 0,
@@ -548,7 +553,7 @@ if RequiredScript == "lib/managers/hudmanager" then
 				name = {
 					type = "label",
 					show = true,
-					text = WolfHUD:getCharacterName(unit_tweak, true)
+					-- text = WolfHUD:getCharacterName(unit_tweak, true)
 				},
 				kills = {
 					type = "label",

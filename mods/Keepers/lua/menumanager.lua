@@ -240,8 +240,9 @@ function Keepers:GetStayObjective(unit, drop_carry)
 		'pd2_defend',
 		'pd2_escape'
 	}
-	local kpr_mode = unit:base().kpr_mode
-	local keep_position = unit:base().kpr_keep_position
+	local ub = unit:base()
+	local kpr_mode = ub.kpr_mode
+	local keep_position = ub.kpr_keep_position
 	if kpr_mode == 3 or kpr_mode == 4 then
 		return {
 			type = 'defend_area',
@@ -408,6 +409,7 @@ function Keepers:SetState(unit_text_ref, is_keeper)
 	end
 
 	if Network:is_server() then
+		local new_objective
 		local previous_kpr_is_keeper = u_base.kpr_is_keeper
 		local previous_kpr_mode = u_base.kpr_mode
 		local u_brain = unit:brain()
@@ -424,7 +426,7 @@ function Keepers:SetState(unit_text_ref, is_keeper)
 					u_base.kpr_keep_position = nil
 				end
 				if so ~= u_brain:objective() then
-					u_brain:set_objective(so)
+					new_objective = so
 				end
 			else
 				local wp_pos = self:GetGoonModWaypointPosition(peer_id)
@@ -450,7 +452,7 @@ function Keepers:SetState(unit_text_ref, is_keeper)
 				u_base.kpr_is_keeper = true
 				u_base.kpr_mode = tonumber(data.mode)
 				u_base.kpr_keep_position = mvec3_cpy(dest_pos)
-				u_brain:set_objective(self:GetStayObjective(unit, wp_is_ok))
+				new_objective = self:GetStayObjective(unit, wp_is_ok)
 			end
 		else
 			u_base.kpr_is_keeper = false
@@ -467,7 +469,17 @@ function Keepers:SetState(unit_text_ref, is_keeper)
 				called = true,
 				pos = peer_unit:movement():nav_tracker():field_position(),
 			}
-			u_brain:set_objective(obj)
+			new_objective = obj
+		end
+
+		if u_brain._logic_data then
+			u_brain._logic_data.kpr_is_keeper = u_base.kpr_is_keeper
+			u_brain._logic_data.kpr_mode = u_base.kpr_mode
+			u_brain._logic_data.kpr_keep_position = u_base.kpr_keep_position
+		end
+
+		if new_objective then
+			u_brain:set_objective(new_objective)
 		end
 
 		local change = previous_kpr_is_keeper ~= u_base.kpr_is_keeper or previous_kpr_mode ~= u_base.kpr_mode

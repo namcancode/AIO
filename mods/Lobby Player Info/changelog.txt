@@ -1,4 +1,10 @@
-﻿Revision 65:
+﻿Revision 67:
+- updated to U186
+
+Revision 66:
+- removed all menu editing stuff (moved to Restructured Menu)
+
+Revision 65:
 - changed placement of teambox when no contract data is available
 - removed menu entry "story line" from lobby (accessible via crimenet)
 - added Steam API support (set your key in mods/saves/lobby_player_info.txt)
