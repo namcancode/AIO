@@ -783,7 +783,7 @@ elseif level_id == 'arm_for' then
 		local function move_room(id, from, to)
 			data.vis_groups[seg2vg[from]].rooms[id] = nil
 			data.vis_groups[seg2vg[to]].rooms[id] = true
-			data.room_vis_groups[id] = to
+			data.room_vis_groups[id] = seg2vg[to]
 		end
 
 		-- 2701 and 2703 are clones, that's a new level of fucked up

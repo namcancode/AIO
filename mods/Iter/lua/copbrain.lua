@@ -50,22 +50,19 @@ local itr_original_copbrain_clbkcoarsepathingresults = CopBrain.clbk_coarse_path
 function CopBrain:clbk_coarse_pathing_results(search_id, path)
 	cur_pos = nil
 	if path then
-		path[1][2] = self._logic_data.m_pos
+		local data = self._logic_data
+		if not data.internal_data.itr_direct_to_pos then
+			path[1][2] = data.m_pos
 
-		local objective = self._logic_data.objective
-		if objective then
-			if objective.follow_unit then
+			local objective = data.objective
+			if objective and objective.follow_unit then
 				path[#path][2] = objective.follow_unit:position()
-			else
-				local dest_pos = self._unit:base().kpr_keep_position
-				if dest_pos then
-					path[#path][2] = dest_pos
-				end
 			end
-		end
 
-		path = managers.navigation:itr_streamline(path, self._SO_access)
+			path = managers.navigation:itr_streamline(path, self._SO_access)
+		end
 	end
+
 	itr_original_copbrain_clbkcoarsepathingresults(self, search_id, path)
 end
 

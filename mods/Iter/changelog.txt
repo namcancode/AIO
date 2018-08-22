@@ -1,3 +1,6 @@
+Revision 107:
+- fixed more cases of stuck guards (than done in r99)
+
 Revision 106:
 - [Transport Train] fixed half-baked fix
 - reworked fix for _optimize_path()
