@@ -20,23 +20,6 @@
 		},
 		{
 			"type" : "multiple_choice",
-			"id" : "speed_choice",
-			"title" : "speed_choice_title",
-			"description" : "speed_choice_desc",
-			"callback" : "callback_speed_choice",
-			"items" : [
-				"speed_choice_very_slow",
-				"speed_choice_slow",
-				"speed_choice_normal",
-				"speed_choice_fast",
-				"speed_choice_very_fast",
-				"speed_choice_lightning"
-			],
-			"value" : "speed",
-			"default_value" : 5
-		},
-		{
-			"type" : "multiple_choice",
 			"id" : "move_choice",
 			"title" : "move_choice_title",
 			"description" : "move_choice_desc",
@@ -64,6 +47,27 @@
 			],
 			"value" : "dodge",
 			"default_value" : 4
+		},
+		{
+			"type" : "multiple_choice",
+			"id" : "dmgmul_choice",
+			"title" : "dmgmul_choice_title",
+			"description" : "dmgmul_choice_desc",
+			"callback" : "callback_dmgmul_choice",
+			"items" : [
+				"dmgmul_choice_1",
+				"dmgmul_choice_2",
+				"dmgmul_choice_3",
+				"dmgmul_choice_4",
+				"dmgmul_choice_5",
+				"dmgmul_choice_6",
+				"dmgmul_choice_7",
+				"dmgmul_choice_8",
+				"dmgmul_choice_9",
+				"dmgmul_choice_10"
+			],
+			"value" : "dmgmul",
+			"default_value" : 5
 		},
 		{
 			"type" : "toggle",

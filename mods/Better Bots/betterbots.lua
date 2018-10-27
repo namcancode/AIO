@@ -37,16 +37,16 @@ Hooks:Add( "MenuManagerInitialize", "MenuManagerInitialize_BB", function( menu_m
 		BB._data.health = item:value()
 		BB:Save()
 	end
-	MenuCallbackHandler.callback_speed_choice = function(self, item)
-		BB._data.speed = item:value()
-		BB:Save()
-	end
 	MenuCallbackHandler.callback_move_choice = function(self, item)
 		BB._data.move = item:value()
 		BB:Save()
 	end
 	MenuCallbackHandler.callback_dodge_choice = function(self, item)
 		BB._data.dodge = item:value()
+		BB:Save()
+	end
+	MenuCallbackHandler.callback_dmgmul_choice = function(self, item)
+		BB._data.dmgmul = item:value()
 		BB:Save()
 	end
 	MenuCallbackHandler.callback_firemode_toggle = function(self, item)
@@ -254,7 +254,9 @@ if RequiredScript == "lib/managers/enemymanager" then
 					end
 				end
 				if teammate_tasks then
-					self._queue_buffer = 0
+					if self._queue_buffer then
+						self._queue_buffer = 0
+					end
 				end
 			end
 		end
@@ -313,7 +315,7 @@ if RequiredScript == "lib/tweak_data/weapontweakdata" then
 						v.DAMAGE = 1.5
 						if v.auto then
 							if v.auto.fire_rate then
-								v.auto.fire_rate = 0.15
+								v.auto.fire_rate = 0.2
 							end
 						end
 					end
@@ -330,16 +332,13 @@ if RequiredScript == "lib/tweak_data/weapontweakdata" then
 			self.ben_crew.anim_usage = "is_shotgun_pump"
 			self.ching_crew.usage = "is_pistol"
 			self.ching_crew.anim_usage = "is_rifle"
-			self.m95_crew.DAMAGE = 3
 		end
 	end
 end
 
 if RequiredScript == "lib/managers/criminalsmanager" then
 	local p = pairs
-	local settings = Global and Global.game_settings
-	local is_offline = settings and settings.single_player
-	local difficulty = settings and settings.difficulty or "normal"
+	local is_offline = Global and Global.game_settings and Global.game_settings.single_player
 	local is_server = Network:is_server()
 	local total_chars = CriminalsManager.get_num_characters()
 	CriminalsManager.MAX_NR_TEAM_AI = BB._data.biglob and total_chars or 3
@@ -349,7 +348,6 @@ if RequiredScript == "lib/managers/criminalsmanager" then
 		if char_preset then
 			local params = {
 				health = { nil, 75, 144 },
-				speed = { "very_slow", "slow", "normal", "fast", "very_fast", "lightning" },
 				dodge = { "poor", "average", "heavy", "athletic", "ninja" }
 			}
 			local char_damage = char_preset.gang_member_damage
@@ -360,9 +358,8 @@ if RequiredScript == "lib/managers/criminalsmanager" then
 			end
 			local gang_weapon = char_preset.weapon.gang_member
 			if gang_weapon then
-				local speed_bot = params.speed[BB._data.speed or 5]
 				local dodge_bot = params.dodge[BB._data.dodge or 4]
-				local diff_index = tweak_data:difficulty_to_index(difficulty)
+				local damage_bot = BB._data.dmgmul or 5
 				for k, v in p(gang_weapon) do
 					v.focus_delay = 0
 					v.aim_delay = { 0, 0 }
@@ -374,12 +371,12 @@ if RequiredScript == "lib/managers/criminalsmanager" then
 							{
 								r = 1500,
 								acc = { 1, 1 },
-								dmg_mul = diff_index,
-								recoil = { 0.15, 0.15 },
+								dmg_mul = damage_bot,
+								recoil = { 0.2, 0.2 },
 								mode = { 0, 0, 0, 1 }
 							},
 							{
-								r = 15000,
+								r = 4500,
 								acc = { 1, 1 },
 								dmg_mul = 1,
 								recoil = { 1, 1 },
@@ -394,7 +391,7 @@ if RequiredScript == "lib/managers/criminalsmanager" then
 							v.no_run_start = true
 							v.no_run_stop = true
 							v.always_face_enemy = true
-							v.move_speed = is_server and char_preset.move_speed[speed_bot] or v.move_speed
+							v.move_speed = is_server and char_preset.move_speed.lightning or v.move_speed
 							if BB._data.move == 2 then
 								v.dodge = char_preset.dodge[dodge_bot]
 							elseif BB._data.move == 3 then
@@ -404,9 +401,9 @@ if RequiredScript == "lib/managers/criminalsmanager" then
 							v.weapon = deep_clone(gang_weapon)
 							v.weapon.weapons_of_choice = orig
 							if BB._data.combat then
-								v.weapon.is_sniper.FALLOFF[1].dmg_mul = diff_index * 7
+								v.weapon.is_sniper.FALLOFF[1].dmg_mul = damage_bot * 5
 								v.weapon.is_sniper.FALLOFF[1].recoil = { 1, 1 }
-								v.weapon.is_shotgun_pump.FALLOFF[1].dmg_mul = diff_index * 3
+								v.weapon.is_shotgun_pump.FALLOFF[1].dmg_mul = damage_bot * 2.5
 								v.weapon.is_shotgun_pump.FALLOFF[1].recoil = { 0.5, 0.5 }
 							end
 						end
@@ -555,7 +552,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 	local w = World
 	local REACT_COMBAT = AIAttentionObject.REACT_COMBAT
 	function TeamAILogicIdle._get_priority_attention(data, attention_objects, reaction_func)
-		local best_target, best_target_priority_slot, best_target_priority, best_target_reaction
+		local best_target, best_target_priority, best_target_reaction
 		local att_obj = data.attention_obj
 		local unit = data.unit
 		local head_pos = unit:movement():m_head_pos()
@@ -571,44 +568,44 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 						if reaction >= REACT_COMBAT then
 							local target_priority = attention_data.verified_dis
 							if target_priority then
-								local target_priority_slot = 9
+								local target_priority_mod = 1
 								if attention_data.verified then
 									local char_tweak = attention_data.char_tweak
-									if attention_data.is_shield then
-										local is_shielded = w:raycast("ray", head_pos, attention_data.m_head_pos, "ignore_unit", {unit}, "slot_mask", 8)
-										local melee_range = is_team_ai and target_priority <= 200
-										if has_ap or melee_range or not is_shielded then
-											target_priority_slot = 6
-										end
-									elseif att_obj and att_obj.u_key == u_key then
-										target_priority_slot = 1
+									if att_obj and att_obj.u_key == u_key then
+										target_priority_mod = 9
 									elseif char_tweak then
 										local special_shout = char_tweak.priority_shout
 										if special_shout then
 											local can_heal = att_unit:base():has_tag("medic")
-											if can_heal then
-												target_priority_slot = 2
-											elseif special_shout == "f34" then
-												target_priority_slot = 3
+											if special_shout == "f34" then
+												target_priority_mod = 8
+											elseif can_heal then
+												target_priority_mod = 7
 											elseif attention_data.is_very_dangerous then
-												target_priority_slot = 4
+												target_priority_mod = 6
+											elseif attention_data.is_shield then
+												local is_shielded = w:raycast("ray", head_pos, attention_data.m_head_pos, "ignore_unit", {unit}, "slot_mask", 8)
+												local melee_range = is_team_ai and target_priority <= 200
+												if has_ap or melee_range or not is_shielded then
+													target_priority_mod = 5
+												end
 											else
-												target_priority_slot = 5
+												target_priority_mod = 4
 											end
 										else
-											target_priority_slot = 7
+											target_priority_mod = 3
 										end
 									else
-										target_priority_slot = 8
+										target_priority_mod = 2
 									end
 								end
-								if not best_target_priority_slot or best_target_priority_slot >= target_priority_slot then
+								if target_priority_mod then
+									target_priority = target_priority/target_priority_mod
 									if not best_target_priority or best_target_priority > target_priority then
 										local cop_key = cops_to_intimidate[u_key]
 										local intimidation_in_progress = cop_key and data.t - cop_key < BB.grace_period
 										if not intimidation_in_progress then
 											best_target = attention_data
-											best_target_priority_slot = target_priority_slot
 											best_target_priority = target_priority
 											best_target_reaction = reaction
 										end
@@ -620,7 +617,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicidle" then
 				end
 			end
 		end
-		return best_target, best_target_priority_slot, best_target_reaction
+		return best_target, best_target_priority, best_target_reaction
 	end
 	function TeamAILogicIdle._find_intimidateable_civilians(criminal, use_default_shout_shape, max_angle, max_dis)
 		local best_civ
@@ -686,15 +683,17 @@ end
 
 if RequiredScript == "lib/units/player_team/logics/teamailogicassault" then
 	local p = pairs
+	local w = World
 	local REACT_COMBAT = AIAttentionObject.REACT_COMBAT
 	local math_ceil = math.ceil
-	function TeamAILogicAssault.find_enemy_to_mark(enemies)
+	function TeamAILogicAssault.find_enemy_to_mark(enemies, my_unit)
 		local best_nmy, best_nmy_wgt
-		local player_manager = managers.player
-		local get_contour = player_manager:get_contour_for_marked_enemy()
-		local has_ap = player_manager:has_category_upgrade("team", "crew_ai_ap_ammo")
-		for key, attention_info in p(enemies) do
-			if not attention_info.is_shield or has_ap then
+		if my_unit then
+			local player_manager = managers.player
+			local get_contour = player_manager:get_contour_for_marked_enemy()
+			local has_ap = player_manager:has_category_upgrade("team", "crew_ai_ap_ammo")
+			local head_pos = my_unit:movement():m_head_pos()
+			for key, attention_info in p(enemies) do
 				if attention_info.identified then
 					if attention_info.verified or attention_info.nearly_visible then
 						local att_unit = attention_info.unit
@@ -707,12 +706,17 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicassault" then
 									if char_tweak and char_tweak.priority_shout or is_turret then
 										local dis = attention_info.verified_dis
 										if dis <= 3000 then
-											if not best_nmy_wgt or best_nmy_wgt > dis then
-												local u_contour = att_unit:contour()
-												local c_id = is_turret and "mark_unit_dangerous" or get_contour
-												if not u_contour._contour_list or not u_contour:has_id(c_id) then
-													best_nmy_wgt = dis
-													best_nmy = att_unit
+											local is_shield = attention_info.is_shield
+											local shielded = w:raycast("ray", head_pos, attention_info.m_head_pos, "ignore_unit", {my_unit}, "slot_mask", 8)
+											local can_hit = has_ap or dis <= 200 or not shielded
+											if not is_shield or can_hit then
+												if not best_nmy_wgt or best_nmy_wgt > dis then
+													local u_contour = att_unit:contour()
+													local c_id = is_turret and "mark_unit_dangerous" or get_contour
+													if not u_contour._contour_list or not u_contour:has_id(c_id) then
+														best_nmy_wgt = dis
+														best_nmy = att_unit
+													end
 												end
 											end
 										end
@@ -774,7 +778,7 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicbase" then
 	local math_ceil = math.ceil
 	local REACT_COMBAT = AIAttentionObject.REACT_COMBAT
 	local function _find_enemy_to_intimidate(data)
-		local best_nmy, best_priority, best_dis, targets
+		local best_nmy, best_dis, targets
 		local look_vec = data.unit:movement():m_rot():y()
 		local has_room = managers.groupai:state():has_room_for_police_hostage()
 		if BB._data.dom then
@@ -793,22 +797,22 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicbase" then
 				if unit:in_slot(12, 22) then
 					if u_char.verified then
 						local intim_dis = u_char.verified_dis
-						if intim_dis <= 1200 then
-							local vec = u_char.m_pos - data.m_pos
-							if mvec3_angle(vec, look_vec) <= 90 then
-								local char_tweak = u_char.char_tweak
-								if char_tweak.surrender then
-									if not char_tweak.priority_shout then
-										if unit:inventory():get_weapon() then
-											local anim_data = unit:anim_data()
-											if has_room or (anim_data.hands_back or anim_data.surrender) then
-												local is_hurt = unit:character_damage():health_ratio() < 1
-												local intim_priority = anim_data.hands_back and 1 or anim_data.surrender and 2 or is_hurt and 3
-												if intim_priority then
-													if not best_priority or best_priority >= intim_priority then
+						if intim_dis then
+							if intim_dis <= 1200 then
+								local vec = u_char.m_pos - data.m_pos
+								if mvec3_angle(vec, look_vec) <= 90 then
+									local char_tweak = u_char.char_tweak
+									if char_tweak.surrender then
+										if not char_tweak.priority_shout then
+											if unit:inventory():get_weapon() then
+												local anim_data = unit:anim_data()
+												if has_room or (anim_data.hands_back or anim_data.surrender) then
+													local is_hurt = unit:character_damage():health_ratio() < 1
+													local intim_priority = anim_data.hands_back and 3 or anim_data.surrender and 2 or is_hurt and 1
+													if intim_priority then
+														intim_dis = intim_dis/intim_priority
 														if not best_dis or best_dis > intim_dis then
 															best_nmy = unit
-															best_priority = intim_priority
 															best_dis = intim_dis
 														end
 													end
@@ -918,14 +922,17 @@ if RequiredScript == "lib/units/player_team/logics/teamailogicbase" then
 							local is_reloading = anim_data.reload and false or true
 							local civ = TeamAILogicIdle.find_civilian_to_intimidate(unit, 90, 1200)
 							local dom = _find_enemy_to_intimidate(data)
-							local nmy = TeamAILogicAssault.find_enemy_to_mark(data.detected_attention_objects)
+							local nmy = TeamAILogicAssault.find_enemy_to_mark(data.detected_attention_objects, unit)
 							my_data._intimidate_t = t
 							if civ then
 								TeamAILogicIdle.intimidate_civilians(data, unit, true, is_reloading)
 							elseif dom then
 								_intimidate_law_enforcement(data, dom, is_reloading)
 							elseif nmy then
-								TeamAILogicAssault.mark_enemy(data, unit, nmy, true, is_reloading)
+								if not TeamAILogicBase._mark_t or TeamAILogicBase._mark_t + 2 < t then
+									TeamAILogicAssault.mark_enemy(data, unit, nmy, true, is_reloading)
+									TeamAILogicBase._mark_t = t
+								end
 							end
 						end
 					end
@@ -1056,7 +1063,7 @@ if RequiredScript == "lib/units/enemies/cop/logics/coplogicbase" then
 								if att_handler then
 									local settings = att_handler:get_attention(my_access, min_reaction, max_reaction, my_team)
 									if settings then
-										local attention_pos = att_handler._m_head_pos
+										local attention_pos = att_handler:get_detection_m_pos()
 										local vis_ray = w:raycast("ray", my_pos, attention_pos, "slot_mask", slotmask, "ray_type", "ai_vision")
 										if not vis_ray or vis_ray.unit:key() == u_key then
 											local att_obj = CopLogicBase._create_detected_attention_object_data(t, unit, u_key, attention_info, settings)

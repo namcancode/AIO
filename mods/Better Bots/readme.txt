@@ -1,132 +1,65 @@
-List of Features
-----------------
+Better Bots, version 43
+=======================
 
-- Bots will automatically mark Tasers when they are tased
-- Bots can dominate cops
-- Bots can melee enemies, knocking them down and dealing half of their health in damage
-- Bots can dominate, intimidate, and mark NPCs independently, rather than sharing a timer for these actions
-- Additionally, bots will not mark enemies who are already marked, increasing the variety of marked enemies;
-  the code for marking has also been improved for efficiency
-- Furthermore, bots will now mark turrets
-- Bots are included in the difficulty calculations by the game, allowing for a more human game experience
-- Bots have had their "aim delay" and "focus delay" values set to 0, enabling them to aim and shoot at enemies
-  immediately
-- Bots can now hit targets at any range, including Snipers
-- Bots have had their "run_start" and "run_stop" animations removed, enabling them to better keep up with
-  players
-- Bots will use human player outlines in offline mode
-- Bots can shoot through one another and even hostages, so no more dead dominated cops
-- Bots will not drop their bags if they can inspire the player or the bag is light enough to run with
-- Further, bots' movement penalty when carrying bags is now similar to human players
-- Bots will wear the Lightweight Ballistic Vest and either a doctor bag or ammo bag (chosen at random) to
-  make them appear more human (note that the bags cannot be deployed and the armor does not increase their
-  durability, both are purely cosmetic)
-- Bots will automatically reload their weapons if they are out of combat and their magazines are at least
-  half empty, rather than only reloading when their mags are totally dry
-- Bots' targeting has been overhauled, prioritizing enemies based on distance and focusing on specials
-- The bots' code for intimidating civilians has been improved and optimized for performance; bots will
-  shout at civilians immediately if they are not on the floor, no matter what
-- Bots' reactions have been streamlined and optimized for faster reflexes and target acquisition
-- Many of these changes will also apply to Jokers, such as the improved targeting and reloading out of combat
-- Bots will no longer attempt to revive teammates who are already in the process of being revived
-- Bots will count for the "crew alive" experience and money bonus at the end of the heist in offline mode
+- Dominating: Bots will assist human players in dominating enemies. If a player shouts at an enemy to dominate him or tases him with the Electric Brass Knuckles or the Buzzer, the bots will immediately stop targeting him, regardless as to whether the enemy can actually be dominated. If "Bots Dominate Cops Independently" is turned on, they will shout at cops within range who can be dominated on their own.
 
-Explanation of Options
-----------------------
+- Marking: Bots' marking code has been optimized (generally, the vanilla code checks for multiple conditions all at once; the modified code breaks those checks down in order of conditions most likely to fail to least), they can now also mark turrets and they will not mark enemies who are already marked. Furthermore, they will only mark Shields if they can hit them; meaning, if the Shield is within melee range, the bot has the AP rounds booster, and/or the Shield is turned around. The bots will also mark enemies independently; in the vanilla code, all three bots share the same timer. Also, the bots only mark enemies within 30 meters, the same as human players; this further reduces the amount of chatter at any given time. Finally, the bots will automatically mark any Taser as soon as he tases them.
 
-"Bot Health": Changes the bot health amount. The options are as follows (default is "Default"):
-	- "Default": Vanilla health behaviour.
-	- "No Scaling (750)": Removes the scaling factor from the vanilla health; bots will be as
-	  durable on OD as they are on Normal.
-	- "Zeal (1440)": Gives the bots the health of a ZEAL Team member on One Down difficulty.
+- Chatter: Bots' "war cries" can be disabled, reducing the amount of general chatter while also making bots sound more human.
 
-"Bot Speed": Changes the bot speed. Max is "Lightning" (the speed of Cloakers), default is
-"Very Fast." Options are "Very Slow," "Slow," "Normal," "Fast," "Very Fast," and "Lightning."
-The speeds are based on the NPCs' default speeds.
+- Melee: Bots can melee non-special enemies (other than Shields) within 2 meters. Doing so will cause 50% damage to the enemy while knocking him over. If the enemy is a Shield, the Shield will be knocked over as if the bot had aced Shock and Awe; normally this will not do any damage but if the Shield is turned around, it will do 50% damage like with other enemies. The bots can also melee more than one enemy at once, allowing them to handle swarms of enemies at close range.
 
-"Bot Movement": There are two alternative movement rules that the bots can follow. The default
-is "Default." The options are:
-	- "Default": No special movement rules.
-	- "Dodge": Bots will roll around and dive to avoid damage, much like enemy cops can do.
-	  Choose what type of dodging in the "Dodge Type" option.
-	- "No Crouching": This prevents the bots from ever crouching. This keeps them standing
-	  up and engaging the enemy.
-	
-"Dodge Type": Changes what type of dodging the bots will use. Default is "Athletic"; the
-highest is "Ninja," which is what Cloakers use. Note that "Bot Movement" must be set to "Dodge"
-in order for this setting to work.
+- Health: Players can choose between three different health options for bots. "Default" is the default health for vanilla bots; this varies depending on difficulty and can be as high as 8000 on Death Sentence. "ZEAL" is the health amount that heavy ZEAL units used before the difficulty overhaul that gave OD units the same health as on DW, being 1440. "No Scaling" is the baseline health for bots that is used on the lowest difficulty before scaling multipliers, which is 750; this is also the amount of health for bots on all difficulties in Payday: The Heist. Players can also enable bots announcing that their health is low; when the bot's health reaches 20% or less, they will ask for a doctor bag (bots cannot actually use doctor bags but it serves the same purpose).
 
-"Bots Have One Down": While bots do not have a set number of downs (nor can have any, as there
-wouldn't be any way to restore those downs), this option will essentially give the bots a
-single down (in reality, it sets their "down timer" to zero). Once a bot goes down to damage
-(not by incapacitation, such as Cloakers and Tasers), it will immediately go into custody.
-This is a good option for those who think bots are too tanky and want an additional challenge.
+- Offline: The mod includes multiple changes to make offline mode more similar to playing with other human players. In offline mode, bots will use the same colored outlines as human players. Normally, offline mode provides a boost to armor regen speed; the mod removes this. The vanilla game does not include all the bots into the enemy spawn/difficulty calculations (ie, in offline mode, the highest spawns will only match three players and not four); the mod counts all bots as human players for the purposes of those calculations. Lastly, players will normally not get the "crew alive" bonus when playing offline; the mod adds this to offline mode and calculates bots as if they were human players for this bonus.
 
-"Bots Arrested By Cloakers": This option, if checked, will cause bots to be arrested by
-Cloakers (like in Payday: The Heist) rather than incapacitated. This option does not work in
-public lobbies, only friends-only, private, and offline mode.
+- Intelligence: The mod removes the "focus" and "aim" delays for the bots, which are arbitrary ways that the vanilla game tries to make the bots more human-like and instead makes them slow and sluggish; their shooting range is also increased to that of Snipers, allowing the bots to actually target them. Additionally, there is the option to enable "Hyper Reflexes." Ordinarily, the game has a list of "tasks" to execute (aiming at a target, moving from one location to another, shooting, etc). The game will execute these tasks in batches (so, a certain number at a time) until all have been executed, then repeats with a new list; this occurs every frame. With the Hyper Reflexes option, the mod executes all tasks assigned to bots and Jokers first, then executes other AI tasks in the usual batch format. Furthermore, this option will also cause bots and Jokers to immediately identify enemies; normally, there is a delay in how long it takes for a bot to identify an enemy, much like the detection meter in stealth except much faster. With this option enabled, they will instantly identify enemies, drastically improving their reaction times. Note that if you use TdlQ's Full Speed Swarm, you do not need this option enabled.
 
-"Disable Warcries": The bots have unique voicelines that play during an assault wave called warcries.
-Human players don't have these, and if your game is modded so that NPC actions are faster (ie, Brand0's
-AI Improver or TdlQ's Full Speed Swarm) then the bots will almost constantly be talking. If this annoys you
-or you just want the bots to sound like human players, this option will disable those warcries.
+- Reviving: If one player starts reviving another player or bot that a bot has already been assigned to revive, the bot will immediately stop trying to revive the player/bot and return to their usual duties. Additionally, if a bot is carrying a bag with which they can still run (paintings, coke, etc) and/or they have the Inspire booster and the Inspire cooldown is not active, they will not drop the bag to revive the player.
 
-"Bots Announce Low Health": While the bots will regenerate their health regularly, it can be useful to know
-when they're taking too much punishment. Enabling this option will cause the bots to call out for a doctor bag
-when they are below 20% of their max health (same as human players). This also has the effect of making the 
-bots sound more human.
+- Carrying: In addition to the changes to bag dropping rules in the event that a player is downed, the mod also changes how the speed reduction due to bag carrying is calculated; in short, the bots will move at the same speed as human players when they carry bags.
 
-"Bots Dominate Cops Independently": Normally, the bots will assist in dominating cops whom you are shouting
-at and/or tasered enemies, but will not attempt to dominate any enemies on their own. Additionally, enemies
-you shout at or tase will not be attacked by the bots at all for ten seconds, regardless if the domination
-attempt was successful. Enabling this option will force the bots to attempt to dominate cops within their
-shout range, even if you aren't trying to dominate any cops yourself.
+- Shooting: The mod edits the "slotmask" of the bots' bullets so that they no longer impact with dominated cops, Jokers, or other bots. A "slotmask" is, in short, a categorization for every rendered object to determine how they should interact with each other; for instance, objects with some slotmasks can be shot through while others cannot, dead bodies are a different slotmask from living enemies despite sharing the same model, etc.
 
-"Big Lobby": As the name implies, enabling this option will populate the available player slots with bots when
-using the Big Lobby mod.
+- Intimidation: The code for bots' intimidation of civilians has been optimized (specifically, the vanilla code checks for a collection of conditions to be true all at once, whereas the mod's code breaks these checks down individually, so if one is failed then it does not continue to check the others) and the bots will be more aggressive about keeping civilians on the ground. Essentially, if a civilian is not on the floor then they will shout at them, no matter what.
 
-"Hyper Reflexes": This option will drastically improve the speed of bots' reactions. While this does make the
-bots extremely alert to all enemies, it can have a potential framerate impact. Leave this unchecked if you run
-into performance issues.
+- Stealth: Ordinarily, the bots will wait until the alarm has gone off before masking up to assist the player. The mod has an option to enable instant masking up as soon as a loud sound has been made (gunshots, saw, etc).
 
-"Mask Up Upon Alert": Normally, the bots only mask up when the actual alarm has gone off. Enabling this option will
-cause them to mask up immediately upon an aggressive alert being made (gunshots, explosions, etc).
+- Reloading: The vanilla bots only reload their weapons when their magazines are completely empty; with the mod, the bots will reload their weapons when they are not engaged in combat if their magazines are at or below 40% capacity. Jokers will do the same, but at 60%.
 
-"Disable Bot Equipment": Checking this option will cause the bots to not wear the lightweight ballistic vest and a
-doctor/ammo bag, like vanilla bots.
+- Ammo: The mod includes the option to disable ammo pickups if an enemy is killed by a bot; this loosely simulates having teammates who will expend (and thus, collect) ammo, since it is otherwise impossible and impractical to make the bots use ammo.
 
-"Combat Improvements": Enabling this option will give the bots improved damage/accuracy/etc values that have been
-rebalanced to more closely resemble human players. Keep this off if you use other mods that affect these values,
-such as Bot Weapons.
+- Movement: The bots' movement speed has been increased to that of Cloakers. Additionally, their "run_stop" and "run_stop" animations have been removed, allowing them to start and stop following instantly and better keep up with players.
 
-"Bot Kills Do Not Drop Ammo": With this option enabled, enemies won't drop ammo if they are killed by teammate AI.
-This loosely approximates ammo consumption by the bots (think of it as the bots grabbing the pickups immediately)
-and also prevents the issue of bots farming ammo for the player, resulting in a more realistic experience overall.
+- Dodge: The mod adds the ability for the bots to dodge, using the different presets used by the enemy AI. Whenever a bot dodges, they cannot receive damage during the duration of the dodge animation. Alternatively, the player can force the bots to always stand and never crouch, forcing them to always engage the enemy.
 
-Credits and Contributions
--------------------------
+- Cloakers: The mod has an option to cause Cloakers to arrest bots like they did in Payday: The Heist. Note that this does not work in public lobbies, only private and offline.
 
-Schmuddel - Creator of BB; maintenance of updates and bug fixes
-Spruebox - Contributor and co-creator of BB
-TdlQ - Fixed bots shooting at Shields and rewrote parts of code to avoid the need for updates
-	with additional heisters; wrote the language changing code; prevented the bots from targeting
-	tasered cops; various input in all aspects of the mod, particularly involving optimization for
-	performance
-Darkenednunit100 - Rewrote and simplified parts of the code, specifically the sections meant for 
-	player customization; wrote the entirety of the bot domination code; general contributions to
-	all aspects of the mod
-topfpflanzen-würger - Advice and assistance on certain features; created BotWeapons and
-	collaborated on making it compatible with BB; wrote the bot damage lerp code
-Sandman/Droidaka - Inspiration and advice; crucial to the development of certain features,
-	general performance, and maintenance
-Frankelstner - Dumped and decoded mission scripts and wrote the code needed to edit them; also
-	created The Long Guide, which was an invaluable resource
-Yaph1l - Dumped the LUA code of the game, without which no modding would be possible; pointed
-	out Frankelstner's mission script dumps
-LycanCHKN - Contributed the Italian localization
-PsychoticFalcon - Contributed the Swedish localization
-chrom[K]a - Contributed the Russian localization
-shadows - Contributed the Chinese localization
-SC - Advice on disabling the "run_stop" and "run_start" animations and general feedback; wrote the code
-	fixing the bots' bag carrying speed
-Punk Foxy - Bug reporting and testing; general feedback
+- One Down: There is an option to cause the bots to immediately go into custody as soon as they are downed, which can add a layer of challenge and can compensate for the fact that bots have infinitely recharging health.
+
+- Equipment: By default, the mod will give each bot the Lightweight Ballistic Vest and either a doctor bag or ammo bag. This is purely cosmetic and can be disabled in the options menu.
+
+- Big Lobby: If the player uses the Big Lobby mod, there is an option to populate all the player slots with bots.
+
+- Jokers: Many of the bots' improvements will also apply to Jokers, such as the increased reaction time and better targeting.
+
+- Targeting: The bots' targeting has been completely overhauled. In brief, the bots take the distance of each enemy. That distance is then divided by a priority modifier. If a bot already has a target, then that modifier is 9 (meaning, the distance is divided by 9). Snipers have a modifier of 8, enemies who can heal (meaning, MediDozers and Medics) are 7, Tasers and Cloakers (specials who can disable players, described as "is_very_dangerous" in the code) are 6, Shields who can be hit (meaning, within melee range, turned around, and/or the bot has AP rounds) are 5, all other specials are 4 (typically, this is other Dozers but also includes Winters and his minions), all other visible non-special enemies are 3, and non-human enemies (mostly, this is just turrets) are 2; non-visible enemies do not have their distance modified. The bot then targets the enemy with the smallest resulting distance value.
+
+- Combat: The mod includes an option to overhaul the bots' combat abilities to more closely resemble human players. In brief, every weapon starts at 15 damage and can be fired every 0.2 seconds. All weapons have a 100% chance to hit within a narrow spread (only 5 degrees), meaning they won't dump most of their rounds in a Dozer's body when his faceplate has yet to be destroyed. Pump-action shotguns can be fired every 0.5 seconds; to compensate for this, they do 2.5 times more damage as well. Sniper rifles fire 1 time per second, but do 5 times more damage as a result. The weapons have a damage multiplier that the player can choose in the options menu; the default is a 5x multiplier but it can be as high as 10x (so, a normal weapon will do 150 damage and snipers and pump-action shotguns will be even higher than that). Weapons will have max damage and fire frequency up to 15 meters; after that, they will linearly decrease in both until the damage multiplier becomes 1x and the fire frequency is 1 time per second upon reaching 45 meters and beyond. DMRs will fire in semi-auto mode only, weak shotguns like the M1014 will fire at the 0.2 times per second frequency unlike pump-action shotguns but do less damage as a result (meaning, they do not get the 2.5 multiplier mentioned before), and all automatic weapons fire in full automatic mode; double barreled shotguns follow the same rules as pump-action shotguns. Note that Hoppip's Bot Weapons and Equipment mod has its own weapon damage/accuracy/etc changes; if you use that mod then this option should not be enabled.
+
+Credits
+-------
+
+Schmuddel
+Spruebox
+TdlQ
+Easternunit100
+Hoppip
+SC
+Sandman/Droidaka
+LycanCHKN
+chrom[K]a
+PsychoticFalcon
+DerSushy
+shadows
+Punk Foxy
