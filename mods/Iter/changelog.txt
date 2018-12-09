@@ -1,3 +1,6 @@
+Revision 108:
+- [Slaughterhouse] fixed accessibility to the top of a container
+
 Revision 107:
 - fixed more cases of stuck guards (than done in r99)
 

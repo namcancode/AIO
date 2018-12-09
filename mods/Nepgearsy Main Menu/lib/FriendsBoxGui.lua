@@ -1,3 +1,5 @@
+local steam_api = Steam
+
 FriendsBoxGui = FriendsBoxGui or class(TextBoxGui)
 function FriendsBoxGui:init(ws)
 	self._type = type
@@ -12,6 +14,7 @@ function FriendsBoxGui:init(ws)
 	config.no_scroll_legend = true
 
 	self._users = {}
+	self._friends_updated = false
 	self._steam_retrieved_infamy = -1
 	self._steam_retrieved_level = -1
 	self._steam_data_user = {}
@@ -106,7 +109,7 @@ function FriendsBoxGui:_create_text_box(ws, title, text, content_data, config)
         y = 0,
         x = 3,
         color = Color(0.75, 0.75, 0.75),
-        visible = not Steam:logged_on()
+        visible = not steam_api:logged_on()
     })
     local _, _, tw, th = ingame_text:text_rect()
 
@@ -235,7 +238,7 @@ function FriendsBoxGui:_create_user(h, user, state, sub_state, level, is_in_lobb
 		texture = "guis/textures/pd2/none_icon"
 	})
 
-	Steam:friend_avatar(2, user:id(), function (texture)
+	steam_api:friend_avatar(2, user:id(), function (texture)
 		texture = texture or "guis/textures/pd2/none_icon"
 		avatar:set_image(texture)
 	end)
@@ -370,136 +373,138 @@ function FriendsBoxGui:_create_user(h, user, state, sub_state, level, is_in_lobb
 end
 
 function FriendsBoxGui:update_friends()
-	if not Steam:logged_on() then
+	if not steam_api:logged_on() then
 		return
 	end
+	
+	if not self._friends_updated then
+		for _, user in pairs(steam_api:friends()) do
+			local main_state, sub_state = nil
+			local state = user:state()
+			local rich_presence_status = user:rich_presence("status")
+			local full_rich_presence_status = user:rich_presence("status")
+			local rich_presence_level = user:rich_presence("level")
+			local rich_presence_rank = user:rich_presence("infamy")
+			local rich_presence_loadout = user:rich_presence("loadout_data")
+			local payday1 = rich_presence_level == ""
+			local playing_this = user:playing_this()
+			local infamy = 0
 
-	local friends = Steam:friends() or {}
-
-	for _, user in pairs(friends) do
-
-		local main_state, sub_state = nil
-		local state = user:state()
-		local rich_presence_status = user:rich_presence("status")
-		local full_rich_presence_status = user:rich_presence("status")
-		local rich_presence_level = user:rich_presence("level")
-		local rich_presence_rank = user:rich_presence("infamy")
-		local rich_presence_loadout = user:rich_presence("loadout_data")
-		local payday1 = rich_presence_level == ""
-		local playing_this = user:playing_this()
-		local infamy = 0
-
-		local skill_points_invested = {
-			mastermind = user:rich_presence("amount_skillpoints_mastermind"),
-			enforcer = user:rich_presence("amount_skillpoints_enforcer"),
-			technician = user:rich_presence("amount_skillpoints_technician"),
-			ghost = user:rich_presence("amount_skillpoints_ghost"),
-			fugitive = user:rich_presence("amount_skillpoints_fugitive")
-		}
-
-		local loadout = {
-			primary = {
-				info_text = user:rich_presence("loadout_primary_name"),
-				item_texture = user:rich_presence("loadout_primary_texture"),
-				item_bg_texture = user:rich_presence("loadout_primary_rarity"),
-				info_text_color = user:rich_presence("loadout_primary_rarity_text_color")
-			},
-			secondary = {
-				info_text = user:rich_presence("loadout_secondary_name"),
-				item_texture = user:rich_presence("loadout_secondary_texture"),
-				item_bg_texture = user:rich_presence("loadout_secondary_rarity"),
-				info_text_color = user:rich_presence("loadout_secondary_rarity_text_color")
-			},
-			melee_weapon = {
-				item_texture = user:rich_presence("loadout_melee_texture")
-			},
-			grenade = {
-				item_texture = user:rich_presence("loadout_throwable_texture")
-			},
-			deployable = {
-				item_texture = user:rich_presence("loadout_deployable_texture")
+			local skill_points_invested = {
+				mastermind = user:rich_presence("amount_skillpoints_mastermind"),
+				enforcer = user:rich_presence("amount_skillpoints_enforcer"),
+				technician = user:rich_presence("amount_skillpoints_technician"),
+				ghost = user:rich_presence("amount_skillpoints_ghost"),
+				fugitive = user:rich_presence("amount_skillpoints_fugitive")
 			}
-		}
 
-		local personal_description = user:rich_presence("personal_description")
+			local loadout = {
+				primary = {
+					info_text = user:rich_presence("loadout_primary_name"),
+					item_texture = user:rich_presence("loadout_primary_texture"),
+					item_bg_texture = user:rich_presence("loadout_primary_rarity"),
+					info_text_color = user:rich_presence("loadout_primary_rarity_text_color")
+				},
+				secondary = {
+					info_text = user:rich_presence("loadout_secondary_name"),
+					item_texture = user:rich_presence("loadout_secondary_texture"),
+					item_bg_texture = user:rich_presence("loadout_secondary_rarity"),
+					info_text_color = user:rich_presence("loadout_secondary_rarity_text_color")
+				},
+				melee_weapon = {
+					item_texture = user:rich_presence("loadout_melee_texture")
+				},
+				grenade = {
+					item_texture = user:rich_presence("loadout_throwable_texture")
+				},
+				deployable = {
+					item_texture = user:rich_presence("loadout_deployable_texture")
+				}
+			}
 
-		local s = string.find(rich_presence_status, "\n")
+			local personal_description = user:rich_presence("personal_description")
 
-		if rich_presence_rank == "" or nil then
-			-- Nothing
-		else
-			if tonumber(rich_presence_rank) > 0 then
-				infamy = tonumber(rich_presence_rank)
-			end
-		end
+			local s = string.find(rich_presence_status, "\n")
 
-		if s then
-			rich_presence_status = string.gsub(rich_presence_status, "(\n)", ", ")
-		end
-
-		if playing_this then
-			main_state = "ingame"
-
-			if state == "invalid" then
-				state = managers.localization:text("nepmenu_friendlist_status_ltp")
-			end
-
-			sub_state = managers.localization:text("nepmenu_friendlist_status_ingame", {state = state})
-		elseif state == "online" or state == "away" or state == "busy" or state == "snooze" or state == "invalid" then
-
-			if state == "invalid" then
-				state = managers.localization:text("nepmenu_friendlist_status_ltp")
-			end
-
-			main_state = "online"
-			sub_state = state
-		else
-			main_state = state
-			sub_state = state
-		end
-
-		if user:lobby() and rich_presence_status ~= "" then
-			--local numbers = managers.network.matchmake:_lobby_to_numbers(user:lobby())
-			sub_state = rich_presence_status or managers.localization:text("nepmenu_friendlist_status_ingame_joinable")
-		elseif rich_presence_status == "" then
-			if main_state == "ingame" then
+			if rich_presence_rank == "" or nil then
 				-- Nothing
-			elseif main_state == "offline" then
-				-- Nothing
+			else
+				if tonumber(rich_presence_rank) > 0 then
+					infamy = tonumber(rich_presence_rank)
+				end
 			end
-		else
-			sub_state = managers.localization:text("nepmenu_friendlist_status_ingame_not_joinable")
+
+			if s then
+				rich_presence_status = string.gsub(rich_presence_status, "(\n)", ", ")
+			end
+
+			if playing_this then
+				main_state = "ingame"
+
+				if state == "invalid" then
+					state = managers.localization:text("nepmenu_friendlist_status_ltp")
+				end
+
+				sub_state = managers.localization:text("nepmenu_friendlist_status_ingame", {state = state})
+			elseif state == "online" or state == "away" or state == "busy" or state == "snooze" or state == "invalid" then
+
+				if state == "invalid" then
+					state = managers.localization:text("nepmenu_friendlist_status_ltp")
+				end
+
+				main_state = "online"
+				sub_state = state
+			else
+				main_state = state
+				sub_state = state
+			end
+
+			if user:lobby() and rich_presence_status ~= "" then
+				--local numbers = managers.network.matchmake:_lobby_to_numbers(user:lobby())
+				sub_state = rich_presence_status or managers.localization:text("nepmenu_friendlist_status_ingame_joinable")
+			elseif rich_presence_status == "" then
+				if main_state == "ingame" then
+					-- Nothing
+				elseif main_state == "offline" then
+					-- Nothing
+				end
+			else
+				sub_state = managers.localization:text("nepmenu_friendlist_status_ingame_not_joinable")
+			end
+
+			self._users[user:id()] = self._users[user:id()] or {}
+			local user_tbl = self._users[user:id()]
+			user_tbl.user = user
+			user_tbl.main_state = main_state
+			user_tbl.sub_state = sub_state
+			user_tbl.f_sub_state = full_rich_presence_status
+			user_tbl.lobby = user:lobby()
+			user_tbl.level = rich_presence_level
+			user_tbl.payday1 = payday1
+			user_tbl.infamy = infamy
+			user_tbl.loadout = loadout
+			user_tbl.skill_points_invested = skill_points_invested
+			user_tbl.personal_description = personal_description
 		end
 
-		self._users[user:id()] = self._users[user:id()] or {}
-		local user_tbl = self._users[user:id()]
-		user_tbl.user = user
-		user_tbl.main_state = main_state
-		user_tbl.sub_state = sub_state
-		user_tbl.f_sub_state = full_rich_presence_status
-		user_tbl.lobby = user:lobby()
-		user_tbl.level = rich_presence_level
-		user_tbl.payday1 = payday1
-		user_tbl.infamy = infamy
-		user_tbl.loadout = loadout
-		user_tbl.skill_points_invested = skill_points_invested
-		user_tbl.personal_description = personal_description
-	end
 
-	self._canvas:clear()
+		self._canvas:clear()
 
-	for _, user in pairs(self._users) do
-		user.panel = nil
-		if user.main_state == "ingame" then
-			user.panel = self:_create_user(0, user.user, "ingame", user.sub_state, user.level, user.lobby, user.infamy)
-		elseif user.main_state == "online" then
-			user.panel = self:_create_user(0, user.user, "online", user.sub_state, user.level, user.lobby, user.infamy)
-		else
-			user.panel = self:_create_user(0, user.user, "offline", user.sub_state, user.level, user.lobby, user.infamy)
+		for _, user in pairs(self._users) do
+			user.panel = nil
+			if user.main_state == "ingame" then
+				user.panel = self:_create_user(0, user.user, "ingame", user.sub_state, user.level, user.lobby, user.infamy)
+			elseif user.main_state == "online" then
+				user.panel = self:_create_user(0, user.user, "online", user.sub_state, user.level, user.lobby, user.infamy)
+			else
+				user.panel = self:_create_user(0, user.user, "offline", user.sub_state, user.level, user.lobby, user.infamy)
+			end
 		end
-	end
 
-	self:_layout_friends_panel()
+		self:_layout_friends_panel()
+
+		self._friends_updated = true
+	end
 end
 
 function FriendsBoxGui:_get_user_panel(id)
@@ -524,7 +529,7 @@ end
 
 function FriendsBoxGui:mouse_pressed(button, x, y)
 
-	if not Steam:logged_on() then
+	if not steam_api:logged_on() then
 		return
 	end
 
@@ -669,7 +674,7 @@ function FriendsBoxGui:set_size(x, y)
 	local friends_panel = self._scroll_panel:child("friends_panel")
 	friends_panel:set_w(self._scroll_panel:w())
 
-	if not Steam:logged_on() then
+	if not steam_api:logged_on() then
 		return
 	end
 

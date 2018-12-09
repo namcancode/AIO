@@ -292,6 +292,14 @@
 		},
 		{
 			"type" : "toggle",
+			"id" : "map_change_dinner",
+			"title" : "itr_options_map_change_dinner_title",
+			"description" : "itr_options_map_change_dinner_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "map_change_dinner"
+		},
+		{
+			"type" : "toggle",
 			"id" : "map_change_watchdogs_1",
 			"title" : "itr_options_map_change_watchdogs_1_title",
 			"description" : "itr_options_map_change_watchdogs_1_desc",

@@ -1,5 +1,10 @@
 dofile(ModPath .. "lib/FriendLoadoutGui.lua")
 
+Hooks:PostHook(MenuComponentManager, "init", "post_init_change_refresh_time", function(self)
+	self._REFRESH_FRIENDS_TIME = 10
+	self._refresh_friends_t = TimerManager:main():time() + self._REFRESH_FRIENDS_TIME
+end)
+
 Hooks:Add("MenuComponentManagerInitialize", "NepgearsyCreateNewMenu", function(menu)
 	menu._active_components["friend_loadout"] = { create = callback(menu, menu, "_create_friend_loadout_gui"), close = callback(menu, menu, "close_friend_loadout_gui") }
 end)

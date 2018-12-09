@@ -133,6 +133,11 @@ if string.lower(RequiredScript) == "lib/managers/hud/newhudstatsscreen" then
 	function HUDStatsScreen:recreate_right(...)
 		if WolfHUD:getSetting({"TabStats", "ENABLED"}, true) then
 			self._use_tab_stats = true
+
+			if self._destroy_player_info then -- Enhanced Crew Loadout compatability
+				self:_destroy_player_info()
+			end
+
 			self._right:clear()
 			self._right:bitmap({
 				texture = "guis/textures/test_blur_df",
@@ -155,6 +160,10 @@ if string.lower(RequiredScript) == "lib/managers/hud/newhudstatsscreen" then
 			local stats_panel = ExtendedPanel:new(self._right, { w = self._right:w(), h = self._right:h() })
 			self:_create_stat_list(stats_panel)
 			self:_update_stats_list(stats_panel)
+		
+			if self._create_player_info then -- Enhanced Crew Loadout compatability
+				self:_create_player_info()
+			end
 		else
 			recreate_right_original(self, ...)
 		end
@@ -1237,20 +1246,6 @@ elseif string.lower(RequiredScript) == "lib/managers/menu/stageendscreengui" the
 		new_data.session_damage = tostring(managers.statistics:session_damage_string())
 
 		feed_statistics_original(self, new_data, ...)
-	end
-
-	-- Make broken objective counter look less weird...
-	function StatsTabItem:feed_statistics(stats_data, ...)
-		local new_stats_data = clone(stats_data) or {}
-		if managers.statistics:started_session_from_beginning() then
-			new_stats_data.completed_objectives = managers.localization:text("menu_completed_objectives_of", {
-				COMPLETED = stats_data.total_objectives,
-				TOTAL = stats_data.total_objectives,
-				PERCENT = stats_data.completed_ratio
-			})
-		end
-
-		feed_item_statistics_original(self, new_stats_data, ...)
 	end
 elseif string.lower(RequiredScript) == "lib/managers/crimespreemanager" then
 	function CrimeSpreeManager:get_potential_payout_from_current_stage(reward_id)

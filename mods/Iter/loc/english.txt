@@ -107,6 +107,9 @@
 	"itr_options_map_change_arm_for_title" : "$heist_arm_for",
 	"itr_options_map_change_arm_for_desc" : "fixed accessibility in the entrance of TF-WAGON 1 which is close to TF-WAGON 2\nfixed AI access to vaults opened during stealth",
 
+	"itr_options_map_change_dinner_title" : "$heist_dinner",
+	"itr_options_map_change_dinner_desc" : "fixed accessibility to the top of a container",
+
 	"itr_options_map_change_watchdogs_1_title" : "$heist_watchdogs ($heist_watchdogs_1_hl)",
 	"itr_options_map_change_watchdogs_1_desc" : "fixed navigation around police car in front of spawn truck"
 }

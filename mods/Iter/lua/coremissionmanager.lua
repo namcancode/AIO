@@ -19,6 +19,7 @@ Iter.settings = {
 	map_change_chill_combat = true,
 	map_change_crojob2 = true,
 	map_change_dah = true,
+	map_change_dinner = true,
 	map_change_escape_garage = true,
 	map_change_family = true,
 	map_change_firestarter_1 = true,

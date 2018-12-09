@@ -1086,6 +1086,19 @@ elseif level_id == 'jewelry_store' then
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
 
+elseif level_id == 'dinner' then
+
+	local itr_original_navigationmanager_addobstacle = NavigationManager.add_obstacle
+	function NavigationManager:add_obstacle(obstacle_unit, ...)
+		if obstacle_unit:unit_data().unit_id == 102343 then
+			local pos = obstacle_unit:position()
+			mvector3.set_z(pos, pos.z - 10)
+			obstacle_unit:set_position(pos)
+		end
+
+		itr_original_navigationmanager_addobstacle(self, obstacle_unit, ...)
+	end
+
 elseif level_id == 'flat' then
 
 	local downed_obstacle_units = {}
